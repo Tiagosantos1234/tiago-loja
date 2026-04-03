@@ -4,7 +4,8 @@
 const SUPABASE_URL = "https://nmosbabyarqnmihihalu.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_RrPDyew7vfhihy3WvrNr6w_zZJ3kLql";
 
-const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+window.supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const supabaseClient = window.supabaseClient;
 
 // =====================
 // STATE
@@ -34,8 +35,18 @@ document.addEventListener("DOMContentLoaded", () => {
   checkUser();
 });
 
-window.addEventListener("load", () => {
+window.addEventListener("load", async () => {
   document.body.classList.add("loaded");
+
+  await checkUser();
+  await loadUserUI();
+  await updateHeaderUser();
+
+  const { data } = await supabaseClient.auth.getSession();
+
+  if (data?.session?.user) {
+    checkUser();
+  }
 });
 
 // =====================
@@ -104,6 +115,7 @@ function getProductCategory(product) {
 // =====================
 // HEADER / HERO
 // =====================
+
 function initHeader() {
   const header = document.querySelector(".topbar");
   const heroBg = document.getElementById("heroBg");
@@ -577,11 +589,6 @@ async function logout() {
   location.reload()
 }
 
-window.addEventListener("load", () => {
-  checkUser()
-  loadUserUI()
-})
-
 
 // =====================
 // CHECKOUT MERCADO PAGO
@@ -624,24 +631,17 @@ window.loginWithGoogle = async function () {
     const { error } = await supabaseClient.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: window.location.origin
+        redirectTo: window.location.origin + "/"
       }
     });
 
     if (error) throw error;
+
   } catch (err) {
     console.error("Erro no login Google:", err);
     showToast("Erro no login Google");
   }
 };
-
-window.addEventListener("load", async () => {
-  const { data } = await supabaseClient.auth.getSession()
-
-  if (data?.session?.user) {
-    checkUser()
-  }
-})
 
 async function loadProfile() {
   const { data } = await supabaseClient.auth.getUser()

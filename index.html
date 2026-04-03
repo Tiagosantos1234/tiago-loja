@@ -21,8 +21,6 @@
   <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-<script src="./js/script.js"></script>
 
 <body class="grain">
   <div class="overlay" id="overlay"></div>
@@ -50,7 +48,7 @@
         <div id="userContainer">
 
           <!-- DESLOGADO -->
-          <button id="loginToggle" class="user-btn">
+          <button id="loginToggleBtn" class="user-btn">
             Entrar
           </button>
 
@@ -436,7 +434,7 @@
 
         <div class="divider">ou</div>
 
-        <button class="google-btn">
+        <button class="google-btn" onclick="loginWithGoogle()">
           <img src="https://www.svgrepo.com/show/475656/google-color.svg" />
           Entrar com Google
         </button>
@@ -448,5 +446,7 @@
     <link rel="icon" href="/favicon.ico" />
 
 </body>
+
+<script src="./js/script.js"></script>
 
 </html>
