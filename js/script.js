@@ -31,6 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
   renderCart();
   showSkeleton();
   loadProducts();
+  checkUser();
 });
 
 window.addEventListener("load", () => {
@@ -488,27 +489,72 @@ function initNewsletter() {
   const form = document.getElementById("newsletterForm");
   const emailInput = document.getElementById("newsletterEmail");
 
-  form?.addEventListener("submit", async (e) => {
+  if (!form || !emailInput) return;
+
+  form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const email = emailInput?.value?.trim();
-    if (!email) return;
+    const email = emailInput.value.trim();
+
+    if (!email || !email.includes("@")) {
+      showToast("Digite um e-mail válido");
+      return;
+    }
 
     try {
       const { error } = await supabaseClient
         .from("leads")
-        .upsert([{ email }], { onConflict: "email" });
+        .upsert(
+          [{ email, created_at: new Date().toISOString() }],
+          { onConflict: "email" }
+        );
 
       if (error) throw error;
 
       form.reset();
-      showToast("E-mail cadastrado com sucesso");
+      showToast("E-mail cadastrado 🔥");
     } catch (err) {
       console.error("Erro ao salvar lead:", err);
-      showToast("Erro ao cadastrar e-mail");
+      showToast("Erro ao salvar e-mail");
     }
   });
 }
+
+async function checkUser() {
+  try {
+    const { data, error } = await supabaseClient.auth.getUser();
+
+    if (error) {
+      console.error("Erro ao buscar usuário:", error);
+      return;
+    }
+
+    if (!data?.user) return;
+
+    const user = data.user;
+
+    const { error: upsertError } = await supabaseClient.from("users").upsert(
+      [
+        {
+          id: user.id,
+          email: user.email,
+          name: user.user_metadata?.full_name || user.user_metadata?.name || "",
+          created_at: new Date().toISOString(),
+        },
+      ],
+      { onConflict: "id" }
+    );
+
+    if (upsertError) {
+      console.error("Erro ao salvar usuário:", upsertError);
+    }
+  } catch (err) {
+    console.error("Erro inesperado em checkUser:", err);
+  }
+}
+
+checkUser()
+
 
 // =====================
 // CHECKOUT MERCADO PAGO
@@ -543,5 +589,21 @@ window.startCheckout = async function () {
   } catch (err) {
     console.error("Erro checkout:", err);
     showToast("Erro ao iniciar pagamento");
+  }
+};
+
+window.loginWithGoogle = async function () {
+  try {
+    const { error } = await supabaseClient.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: window.location.origin
+      }
+    });
+
+    if (error) throw error;
+  } catch (err) {
+    console.error("Erro no login Google:", err);
+    showToast("Erro no login Google");
   }
 };
