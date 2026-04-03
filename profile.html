@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Minha Conta</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+<div class="profile-container">
+
+  <h1>Minha Conta</h1>
+
+  <div class="profile-box">
+    <h2 id="userName"></h2>
+    <p id="userEmail"></p>
+    <button onclick="logout()">Sair</button>
+  </div>
+
+  <h2>Meus Pedidos</h2>
+
+  <div id="ordersList" class="orders-grid"></div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<script src="js/script.js"></script>
+
+</body>
+</html>
+
+
+<div id="userArea" style="display:none;">
+  <h3 id="userName"></h3>
+  <p id="userEmail"></p>
+  <button onclick="logout()">Sair</button>
+</div>

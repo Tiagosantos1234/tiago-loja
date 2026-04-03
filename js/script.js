@@ -553,7 +553,25 @@ async function checkUser() {
   }
 }
 
+async function loadUserUI() {
+  const { data } = await supabaseClient.auth.getUser()
+
+  if (!data?.user) return
+
+  document.getElementById("userArea").style.display = "block"
+  document.getElementById("userName").innerText =
+    data.user.user_metadata?.full_name || "Cliente"
+  document.getElementById("userEmail").innerText =
+    data.user.email
+}
+
+async function logout() {
+  await supabaseClient.auth.signOut()
+  location.reload()
+}
+
 checkUser()
+loadUserUI()
 
 
 // =====================
@@ -607,3 +625,54 @@ window.loginWithGoogle = async function () {
     showToast("Erro no login Google");
   }
 };
+
+window.addEventListener("load", async () => {
+  const { data } = await supabaseClient.auth.getSession()
+
+  if (data?.session?.user) {
+    checkUser()
+  }
+})
+
+async function loadProfile() {
+  const { data } = await supabaseClient.auth.getUser()
+
+  if (!data?.user) {
+    window.location.href = "/"
+    return
+  }
+
+  const user = data.user
+
+  document.getElementById("userName").innerText =
+    user.user_metadata?.full_name || "Cliente"
+
+  document.getElementById("userEmail").innerText =
+    user.email
+
+  // 🔥 BUSCAR PEDIDOS
+  const { data: orders } = await supabaseClient
+    .from("orders")
+    .select("*")
+    .eq("customer_email", user.email)
+    .order("created_at", { ascending: false })
+
+  const container = document.getElementById("ordersList")
+
+  if (!orders || orders.length === 0) {
+    container.innerHTML = "<p>Nenhum pedido ainda</p>"
+    return
+  }
+
+  container.innerHTML = orders.map(order => `
+    <div class="order-card">
+      <h3>Pedido #${order.external_reference}</h3>
+      <p>Status: ${order.status}</p>
+      <p>Total: R$ ${order.total}</p>
+    </div>
+  `).join("")
+}
+
+if (window.location.pathname.includes("profile")) {
+  loadProfile()
+}

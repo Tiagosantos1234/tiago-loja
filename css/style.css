@@ -1461,3 +1461,28 @@ RESPONSIVO
     width: calc(100vw - 16px);
   }
 }
+
+.profile-container {
+  max-width: 1200px;
+  margin: 120px auto;
+  padding: 20px;
+}
+
+.profile-box {
+  background: white;
+  padding: 30px;
+  border-radius: 20px;
+  margin-bottom: 40px;
+}
+
+.orders-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px,1fr));
+  gap: 20px;
+}
+
+.order-card {
+  background: white;
+  padding: 20px;
+  border-radius: 20px;
+}

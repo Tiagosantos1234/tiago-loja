@@ -45,7 +45,7 @@ export default async function handler(req, res) {
       .insert([{
         external_reference,
         customer_name: "Cliente Site",
-        customer_email: "cliente@email.com",
+        customer_email: "user.email",
         total,
         status: "pending"
       }])
