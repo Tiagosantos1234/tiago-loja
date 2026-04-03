@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Tiago Lobo Store — Premium</title>
+
+  <meta name="description"
+    content="Loja conceito premium com estética editorial, animações suaves e carrinho lateral." />
+
+  <!-- FONT -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/style.css">
+
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body class="grain">
+  <div class="overlay" id="overlay"></div>
+
+  <header class="topbar" id="topbar">
+    <div class="container topbar-inner">
+      <nav class="nav-left" aria-label="Menu principal">
+        <a href="#drop" class="nav-link">Drop</a>
+        <a href="#editorial" class="nav-link">Editorial</a>
+        <a href="#story" class="nav-link">Manifesto</a>
+      </nav>
+
+      <div class="brand-mark">
+        <img src="logo.png" alt="Tiago Lobo Store" />
+      </div>
+
+      <div class="nav-right">
+        <a href="#benefits" class="nav-link nav-mobile">Benefícios</a>
+        <a href="#newsletter" class="nav-link">Drop List</a>
+
+        <button class="icon-btn" id="loginToggle" aria-label="Área do cliente" type="button">
+          <span>👤</span>
+        </button>
+
+        <button class="icon-btn" id="cartToggle" aria-label="Abrir carrinho" type="button">
+          <span>🛒</span>
+          <span class="cart-count" id="cartCount">0</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section class="hero" id="home">
+    <div class="hero-bg" id="heroBg"></div>
+    <div class="hero-overlay"></div>
+
+    <div class="container hero-inner">
+      <div class="hero-copy reveal is-visible">
+        <div class="eyebrow">Drop 01 • Editorial street premium</div>
+        <h1>Vista uma marca que você peita e respeita.</h1>
+        <p>
+          Peças com identidade, design autoral e presença real.
+          Criadas pra quem não passa despercebido.
+        </p>
+        <div class="hero-actions">
+          <a href="#drop" class="btn btn-primary">Ver coleção</a>
+          <a href="#editorial" class="btn btn-secondary">Comprar agora</a>
+        </div>
+      </div>
+
+      <aside class="hero-card reveal reveal-delay-1 is-visible" aria-label="Produto destaque" id="featuredProduct">
+      </aside>
+    </div>
+  </section>
+
+  <main>
+    <section id="editorial">
+      <div class="container">
+        <div class="section-head reveal">
+          <div>
+            <div class="section-kicker">Editorial</div>
+            <h2>Moda com presença, estilo e identidade.</h2>
+          </div>
+          <p>
+            Peças pensadas para unir visual moderno, conforto e personalidade em cada detalhe.
+          </p>
+        </div>
+
+        <div class="editorial-grid">
+          <article class="editorial-card reveal">
+            <img src="img/campanha.png" alt="Editorial de moda com estética premium e urbana" />
+            <div class="editorial-content">
+              <div class="section-kicker" style="color: rgba(255,255,255,.75)">Campaign 2026</div>
+              <h3>Coleção criada para destacar quem veste.</h3>
+              <p>Uma estética forte, com peças versáteis para o dia, a noite e o seu estilo.</p>
+            </div>
+          </article>
+
+          <aside class="quote-card reveal reveal-delay-1">
+            <div>
+              <div class="section-kicker">Manifesto</div>
+              <blockquote>“Mais do que roupa: presença, atitude e identidade visual.”</blockquote>
+            </div>
+            <p>
+              Uma marca feita para quem quer sair do comum e vestir algo com personalidade.
+            </p>
+            <div class="quote-metrics">
+              <div class="metric">
+                <strong>4</strong>
+                <span>Produtos prontos para demo</span>
+              </div>
+              <div class="metric">
+                <strong>100%</strong>
+                <span>Responsivo e editável</span>
+              </div>
+              <div class="metric">
+                <strong>UX</strong>
+                <span>Carrinho lateral + feedback visual</span>
+              </div>
+              <div class="metric">
+                <strong>Pro</strong>
+                <span>Visual inspirado em marca grande</span>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section id="drop">
+      <div class="container">
+        <div class="section-head reveal">
+          <div>
+            <div class="section-kicker">Drop 01</div>
+            <h2>Escolha peças que combinam com o seu estilo.</h2>
+          </div>
+          <p>Explore a coleção, escolha seus produtos favoritos e adicione ao carrinho com praticidade.</p>
+        </div>
+
+        <div class="filter-row reveal reveal-delay-1" id="filters">
+          <button class="chip active" data-filter="all" type="button">Todos</button>
+          <button class="chip" data-filter="camisetas" type="button">Camisetas</button>
+          <button class="chip" data-filter="moletons" type="button">Moletons</button>
+          <button class="chip" data-filter="acessorios" type="button">Acessórios</button>
+        </div>
+
+        <div class="carousel-controls">
+          <button type="button" onclick="scrollCarousel(-1)">←</button>
+          <button type="button" onclick="scrollCarousel(1)">→</button>
+        </div>
+
+        <div class="products-carousel">
+          <div class="products-grid" id="productsGrid"></div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="container">
+        <div class="promo-band reveal">
+          <div class="promo-copy">
+            <div class="section-kicker">Campanha</div>
+            <h3>Vista sua identidade com mais presença.</h3>
+            <p>
+              Uma coleção feita para quem busca estilo, autenticidade e peças que funcionam em qualquer ocasião.
+            </p>
+            <div class="hero-actions" style="margin-top: 24px;">
+              <a href="#benefits" class="btn btn-primary">Ver coleção</a>
+              <a href="#newsletter" class="btn btn-secondary"
+                style="color:#111; border-color: rgba(17,17,17,.12); background: rgba(17,17,17,.04);">
+                Receber novidades
+              </a>
+            </div>
+          </div>
+
+          <div class="promo-media">
+            <img src="img/midia.png" alt="Campanha de moda premium com estética editorial" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="story">
+      <div class="container">
+        <div class="section-head reveal">
+          <div>
+            <div class="section-kicker">Story</div>
+            <h2>Três motivos para escolher nossa coleção.</h2>
+          </div>
+          <p>Mais do que vestir bem, aqui você encontra estilo, praticidade e personalidade em cada peça.</p>
+        </div>
+
+        <div class="story-grid">
+          <article class="story-card reveal">
+            <img src="img/card01.png" alt="Modelo em ambiente urbano com moda minimalista" />
+            <div class="story-card-body">
+              <small>Estilo</small>
+              <h3>Visual marcante para qualquer momento.</h3>
+              <p>Peças pensadas para valorizar sua presença com conforto e identidade.</p>
+              <a href="#drop" class="nav-link" style="display:inline-block;">Ver produtos</a>
+            </div>
+          </article>
+
+          <article class="story-card reveal reveal-delay-1">
+            <img src="img/card02.png" alt="Close em tecido premium para moda autoral" />
+            <div class="story-card-body">
+              <small>Qualidade</small>
+              <h3>Detalhes que fazem diferença.</h3>
+              <p>Tecidos, caimento e acabamento que elevam a experiência de vestir.</p>
+              <a href="#benefits" class="nav-link" style="display:inline-block;">Ver coleção</a>
+            </div>
+          </article>
+
+          <article class="story-card reveal reveal-delay-2">
+            <img src="img/card03.png" alt="Editorial de moda com campanha jovem e sofisticada" />
+            <div class="story-card-body">
+              <small>Atitude</small>
+              <h3>Roupa para quem quer ser lembrado.</h3>
+              <p>Uma coleção criada para expressar personalidade sem exagero.</p>
+              <a href="#newsletter" class="nav-link" style="display:inline-block;">Comprar agora</a>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="benefits">
+      <div class="container">
+        <div class="section-head reveal">
+          <div>
+            <div class="section-kicker">Benefícios</div>
+            <h2>Compra fácil</h2>
+          </div>
+          <p>Escolha seus produtos, adicione ao carrinho e finalize o pagamento com rapidez.</p>
+        </div>
+
+        <div class="benefits-grid">
+          <article class="benefit reveal">
+            <div class="benefit-icon">⚡</div>
+            <div>
+              <h3>Pagamento seguro</h3>
+              <p>Checkout integrado com Mercado Pago para uma compra mais prática e confiável.</p>
+            </div>
+          </article>
+
+          <article class="benefit reveal reveal-delay-1">
+            <div class="benefit-icon">↺</div>
+            <div>
+              <h3>Peças com estilo</h3>
+              <p>Modelos pensados para unir identidade visual, conforto e presença.</p>
+            </div>
+          </article>
+
+          <article class="benefit reveal reveal-delay-2">
+            <div class="benefit-icon">✦</div>
+            <div>
+              <h3>Novidades da loja</h3>
+              <p>Acompanhe lançamentos, destaques e novas coleções em primeira mão.</p>
+            </div>
+          </article>
+
+          <article class="benefit reveal reveal-delay-3">
+            <div class="benefit-icon">⌁</div>
+            <div>
+              <h3>Suporte com presença</h3>
+              <p>Acompanhe lançamentos, destaques e novas coleções em primeira mão.</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="newsletter">
+      <div class="container">
+        <div class="newsletter reveal">
+          <div>
+            <div class="section-kicker">Drop list</div>
+            <h2>Receba novidades e lançamentos da loja.</h2>
+            <p>Cadastre seu e-mail para acompanhar novas peças, coleções e promoções especiais.</p>
+          </div>
+
+          <form class="newsletter-form" id="newsletterForm">
+            <input type="email" id="newsletterEmail" placeholder="Seu melhor e-mail" aria-label="Seu melhor e-mail"
+              required />
+            <button class="btn btn-primary" type="submit">Receber novidades</button>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="footer-wrap reveal">
+        <div class="footer-brand">
+          <div class="section-kicker">Tiago Lobo Store</div>
+          <h3>Moda com atitude, identidade e presença.</h3>
+          <p>Sua loja de roupas com estilo moderno, coleção dinâmica e compra online segura.</p>
+        </div>
+
+        <div class="footer-col">
+          <h4>Shop</h4>
+          <a href="#drop">Drop 01</a>
+          <a href="#story">Manifesto</a>
+          <a href="#benefits">Benefícios</a>
+        </div>
+
+        <div class="footer-col">
+          <h4>Suporte</h4>
+          <a href="#">Trocas</a>
+          <a href="#">Envios</a>
+          <a href="#">FAQ</a>
+        </div>
+
+        <div class="footer-col">
+          <h4>Contato</h4>
+          <a href="#">WhatsApp</a>
+          <a href="#">Instagram</a>
+          <a href="#">E-mail</a>
+        </div>
+
+        <div class="footer-bottom" style="grid-column: 1 / -1;">
+          <span>© 2026 Tiago Lobo Store. Todos os direitos reservados.</span>
+          <span>Feito em HTML, CSS e JavaScript puro.</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <aside class="cart-drawer" id="cartDrawer" aria-label="Carrinho lateral">
+    <div class="cart-header">
+      <div class="cart-header-top">
+        <h3>Seu carrinho</h3>
+        <button class="icon-btn" id="closeCart" aria-label="Fechar carrinho" type="button">✕</button>
+      </div>
+      <p>Selecione peças, altere quantidades e acompanhe o total em tempo real.</p>
+    </div>
+
+    <div class="cart-items" id="cartItems"></div>
+
+    <div class="cart-footer">
+      <div class="summary-row">
+        <span>Subtotal</span>
+        <strong id="subtotal">R$ 0</strong>
+      </div>
+
+      <div class="summary-row">
+        <span>Entrega</span>
+        <strong id="shipping">Grátis</strong>
+      </div>
+
+      <div class="summary-row total">
+        <span>Total</span>
+        <strong id="total">R$ 0</strong>
+      </div>
+
+      <div class="cart-actions">
+        <button class="btn-dark" type="button" onclick="startCheckout()">
+          Finalizar compra
+        </button>
+
+        <button class="btn btn-secondary" id="continueBtn" type="button"
+          style="color:#111; border-color: rgba(17,17,17,.1); background: rgba(17,17,17,.04);">
+          Continuar comprando
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <div class="toast" id="toast">Produto adicionado ao carrinho</div>
+
+  <div class="auth-modal" id="authModal">
+    <div class="auth-box">
+      <button class="auth-close" id="authClose" type="button">✕</button>
+
+      <div class="auth-tabs">
+        <button class="auth-tab active" data-auth-tab="login" type="button">Entrar</button>
+        <button class="auth-tab" data-auth-tab="register" type="button">Criar conta</button>
+      </div>
+
+      <form id="loginForm" class="auth-form active">
+        <h3>Entrar na sua conta</h3>
+        <input type="email" id="loginEmail" placeholder="Seu e-mail" required>
+        <input type="password" id="loginPassword" placeholder="Sua senha" required>
+        <button type="submit" class="btn btn-primary">Entrar</button>
+      </form>
+
+      <form id="registerForm" class="auth-form">
+        <h3>Criar conta</h3>
+        <input type="text" id="registerName" placeholder="Seu nome" required>
+        <input type="email" id="registerEmail" placeholder="Seu e-mail" required>
+        <input type="password" id="registerPassword" placeholder="Crie uma senha" required>
+        <button type="submit" class="btn btn-primary">Criar conta</button>
+      </form>
+
+      <div id="authUserBox" style="display:none;">
+        <h3>Área do cliente</h3>
+        <p id="authUserEmail"></p>
+        <button id="logoutBtn" class="btn btn-primary" type="button">Sair</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="auth-modal" id="addressModal">
+    <div class="auth-box">
+      <button class="auth-close" id="addressClose" type="button">✕</button>
+
+      <form id="addressForm" class="auth-form active">
+        <h3>Endereço de entrega</h3>
+        <input type="text" id="fullName" placeholder="Nome completo" required>
+        <input type="text" id="phone" placeholder="Telefone" required>
+        <input type="text" id="zipCode" placeholder="CEP" required>
+        <input type="text" id="street" placeholder="Rua" required>
+        <input type="text" id="number" placeholder="Número" required>
+        <input type="text" id="neighborhood" placeholder="Bairro" required>
+        <input type="text" id="city" placeholder="Cidade" required>
+        <input type="text" id="state" placeholder="Estado" required>
+        <button type="submit" class="btn btn-primary">Salvar e continuar</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/script.js"></script>
+</body>
+
+</html>
