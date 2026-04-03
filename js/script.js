@@ -558,11 +558,18 @@ async function loadUserUI() {
 
   if (!data?.user) return
 
-  document.getElementById("userArea").style.display = "block"
-  document.getElementById("userName").innerText =
-    data.user.user_metadata?.full_name || "Cliente"
-  document.getElementById("userEmail").innerText =
-    data.user.email
+  const userArea = document.getElementById("userArea")
+  const userName = document.getElementById("userName")
+  const userEmail = document.getElementById("userEmail")
+
+  if (userArea) userArea.style.display = "block"
+  if (userName) {
+    userName.innerText =
+      data.user.user_metadata?.full_name || "Cliente"
+  }
+  if (userEmail) {
+    userEmail.innerText = data.user.email
+  }
 }
 
 async function logout() {
@@ -570,8 +577,10 @@ async function logout() {
   location.reload()
 }
 
-checkUser()
-loadUserUI()
+window.addEventListener("load", () => {
+  checkUser()
+  loadUserUI()
+})
 
 
 // =====================
@@ -677,24 +686,32 @@ if (window.location.pathname.includes("profile")) {
   loadProfile()
 }
 
-const btnLogin = document.getElementById("btnLogin");
-const btnRegister = document.getElementById("btnRegister");
+document.addEventListener("DOMContentLoaded", () => {
 
-const loginBox = document.getElementById("loginBox");
-const registerBox = document.getElementById("registerBox");
+  const btnLogin = document.getElementById("btnLogin");
+  const btnRegister = document.getElementById("btnRegister");
 
-btnLogin.onclick = () => {
-  btnLogin.classList.add("active");
-  btnRegister.classList.remove("active");
+  const loginBox = document.getElementById("loginBox");
+  const registerBox = document.getElementById("registerBox");
 
-  loginBox.classList.add("active");
-  registerBox.classList.remove("active");
-};
+  if (btnLogin && btnRegister && loginBox && registerBox) {
 
-btnRegister.onclick = () => {
-  btnRegister.classList.add("active");
-  btnLogin.classList.remove("active");
+    btnLogin.onclick = () => {
+      btnLogin.classList.add("active");
+      btnRegister.classList.remove("active");
 
-  registerBox.classList.add("active");
-  loginBox.classList.remove("active");
-};
+      loginBox.classList.add("active");
+      registerBox.classList.remove("active");
+    };
+
+    btnRegister.onclick = () => {
+      btnRegister.classList.add("active");
+      btnLogin.classList.remove("active");
+
+      registerBox.classList.add("active");
+      loginBox.classList.remove("active");
+    };
+
+  }
+
+});

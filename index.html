@@ -377,64 +377,60 @@
   <div class="auth-modal" id="authModal">
     <div class="auth-box">
       <button class="auth-close" id="authClose" type="button">✕</button>
+      <!-- TOPO -->
+      <div class="tabs">
+        <button id="btnLogin" class="active">Entrar</button>
+        <button id="btnRegister">Criar conta</button>
+      </div>
 
-      <div class="auth-box">
+      <!-- LOGIN -->
+      <div id="loginBox" class="form active">
+        <h2>Entrar na sua conta</h2>
 
-        <!-- TOPO -->
-        <div class="tabs">
-          <button id="btnLogin" class="active">Entrar</button>
-          <button id="btnRegister">Criar conta</button>
-        </div>
+        <input type="email" placeholder="Seu email" />
+        <input type="password" placeholder="Senha" />
 
-        <!-- LOGIN -->
-        <div id="loginBox" class="form active">
-          <h2>Entrar na sua conta</h2>
+        <button class="main-btn">Entrar</button>
+      </div>
 
-          <input type="email" placeholder="Seu email" />
-          <input type="password" placeholder="Senha" />
+      <!-- CADASTRO -->
+      <div id="registerBox" class="form">
 
-          <button class="main-btn">Entrar</button>
-        </div>
+        <h2>Criar conta</h2>
 
-        <!-- CADASTRO -->
-        <div id="registerBox" class="form">
+        <h4>Dados pessoais</h4>
+        <input type="text" placeholder="Nome completo" />
+        <input type="email" placeholder="Email" />
+        <input type="password" placeholder="Senha" />
+        <input type="tel" placeholder="Telefone (WhatsApp)" />
 
-          <h2>Criar conta</h2>
+        <h4>Endereço</h4>
+        <input type="text" placeholder="CEP" />
+        <input type="text" placeholder="Rua" />
+        <input type="text" placeholder="Número" />
+        <input type="text" placeholder="Complemento" />
+        <input type="text" placeholder="Bairro" />
+        <input type="text" placeholder="Cidade" />
+        <input type="text" placeholder="Estado" />
 
-          <h4>Dados pessoais</h4>
-          <input type="text" placeholder="Nome completo" />
-          <input type="email" placeholder="Email" />
-          <input type="password" placeholder="Senha" />
-          <input type="tel" placeholder="Telefone (WhatsApp)" />
+        <h4>Dados adicionais</h4>
+        <input type="text" placeholder="CPF" />
+        <input type="text" placeholder="Referência" />
 
-          <h4>Endereço</h4>
-          <input type="text" placeholder="CEP" />
-          <input type="text" placeholder="Rua" />
-          <input type="text" placeholder="Número" />
-          <input type="text" placeholder="Complemento" />
-          <input type="text" placeholder="Bairro" />
-          <input type="text" placeholder="Cidade" />
-          <input type="text" placeholder="Estado" />
+        <button class="main-btn">Criar conta</button>
 
-          <h4>Dados adicionais</h4>
-          <input type="text" placeholder="CPF" />
-          <input type="text" placeholder="Referência" />
+        <div class="divider">ou</div>
 
-          <button class="main-btn">Criar conta</button>
-
-          <div class="divider">ou</div>
-
-          <button class="google-btn">
-            <img src="https://www.svgrepo.com/show/475656/google-color.svg" />
-            Entrar com Google
-          </button>
-
-        </div>
+        <button class="google-btn">
+          <img src="https://www.svgrepo.com/show/475656/google-color.svg" />
+          Entrar com Google
+        </button>
 
       </div>
 
+    </div>
 
-      <script src="js/script.js"></script>
+    <script src="./js/script.js"></script>
 </body>
 
 </html>
