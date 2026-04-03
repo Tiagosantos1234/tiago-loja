@@ -879,3 +879,38 @@ function goProfile() {
 function goOrders() {
   window.location.href = "/profile.html#orders"
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+
+  const modal = document.getElementById("authModal")
+  const closeBtn = document.getElementById("closeModal")
+
+  // 🔥 fechar no botão X
+  if (closeBtn) {
+    closeBtn.addEventListener("click", () => {
+      modal.style.display = "none"
+      document.body.style.overflow = ""
+    })
+  }
+
+  function openModal() {
+  const modal = document.getElementById("authModal")
+
+  if (modal) {
+    modal.style.display = "flex"
+    document.body.style.overflow = "hidden"
+  }
+}
+
+  // 🔥 fechar clicando fora
+  if (modal) {
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) {
+        modal.style.display = "none"
+        document.body.style.overflow = ""
+      }
+    })
+  }
+
+})
+
