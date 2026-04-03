@@ -676,3 +676,25 @@ async function loadProfile() {
 if (window.location.pathname.includes("profile")) {
   loadProfile()
 }
+
+const btnLogin = document.getElementById("btnLogin");
+const btnRegister = document.getElementById("btnRegister");
+
+const loginBox = document.getElementById("loginBox");
+const registerBox = document.getElementById("registerBox");
+
+btnLogin.onclick = () => {
+  btnLogin.classList.add("active");
+  btnRegister.classList.remove("active");
+
+  loginBox.classList.add("active");
+  registerBox.classList.remove("active");
+};
+
+btnRegister.onclick = () => {
+  btnRegister.classList.add("active");
+  btnLogin.classList.remove("active");
+
+  registerBox.classList.add("active");
+  loginBox.classList.remove("active");
+};

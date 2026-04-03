@@ -2,7 +2,6 @@
 <html lang="pt-BR">
 
 <head>
-  <a href="/profile.html">Minha Conta</a>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
@@ -22,6 +21,8 @@
   <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
+
+<script src="script.js"></script>
 
 <body class="grain">
   <div class="overlay" id="overlay"></div>
@@ -377,58 +378,63 @@
     <div class="auth-box">
       <button class="auth-close" id="authClose" type="button">✕</button>
 
-      <div class="auth-tabs">
-        <button class="auth-tab active" data-auth-tab="login" type="button">Entrar</button>
-        <button class="auth-tab" data-auth-tab="register" type="button">Criar conta</button>
+      <div class="auth-box">
+
+        <!-- TOPO -->
+        <div class="tabs">
+          <button id="btnLogin" class="active">Entrar</button>
+          <button id="btnRegister">Criar conta</button>
+        </div>
+
+        <!-- LOGIN -->
+        <div id="loginBox" class="form active">
+          <h2>Entrar na sua conta</h2>
+
+          <input type="email" placeholder="Seu email" />
+          <input type="password" placeholder="Senha" />
+
+          <button class="main-btn">Entrar</button>
+        </div>
+
+        <!-- CADASTRO -->
+        <div id="registerBox" class="form">
+
+          <h2>Criar conta</h2>
+
+          <h4>Dados pessoais</h4>
+          <input type="text" placeholder="Nome completo" />
+          <input type="email" placeholder="Email" />
+          <input type="password" placeholder="Senha" />
+          <input type="tel" placeholder="Telefone (WhatsApp)" />
+
+          <h4>Endereço</h4>
+          <input type="text" placeholder="CEP" />
+          <input type="text" placeholder="Rua" />
+          <input type="text" placeholder="Número" />
+          <input type="text" placeholder="Complemento" />
+          <input type="text" placeholder="Bairro" />
+          <input type="text" placeholder="Cidade" />
+          <input type="text" placeholder="Estado" />
+
+          <h4>Dados adicionais</h4>
+          <input type="text" placeholder="CPF" />
+          <input type="text" placeholder="Referência" />
+
+          <button class="main-btn">Criar conta</button>
+
+          <div class="divider">ou</div>
+
+          <button class="google-btn">
+            <img src="https://www.svgrepo.com/show/475656/google-color.svg" />
+            Entrar com Google
+          </button>
+
+        </div>
+
       </div>
 
-      <form id="loginForm" class="auth-form active">
-        <h3>Entrar na sua conta</h3>
-        <input type="email" id="loginEmail" placeholder="Seu e-mail" required>
-        <input type="password" id="loginPassword" placeholder="Sua senha" required>
-        <button type="submit" class="btn btn-primary">Entrar</button>
-      </form>
 
-      <form id="registerForm" class="auth-form">
-        <h3>Criar conta</h3>
-        <input type="text" id="registerName" placeholder="Seu nome" required>
-        <input type="email" id="registerEmail" placeholder="Seu e-mail" required>
-        <input type="password" id="registerPassword" placeholder="Crie uma senha" required>
-        <button type="submit" class="btn btn-primary">Criar conta</button>
-      </form>
-
-      <div id="authUserBox" style="display:none;">
-        <h3>Área do cliente</h3>
-        <p id="authUserEmail"></p>
-        <button id="logoutBtn" class="btn btn-primary" type="button">Sair</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="auth-modal" id="addressModal">
-    <div class="auth-box">
-      <button class="auth-close" id="addressClose" type="button">✕</button>
-
-      <form id="addressForm" class="auth-form active">
-        <h3>Endereço de entrega</h3>
-        <input type="text" id="fullName" placeholder="Nome completo" required>
-        <input type="text" id="phone" placeholder="Telefone" required>
-        <input type="text" id="zipCode" placeholder="CEP" required>
-        <input type="text" id="street" placeholder="Rua" required>
-        <input type="text" id="number" placeholder="Número" required>
-        <input type="text" id="neighborhood" placeholder="Bairro" required>
-        <input type="text" id="city" placeholder="Cidade" required>
-        <input type="text" id="state" placeholder="Estado" required>
-        <button type="submit" class="btn btn-primary">Salvar e continuar</button>
-      </form>
-    </div>
-  </div>
-
-  <button onclick="loginWithGoogle()" class="btn-google">
-    Entrar com Google
-  </button>
-
-  <script src="js/script.js"></script>
+      <script src="js/script.js"></script>
 </body>
 
 </html>
