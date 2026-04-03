@@ -817,18 +817,23 @@ async function updateHeaderUser() {
   const userName = document.getElementById("userNameHeader")
   const userAvatar = document.getElementById("userAvatar")
 
-  // 🔥 ESCONDE botão entrar
-  if (loginBtn) loginBtn.style.display = "none"
+  // 🔥 ESCONDER FORTE (não só display)
+  if (loginBtn) {
+    loginBtn.style.display = "none"
+    loginBtn.remove() // remove completamente
+  }
 
-  // 🔥 MOSTRA área do usuário
+  // mostrar usuário
   if (userArea) userArea.style.display = "flex"
 
-  // nome
+  // nome (primeiro nome)
   if (userName) {
-    userName.innerText =
+    const name =
       user.user_metadata?.full_name ||
       user.user_metadata?.name ||
-      "Bem-vindo"
+      "Cliente"
+
+    userName.innerText = name.split(" ")[0]
   }
 
   // avatar
@@ -839,11 +844,38 @@ async function updateHeaderUser() {
   }
 
   // clique
-  userArea.onclick = () => {
-    window.location.href = "/profile.html"
+  if (userArea) {
+    userArea.onclick = (e) => {
+      toggleDropdown(e)
+    }
   }
 }
 
-window.addEventListener("load", () => {
+document.addEventListener("DOMContentLoaded", () => {
   updateHeaderUser()
 })
+
+function toggleDropdown(e) {
+  e.stopPropagation()
+
+  const dropdown = document.getElementById("userDropdown")
+
+  if (!dropdown) return
+
+  const isOpen = dropdown.style.display === "flex"
+
+  dropdown.style.display = isOpen ? "none" : "flex"
+}
+
+document.addEventListener("click", () => {
+  const dropdown = document.getElementById("userDropdown")
+  if (dropdown) dropdown.style.display = "none"
+})
+
+function goProfile() {
+  window.location.href = "/profile.html"
+}
+
+function goOrders() {
+  window.location.href = "/profile.html#orders"
+}

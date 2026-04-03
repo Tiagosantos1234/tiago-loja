@@ -1730,3 +1730,47 @@ input {
   font-weight: 500;
   color: #fff;
 }
+
+.dropdown {
+  position: absolute;
+  top: 60px;
+  right: 20px;
+
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(20px);
+
+  border-radius: 15px;
+  padding: 10px;
+  width: 160px;
+
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+
+  animation: dropdownFade 0.25s ease;
+}
+
+.dropdown button {
+  background: transparent;
+  border: none;
+  color: #fff;
+  padding: 10px;
+  text-align: left;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.dropdown button:hover {
+  background: rgba(255,255,255,0.15);
+}
+
+@keyframes dropdownFade {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}

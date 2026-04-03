@@ -48,14 +48,20 @@
         <div id="userContainer">
 
           <!-- DESLOGADO -->
-          <button id="loginToggleBtn" class="user-btn">
-            Entrar
-          </button>
 
           <!-- LOGADO -->
           <div id="userArea" class="user-area" style="display:none;">
+
             <img id="userAvatar" />
             <span id="userNameHeader"></span>
+
+            <!-- DROPDOWN -->
+            <div id="userDropdown" class="dropdown">
+              <button onclick="goProfile()">👤 Perfil</button>
+              <button onclick="goOrders()">📦 Pedidos</button>
+              <button onclick="logout()">🚪 Sair</button>
+            </div>
+
           </div>
 
         </div>
