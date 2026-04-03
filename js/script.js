@@ -817,10 +817,10 @@ async function updateHeaderUser() {
   const userName = document.getElementById("userNameHeader")
   const userAvatar = document.getElementById("userAvatar")
 
-  // esconder botão login
+  // 🔥 ESCONDE botão entrar
   if (loginBtn) loginBtn.style.display = "none"
 
-  // mostrar área do usuário
+  // 🔥 MOSTRA área do usuário
   if (userArea) userArea.style.display = "flex"
 
   // nome
@@ -828,17 +828,17 @@ async function updateHeaderUser() {
     userName.innerText =
       user.user_metadata?.full_name ||
       user.user_metadata?.name ||
-      "Cliente"
+      "Bem-vindo"
   }
 
-  // avatar (Google)
+  // avatar
   if (userAvatar) {
     userAvatar.src =
       user.user_metadata?.avatar_url ||
       "https://i.pravatar.cc/150"
   }
 
-  // clique → ir pro profile
+  // clique
   userArea.onclick = () => {
     window.location.href = "/profile.html"
   }

@@ -1702,20 +1702,31 @@ input {
 .user-area {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   cursor: pointer;
-}
 
-.user-area img {
-  width: 35px;
-  height: 35px;
-  border-radius: 50%;
-}
+  background: rgba(255,255,255,0.15);
+  backdrop-filter: blur(10px);
 
-.user-area {
+  padding: 6px 10px;
+  border-radius: 20px;
+
   transition: 0.3s;
 }
 
 .user-area:hover {
   transform: scale(1.05);
+  background: rgba(255,255,255,0.25);
+}
+
+.user-area img {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+}
+
+#userNameHeader {
+  font-size: 13px;
+  font-weight: 500;
+  color: #fff;
 }
