@@ -715,3 +715,135 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
 });
+
+async function saveProfile() {
+  const { data } = await supabaseClient.auth.getUser()
+
+  if (!data?.user) {
+    alert("Faça login");
+    return;
+  }
+
+  const user = data.user
+
+  const profile = {
+    id: user.id,
+    email: user.email,
+    name: user.user_metadata?.full_name || "",
+    cep: document.getElementById("cep").value,
+    street: document.getElementById("street").value,
+    number: document.getElementById("number").value,
+    city: document.getElementById("city").value,
+    state: document.getElementById("state").value,
+    updated_at: new Date().toISOString()
+  }
+
+  const { error } = await supabaseClient
+    .from("profiles")
+    .upsert([profile])
+
+  if (error) {
+    console.error(error)
+    alert("Erro ao salvar")
+    return
+  }
+
+  alert("Salvo com sucesso 🔥")
+}
+
+async function loadProfileData() {
+  const { data } = await supabaseClient.auth.getUser()
+
+  if (!data?.user) return
+
+  const user = data.user
+
+  document.getElementById("userName").innerText =
+    user.user_metadata?.full_name || "Cliente"
+
+  document.getElementById("userEmail").innerText =
+    user.email
+
+  const { data: profile } = await supabaseClient
+    .from("profiles")
+    .select("*")
+    .eq("id", user.id)
+    .single()
+
+  if (!profile) return
+
+  document.getElementById("cep").value = profile.cep || ""
+  document.getElementById("street").value = profile.street || ""
+  document.getElementById("number").value = profile.number || ""
+  document.getElementById("city").value = profile.city || ""
+  document.getElementById("state").value = profile.state || ""
+}
+
+if (window.location.pathname.includes("profile")) {
+  loadProfile()
+  loadProfileData()
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+
+  const tabs = document.querySelectorAll(".tab");
+  const contents = document.querySelectorAll(".tab-content");
+
+  tabs.forEach(tab => {
+    tab.addEventListener("click", () => {
+
+      tabs.forEach(t => t.classList.remove("active"));
+      contents.forEach(c => c.classList.remove("active"));
+
+      tab.classList.add("active");
+
+      const target = document.getElementById(tab.dataset.tab);
+      if (target) target.classList.add("active");
+
+    });
+  });
+
+});
+
+async function updateHeaderUser() {
+  const { data } = await supabaseClient.auth.getUser()
+
+  if (!data?.user) return
+
+  const user = data.user
+
+  const loginBtn = document.getElementById("loginToggle")
+  const userArea = document.getElementById("userArea")
+  const userName = document.getElementById("userNameHeader")
+  const userAvatar = document.getElementById("userAvatar")
+
+  // esconder botão login
+  if (loginBtn) loginBtn.style.display = "none"
+
+  // mostrar área do usuário
+  if (userArea) userArea.style.display = "flex"
+
+  // nome
+  if (userName) {
+    userName.innerText =
+      user.user_metadata?.full_name ||
+      user.user_metadata?.name ||
+      "Cliente"
+  }
+
+  // avatar (Google)
+  if (userAvatar) {
+    userAvatar.src =
+      user.user_metadata?.avatar_url ||
+      "https://i.pravatar.cc/150"
+  }
+
+  // clique → ir pro profile
+  userArea.onclick = () => {
+    window.location.href = "/profile.html"
+  }
+}
+
+window.addEventListener("load", () => {
+  updateHeaderUser()
+})

@@ -6,33 +6,66 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 
-<body>
+<body class="app">
 
-<div class="profile-container">
+<div class="app-container">
 
-  <h1>Minha Conta</h1>
-
-  <div class="profile-box">
-    <h2 id="userName"></h2>
-    <p id="userEmail"></p>
-    <button onclick="logout()">Sair</button>
+  <!-- HEADER -->
+  <div class="app-header">
+    <div>
+      <h2 id="userName">Olá, Cliente</h2>
+      <p id="userEmail"></p>
+    </div>
+    <button onclick="logout()" class="logout-btn">Sair</button>
   </div>
 
-  <h2>Meus Pedidos</h2>
+  <!-- TABS -->
+  <div class="app-tabs">
+    <button class="tab active" data-tab="profile">Perfil</button>
+    <button class="tab" data-tab="address">Endereço</button>
+    <button class="tab" data-tab="orders">Pedidos</button>
+  </div>
 
-  <div id="ordersList" class="orders-grid"></div>
+  <!-- CONTENT -->
+  <div class="app-content">
+
+    <!-- PERFIL -->
+    <div class="tab-content active" id="profile">
+      <div class="card">
+        <h3>👤 Seus dados</h3>
+        <p id="userName"></p>
+        <p id="userEmail"></p>
+      </div>
+    </div>
+
+    <!-- ENDEREÇO -->
+    <div class="tab-content" id="address">
+      <div class="card">
+        <h3>📍 Endereço</h3>
+
+        <input id="cep" placeholder="CEP" />
+        <input id="street" placeholder="Rua" />
+        <input id="number" placeholder="Número" />
+        <input id="city" placeholder="Cidade" />
+        <input id="state" placeholder="Estado" />
+
+        <button onclick="saveProfile()" class="primary-btn">
+          Salvar
+        </button>
+      </div>
+    </div>
+
+    <!-- PEDIDOS -->
+    <div class="tab-content" id="orders">
+      <div class="card">
+        <h3>📦 Meus pedidos</h3>
+        <div id="ordersList"></div>
+      </div>
+    </div>
+
+  </div>
 
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-<script src="js/script.js"></script>
-
+<script src="./js/script.js"></script>
 </body>
-</html>
-
-
-<div id="userArea" style="display:none;">
-  <h3 id="userName"></h3>
-  <p id="userEmail"></p>
-  <button onclick="logout()">Sair</button>
-</div>
