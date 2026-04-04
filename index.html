@@ -47,18 +47,6 @@
 
         <div id="userContainer">
 
-          <!-- DESLOGADO -->
-
-          <div id="authModal" class="auth-modal">
-            <div class="auth-box">
-
-              <button id="closeModal">✕</button>
-
-              <!-- conteúdo -->
-
-            </div>
-          </div>
-
           <!-- LOGADO -->
           <div id="userArea" class="user-area" style="display:none;">
 
@@ -403,9 +391,10 @@
 
   <div class="toast" id="toast">Produto adicionado ao carrinho</div>
 
-  <div class="auth-modal" id="authModal">
-    <div class="auth-box">
-      <button class="auth-close" id="authClose" type="button">✕</button>
+  <div id="authModal">
+
+    <div class="auth-box" id="authBox">
+      <button class="auth-close" id="closeModal" type="button">✕</button>
       <!-- TOPO -->
       <div class="tabs">
         <button id="btnLogin" class="active">Entrar</button>
@@ -458,11 +447,46 @@
       </div>
 
     </div>
+  </div> <!-- fecha .auth-box -->
+  </div> <!-- fecha #authModal -->
 
-    <link rel="icon" href="/favicon.ico" />
+  <!-- MODAL LOGIN -->
+  <div id="authModal" class="auth-modal">
+    <div class="auth-box" id="authBox">
+
+      <button id="closeModal">✕</button>
+
+      <div class="auth-tabs">
+        <button id="btnLogin" class="active">Entrar</button>
+        <button id="btnRegister">Criar conta</button>
+      </div>
+
+      <!-- LOGIN -->
+      <div id="loginBox" class="active">
+        <input type="email" placeholder="Email" />
+        <input type="password" placeholder="Senha" />
+        <button onclick="login()">Entrar</button>
+      </div>
+
+      <!-- REGISTRO -->
+      <div id="registerBox">
+        <input type="email" placeholder="Email" />
+        <input type="password" placeholder="Senha" />
+        <button onclick="register()">Criar conta</button>
+      </div>
+
+      <button onclick="loginWithGoogle()">Entrar com Google</button>
+
+    </div>
+  </div>
+
+  <link rel="icon" href="/favicon.ico" />
+  <script src="./js/script.js"></script>
+
+
 
 </body>
 
-<script src="./js/script.js"></script>
+
 
 </html>

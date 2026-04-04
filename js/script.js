@@ -36,16 +36,15 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 window.addEventListener("load", async () => {
-  document.body.classList.add("loaded");
+  try {
+    document.body.classList.add("loaded");
 
-  await checkUser();
-  await loadUserUI();
-  await updateHeaderUser();
+    await checkUser();
+    await loadUserUI();
+    await updateHeaderUser?.();
 
-  const { data } = await supabaseClient.auth.getSession();
-
-  if (data?.session?.user) {
-    checkUser();
+  } catch (err) {
+    console.log("Erro ignorado:", err);
   }
 });
 
@@ -457,7 +456,7 @@ window.removeFromCart = function (id) {
 function initAuthUI() {
   const authModal = document.getElementById("authModal");
   const loginToggle = document.getElementById("loginToggle");
-  const authClose = document.getElementById("authClose");
+  const authClose = document.getElementById("closeModal");
   const authTabs = document.querySelectorAll(".auth-tab");
   const loginForm = document.getElementById("loginForm");
   const registerForm = document.getElementById("registerForm");
@@ -468,12 +467,6 @@ function initAuthUI() {
 
   authClose?.addEventListener("click", () => {
     authModal?.classList.remove("active");
-  });
-
-  authModal?.addEventListener("click", (e) => {
-    if (e.target === authModal) {
-      authModal.classList.remove("active");
-    }
   });
 
   authTabs.forEach((tab) => {
@@ -536,51 +529,53 @@ async function checkUser() {
   try {
     const { data, error } = await supabaseClient.auth.getUser();
 
-    if (error) {
-      console.error("Erro ao buscar usuário:", error);
-      return;
-    }
-
-    if (!data?.user) return;
+    // 🔥 se não tiver usuário, simplesmente ignora
+    if (error || !data?.user) return;
 
     const user = data.user;
 
-    const { error: upsertError } = await supabaseClient.from("users").upsert(
+    await supabaseClient.from("users").upsert(
       [
         {
           id: user.id,
           email: user.email,
-          name: user.user_metadata?.full_name || user.user_metadata?.name || "",
+          name:
+            user.user_metadata?.full_name ||
+            user.user_metadata?.name ||
+            "",
           created_at: new Date().toISOString(),
         },
       ],
       { onConflict: "id" }
     );
 
-    if (upsertError) {
-      console.error("Erro ao salvar usuário:", upsertError);
-    }
   } catch (err) {
-    console.error("Erro inesperado em checkUser:", err);
+    // 🔥 NÃO deixa quebrar o site
+    console.log("Usuário não logado (normal)");
   }
 }
 
 async function loadUserUI() {
-  const { data } = await supabaseClient.auth.getUser()
+  try {
+    const { data } = await supabaseClient.auth.getUser();
 
-  if (!data?.user) return
+    if (!data?.user) return;
 
-  const userArea = document.getElementById("userArea")
-  const userName = document.getElementById("userName")
-  const userEmail = document.getElementById("userEmail")
+    const userArea = document.getElementById("userArea");
+    const userName = document.getElementById("userName");
+    const userEmail = document.getElementById("userEmail");
 
-  if (userArea) userArea.style.display = "block"
-  if (userName) {
-    userName.innerText =
-      data.user.user_metadata?.full_name || "Cliente"
-  }
-  if (userEmail) {
-    userEmail.innerText = data.user.email
+    if (userArea) userArea.style.display = "block";
+    if (userName) {
+      userName.innerText =
+        data.user.user_metadata?.full_name || "Cliente";
+    }
+    if (userEmail) {
+      userEmail.innerText = data.user.email;
+    }
+
+  } catch (err) {
+    console.log("Sem usuário logado");
   }
 }
 
@@ -880,37 +875,40 @@ function goOrders() {
   window.location.href = "/profile.html#orders"
 }
 
+// =====================
+// MODAL CONTROL (CORRETO)
+// =====================
+
+// =====================
+// MODAL CONTROL
+// =====================
 document.addEventListener("DOMContentLoaded", () => {
+  const modal = document.getElementById("authModal");
+  const closeBtn = document.getElementById("closeModal");
+  const authBox = document.getElementById("authBox");
 
-  const modal = document.getElementById("authModal")
-  const closeBtn = document.getElementById("closeModal")
-
-  // 🔥 fechar no botão X
-  if (closeBtn) {
-    closeBtn.addEventListener("click", () => {
-      modal.style.display = "none"
-      document.body.style.overflow = ""
-    })
+  // garante que o modal SEMPRE comece fechado
+  if (modal) {
+    modal.classList.remove("active");
+    modal.style.display = "";
   }
 
-  function openModal() {
-  const modal = document.getElementById("authModal")
-
-  if (modal) {
-    modal.style.display = "flex"
-    document.body.style.overflow = "hidden"
+  // fechar no X
+  if (closeBtn && modal) {
+    closeBtn.onclick = () => {
+      modal.classList.remove("active");
+      document.body.style.overflow = "";
+    };
   }
-}
 
-  // 🔥 fechar clicando fora
-  if (modal) {
-    modal.addEventListener("click", (e) => {
-      if (e.target === modal) {
-        modal.style.display = "none"
-        document.body.style.overflow = ""
+  // fechar clicando fora
+  if (modal && authBox) {
+    modal.onclick = (e) => {
+      if (!authBox.contains(e.target)) {
+        modal.classList.remove("active");
+        document.body.style.overflow = "";
       }
-    })
+    };
   }
-
-})
+});
 

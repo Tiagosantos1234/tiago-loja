@@ -1239,14 +1239,14 @@ OVERLAY / TOAST / MODALS
   inset: 0;
   background: rgba(17, 17, 17, .35);
   backdrop-filter: blur(6px);
-  display: none;
+  display: flex;
   place-items: center;
   z-index: 1700;
   padding: 20px;
 }
 
 .auth-modal.active {
-  display: grid;
+  display: flex;
 }
 
 .auth-box {
@@ -1791,7 +1791,7 @@ input {
   position: fixed;
   inset: 0;
 
-  display: flex;
+  display: none;
   justify-content: center;
   align-items: center;
 
@@ -1815,4 +1815,38 @@ input {
 @keyframes scaleIn {
   from {transform: scale(0.9); opacity: 0;}
   to {transform: scale(1); opacity: 1;}
+}
+
+.auth-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: none;
+  background: rgba(0,0,0,0.6);
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.auth-modal.active {
+  display: flex;
+}
+
+#authModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0,0,0,0.6);
+  z-index: 9999;
+}
+
+#authModal.active {
+  display: flex;
 }
