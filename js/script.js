@@ -28,11 +28,11 @@ document.addEventListener("DOMContentLoaded", () => {
   initFilters();
   initAuthUI();
   initNewsletter();
-
   renderCart();
   showSkeleton();
   loadProducts();
   checkUser();
+  initMobileMenu();
 });
 
 window.addEventListener("load", async () => {
@@ -119,14 +119,28 @@ function initHeader() {
   const header = document.querySelector(".topbar");
   const heroBg = document.getElementById("heroBg");
 
+  if (!header) return;
+
+  let lastScroll = 0;
+
   window.addEventListener(
     "scroll",
     () => {
-      header?.classList.toggle("scrolled", window.scrollY > 40);
+      const currentScroll = window.pageYOffset;
+
+      header.classList.toggle("scrolled", currentScroll > 40);
+
+      if (currentScroll > lastScroll && currentScroll > 80) {
+        header.classList.add("hide");
+      } else {
+        header.classList.remove("hide");
+      }
 
       if (heroBg) {
-        heroBg.style.transform = `scale(1.1) translateY(${window.scrollY * 0.25}px)`;
+        heroBg.style.transform = `scale(1.1) translateY(${currentScroll * 0.25}px)`;
       }
+
+      lastScroll = currentScroll;
     },
     { passive: true }
   );
@@ -260,9 +274,9 @@ function renderProducts() {
               </div>
 
               <div class="product-actions">
-                <button class="btn-dark" onclick="addToCart('${p.id}')">
-                  Comprar
-                </button>
+                <button class="btn-dark add-to-cart" data-id="${p.id}">
+  Comprar
+</button>
               </div>
             </div>
           </article>
@@ -357,8 +371,6 @@ function initCartUI() {
   const cartToggle = document.getElementById("cartToggle");
   const closeCartBtn = document.getElementById("closeCart");
   const continueBtn = document.getElementById("continueBtn");
-  const overlay = document.getElementById("overlay");
-
   cartToggle?.addEventListener("click", () => {
     renderCart();
     openCart();
@@ -366,7 +378,16 @@ function initCartUI() {
 
   closeCartBtn?.addEventListener("click", closeCart);
   continueBtn?.addEventListener("click", closeCart);
-  overlay?.addEventListener("click", closeCart);
+
+  const overlay = document.getElementById("overlay");
+  const profileMenu = document.getElementById("profileMenu");
+
+  if (overlay && profileMenu) {
+    overlay.addEventListener("click", () => {
+      profileMenu.classList.remove("active");
+      overlay.classList.remove("active");
+    });
+  }
 
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") closeCart();
@@ -912,3 +933,153 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
+document.querySelectorAll(".profile-item").forEach(item => {
+  item.addEventListener("mousemove", (e) => {
+    const rect = item.getBoundingClientRect()
+    const x = e.clientX - rect.left - rect.width / 2
+    const y = e.clientY - rect.top - rect.height / 2
+
+    item.style.transform = `translate(${x * 0.15}px, ${y * 0.15}px)`
+  })
+
+  item.addEventListener("mouseleave", () => {
+    item.style.transform = "translate(0,0)"
+  })
+})
+const profileMenu = document.getElementById("profileMenu");
+const profileBtn = document.getElementById("profileBtn");
+const profileOverlay = document.getElementById("overlay");
+
+if (profileBtn && profileMenu && profileOverlay) {
+
+  profileBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    profileMenu.classList.toggle("active");
+    profileOverlay.classList.toggle("active");
+  });
+
+  profileOverlay.addEventListener("click", () => {
+    profileMenu.classList.remove("active");
+    profileOverlay.classList.remove("active");
+  });
+
+}
+
+
+// =====================
+// MENU MOBILE
+// ====================
+
+const cursor = document.getElementById("cursor");
+
+if (cursor) {
+  document.addEventListener("mousemove", (e) => {
+    cursor.style.left = e.clientX + "px";
+    cursor.style.top = e.clientY + "px";
+  });
+
+  document.querySelectorAll("a, button").forEach(el => {
+    el.addEventListener("mouseenter", () => {
+      cursor.classList.add("big");
+    });
+
+    el.addEventListener("mouseleave", () => {
+      cursor.classList.remove("big");
+    });
+  });
+}
+// =====================
+// MENU MOBILE PREMIUM
+// =====================
+function initMobileMenu() {
+  const menu = document.getElementById("mobileMenu");
+  const menuBtn = document.getElementById("menuBtn");
+  const closeBtn = document.getElementById("closeMenu");
+  const backdrop = document.getElementById("mobileMenuBackdrop");
+  const links = document.querySelectorAll(".mobile-nav a");
+
+  if (!menu || !menuBtn) return;
+
+  function openMenu() {
+    menu.classList.add("active");
+    menuBtn.classList.add("active");
+    document.body.classList.add("menu-open");
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeMenu() {
+    menu.classList.remove("active");
+    menuBtn.classList.remove("active");
+    document.body.classList.remove("menu-open");
+    document.body.style.overflow = "";
+  }
+
+  menuBtn.addEventListener("click", () => {
+    menu.classList.contains("active") ? closeMenu() : openMenu();
+  });
+
+  closeBtn?.addEventListener("click", closeMenu);
+  backdrop?.addEventListener("click", closeMenu);
+
+  links.forEach(link => {
+    link.addEventListener("click", closeMenu);
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeMenu();
+  });
+}
+
+// =====================
+// ANIMAÇÃO CARRINHO
+// =====================
+function animateToCart(imgElement) {
+  const cartBtn = document.getElementById("cartToggle");
+
+  if (!imgElement || !cartBtn) return;
+
+  const imgRect = imgElement.getBoundingClientRect();
+  const cartRect = cartBtn.getBoundingClientRect();
+
+  const clone = imgElement.cloneNode(true);
+
+  clone.classList.add("fly-image");
+
+  clone.style.top = imgRect.top + "px";
+  clone.style.left = imgRect.left + "px";
+  clone.style.width = imgRect.width + "px";
+  clone.style.height = imgRect.height + "px";
+
+  document.body.appendChild(clone);
+
+  requestAnimationFrame(() => {
+    clone.style.top = cartRect.top + "px";
+    clone.style.left = cartRect.left + "px";
+    clone.style.width = "20px";
+    clone.style.height = "20px";
+    clone.style.opacity = "0.5";
+  });
+
+  setTimeout(() => {
+    clone.remove();
+  }, 700);
+}
+
+// =====================
+// CLICK BOTÃO COM ANIMAÇÃO
+// =====================
+document.addEventListener("click", function (e) {
+  const btn = e.target.closest(".add-to-cart");
+  if (!btn) return;
+
+  const id = btn.dataset.id;
+
+  const card = btn.closest(".product-card");
+  const img = card?.querySelector(".product-img");
+
+  if (img) {
+    animateToCart(img);
+  }
+
+  addToCart(id);
+});
