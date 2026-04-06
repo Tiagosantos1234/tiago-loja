@@ -117,7 +117,7 @@ HEADER
 
 .topbar {
   max-width: 100vw;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .nav-left,
@@ -1784,21 +1784,24 @@ input {
 
 .user-area {
   position: relative;
-  cursor: pointer;
 }
 
-.dropdown button {
-  background: transparent;
-  border: none;
-  color: #fff;
+.dropdown {
+  position: absolute;
+  top: 60px;
+  right: 0;
+  z-index: 99999; /* importante */
+
+  background: white;
+  border-radius: 14px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+
   padding: 10px;
-  text-align: left;
-  border-radius: 10px;
-  cursor: pointer;
+  display: none;
 }
 
-.dropdown button:hover {
-  background: rgba(255,255,255,0.15);
+.dropdown.active {
+  display: block;
 }
 
 @keyframes dropdownFade {
