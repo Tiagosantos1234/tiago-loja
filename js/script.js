@@ -30,7 +30,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initNewsletter();
 
   initUserDropdown();
-  
+
   renderCart();
   showSkeleton();
   loadProducts();
@@ -54,6 +54,17 @@ function initUserDropdown() {
   document.addEventListener("click", () => {
     dropdown.classList.remove("active");
   });
+
+  userArea.addEventListener("click", (e) => {
+  e.stopPropagation();
+
+  dropdown.classList.toggle("active");
+
+  // micro delay pra suavizar
+  if (dropdown.classList.contains("active")) {
+    dropdown.style.willChange = "transform, opacity";
+  }
+});
 }
 
 window.addEventListener("load", async () => {

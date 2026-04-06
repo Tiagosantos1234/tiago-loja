@@ -1763,45 +1763,83 @@ input {
   color: #fff;
 }
 
-.dropdown {
-  position: absolute;
-  top: 60px;
-  right: 0;
-
-  background: white;
-  border-radius: 14px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.15);
-
-  padding: 10px;
-  display: none;
-
-  z-index: 9999;
-}
-
-.dropdown.active {
-  display: block;
-}
-
-.user-area {
-  position: relative;
-}
+/* =========================
+DROPDOWN PREMIUM (NÍVEL DEUS)
+========================= */
 
 .dropdown {
   position: absolute;
-  top: 60px;
+  top: 70px;
   right: 0;
-  z-index: 99999; /* importante */
+  z-index: 999999;
 
-  background: white;
-  border-radius: 14px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+  min-width: 200px;
 
-  padding: 10px;
-  display: none;
+  padding: 8px;
+
+  border-radius: 18px;
+
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(18px) saturate(180%);
+
+  border: 1px solid rgba(255,255,255,0.4);
+
+  box-shadow:
+    0 20px 60px rgba(0,0,0,0.12),
+    inset 0 1px 0 rgba(255,255,255,0.6);
+
+  opacity: 0;
+  transform: translateY(-10px) scale(0.96);
+  pointer-events: none;
+
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s cubic-bezier(.22,1,.36,1);
 }
 
+/* ativo */
 .dropdown.active {
-  display: block;
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+/* botões internos */
+.dropdown button {
+  width: 100%;
+  border: none;
+  background: transparent;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 12px 14px;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  border-radius: 12px;
+
+  cursor: pointer;
+
+  transition: all 0.2s ease;
+}
+
+/* hover INSANO */
+.dropdown button:hover {
+  background: rgba(0,0,0,0.06);
+  transform: translateX(4px);
+}
+
+/* efeito clique */
+.dropdown button:active {
+  transform: scale(0.96);
+}
+
+/* ícones mais bonitos */
+.dropdown button span {
+  font-size: 16px;
 }
 
 @keyframes dropdownFade {
@@ -2732,4 +2770,22 @@ DESKTOP / MOBILE CONTROL
   .menu-toggle {
     display: none;
   }
+}
+
+.dropdown::before {
+  content: "";
+  position: absolute;
+  top: -6px;
+  right: 18px;
+
+  width: 12px;
+  height: 12px;
+
+  background: rgba(255,255,255,0.65);
+  backdrop-filter: blur(18px);
+
+  transform: rotate(45deg);
+
+  border-left: 1px solid rgba(255,255,255,0.4);
+  border-top: 1px solid rgba(255,255,255,0.4);
 }
