@@ -2661,22 +2661,6 @@ body.loaded .topbar {
   transition: all .4s .5s ease;
 }
 
-.cursor {
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: #111;
-  position: fixed;
-  pointer-events: none;
-  z-index: 9999;
-  transform: translate(-50%, -50%);
-  transition: transform .15s ease;
-}
-
-.cursor.big {
-  transform: translate(-50%, -50%) scale(2.5);
-  background: rgba(0,0,0,0.1);
-}
 
 .icon-btn {
   transition: transform .2s cubic-bezier(.22,1,.36,1);
