@@ -47,24 +47,18 @@ function initUserDropdown() {
 
   userArea.addEventListener("click", (e) => {
     e.stopPropagation();
+
     dropdown.classList.toggle("active");
+
+    if (dropdown.classList.contains("active")) {
+      dropdown.style.willChange = "transform, opacity";
+    }
   });
 
   // clicar fora fecha
   document.addEventListener("click", () => {
     dropdown.classList.remove("active");
   });
-
-  userArea.addEventListener("click", (e) => {
-  e.stopPropagation();
-
-  dropdown.classList.toggle("active");
-
-  // micro delay pra suavizar
-  if (dropdown.classList.contains("active")) {
-    dropdown.style.willChange = "transform, opacity";
-  }
-});
 }
 
 window.addEventListener("load", async () => {
