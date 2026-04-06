@@ -1766,20 +1766,25 @@ input {
 .dropdown {
   position: absolute;
   top: 60px;
-  right: 20px;
+  right: 0;
 
-  background: rgba(255,255,255,0.1);
-  backdrop-filter: blur(20px);
+  background: white;
+  border-radius: 14px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.15);
 
-  border-radius: 15px;
   padding: 10px;
-  width: 160px;
-
   display: none;
-  flex-direction: column;
-  gap: 5px;
 
-  animation: dropdownFade 0.25s ease;
+  z-index: 9999;
+}
+
+.dropdown.active {
+  display: block;
+}
+
+.user-area {
+  position: relative;
+  cursor: pointer;
 }
 
 .dropdown button {

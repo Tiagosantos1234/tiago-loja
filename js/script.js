@@ -28,12 +28,33 @@ document.addEventListener("DOMContentLoaded", () => {
   initFilters();
   initAuthUI();
   initNewsletter();
+
+  initUserDropdown();
+  
   renderCart();
   showSkeleton();
   loadProducts();
   checkUser();
   initMobileMenu();
+  
 });
+
+function initUserDropdown() {
+  const userArea = document.getElementById("userArea");
+  const dropdown = document.getElementById("userDropdown");
+
+  if (!userArea || !dropdown) return;
+
+  userArea.addEventListener("click", (e) => {
+    e.stopPropagation();
+    dropdown.classList.toggle("active");
+  });
+
+  // clicar fora fecha
+  document.addEventListener("click", () => {
+    dropdown.classList.remove("active");
+  });
+}
 
 window.addEventListener("load", async () => {
   try {
