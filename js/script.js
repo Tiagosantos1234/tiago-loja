@@ -326,25 +326,39 @@ function renderFeaturedProduct() {
   const img = images[0] || "img/bg.png";
 
   el.innerHTML = `
-    <div class="hero-card-top">
-      <small>Destaque</small>
-      <div class="hero-card-price">${formatPrice(getProductPrice(product))}</div>
-    </div>
+  <div class="hero-card-top">
+    <small>Destaque</small>
+    <div class="hero-card-price">${formatPrice(getProductPrice(product))}</div>
+  </div>
 
-    <div class="hero-card-image">
-      <img src="${img}" alt="${getProductName(product)}" />
-    </div>
+  <div class="hero-card-image">
+    <img src="${img}" alt="${getProductName(product)}" />
+  </div>
 
-    <h3>${getProductName(product)}</h3>
-    <p>${getProductDescription(product)}</p>
+  <h3>${getProductName(product)}</h3>
+  <p>${getProductDescription(product)}</p>
 
-    <div class="hero-mini-tags">
-      <span>Premium</span>
-      <span>Drop</span>
-      <span>Street</span>
-    </div>
-  `;
+  <div class="hero-mini-tags">
+    <span>Premium</span>
+    <span>Drop</span>
+    <span>Street</span>
+  </div>
+
+  <div class="hero-card-actions">
+    <button class="btn-dark featured-buy" data-id="${product.id}">
+      Comprar agora
+    </button>
+  </div>
+`;
 }
+
+document.addEventListener("click", (e) => {
+  if (e.target.classList.contains("featured-buy")) {
+    const id = e.target.dataset.id;
+    addToCart(id);
+    showToast("Produto adicionado ao carrinho");
+  }
+});
 
 function initFilters() {
   document.querySelectorAll(".chip").forEach((button) => {
