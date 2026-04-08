@@ -554,36 +554,43 @@ async function hydrateCheckoutFromUser() {
   try {
     const { data } = await supabaseClient.auth.getUser();
 
-    if (data?.user) {
-      checkoutData.customer.name =
-        checkoutData.customer.name ||
-        data.user.user_metadata?.full_name ||
-        data.user.user_metadata?.name ||
-        "";
+    if (!data?.user) return;
 
-      checkoutData.customer.email =
-        checkoutData.customer.email ||
-        data.user.email ||
-        "";
+    const user = data.user;
+
+    // 🔥 DADOS DO CLIENTE
+    checkoutData.customer.name =
+      user.user_metadata?.full_name ||
+      user.user_metadata?.name ||
+      checkoutData.customer.name ||
+      "";
+
+    checkoutData.customer.email =
+      user.email ||
+      checkoutData.customer.email ||
+      "";
+
+    // 🔥 BUSCAR PERFIL COMPLETO
+    const { data: profile } = await supabaseClient
+      .from("profiles")
+      .select("*")
+      .eq("id", user.id)
+      .single();
+
+    if (profile) {
+      checkoutData.shipping = {
+        zip: profile.cep || "",
+        street: profile.street || "",
+        number: profile.number || "",
+        neighborhood: profile.neighborhood || "",
+        city: profile.city || "",
+        state: profile.state || "",
+        complement: profile.complement || "",
+      };
     }
 
-    if (data?.user?.id) {
-      const { data: profile } = await supabaseClient
-        .from("profiles")
-        .select("*")
-        .eq("id", data.user.id)
-        .single();
-
-      if (profile) {
-        checkoutData.shipping.zip = checkoutData.shipping.zip || profile.cep || "";
-        checkoutData.shipping.street = checkoutData.shipping.street || profile.street || "";
-        checkoutData.shipping.number = checkoutData.shipping.number || profile.number || "";
-        checkoutData.shipping.city = checkoutData.shipping.city || profile.city || "";
-        checkoutData.shipping.state = checkoutData.shipping.state || profile.state || "";
-      }
-    }
   } catch (err) {
-    console.log("Checkout sem preload de usuário");
+    console.log("Erro ao carregar dados do usuário:", err);
   }
 }
 
@@ -764,6 +771,7 @@ function initCheckoutFlow() {
 
 async function confirmCheckout() {
   persistCheckoutStep();
+  await saveCheckoutProfile();
 
   try {
     const res = await fetch("/api/create-checkout", {
@@ -1362,3 +1370,34 @@ document.addEventListener("click", function (e) {
 
   addToCart(id);
 });
+
+async function saveCheckoutProfile() {
+  try {
+    const { data } = await supabaseClient.auth.getUser();
+
+    if (!data?.user) return;
+
+    const user = data.user;
+
+    const profile = {
+      id: user.id,
+      email: user.email,
+      name: checkoutData.customer.name,
+      cep: checkoutData.shipping.zip,
+      street: checkoutData.shipping.street,
+      number: checkoutData.shipping.number,
+      neighborhood: checkoutData.shipping.neighborhood,
+      city: checkoutData.shipping.city,
+      state: checkoutData.shipping.state,
+      complement: checkoutData.shipping.complement,
+      updated_at: new Date().toISOString()
+    };
+
+    await supabaseClient
+      .from("profiles")
+      .upsert([profile]);
+
+  } catch (err) {
+    console.log("Erro ao salvar perfil:", err);
+  }
+}
