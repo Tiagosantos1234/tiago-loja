@@ -224,21 +224,6 @@ HERO
   overflow: clip;
 }
 
-@media (max-width: 768px) {
-  .hero {
-    padding-left: 0;
-    padding-right: 0;
-  }
-}
-
-@media (max-width: 768px) {
-  .hero-inner {
-    grid-template-columns: 1fr;
-    gap: 20px;
-    padding-left: 0;
-    padding-right: 0;
-  }
-}
 
 @media (max-width: 768px) {
   .hero-copy {
@@ -274,22 +259,6 @@ HERO
   }
 }
 
-@media (max-width: 768px) {
-  .hero-card {
-    max-width: 100%;
-    width: 100%;
-    justify-self: stretch;
-    margin-left: 0;
-  }
-}
-
-@media (max-width: 768px) {
-  .hero-card {
-    max-width: 100%;
-    width: 100%;
-    justify-self: center;
-  }
-}
 
 @media (max-width: 768px) {
   .hero-inner {
@@ -358,16 +327,10 @@ HERO
 .hero-card {
   width: 100%;
   max-width: 420px;
-  justify-self: center; /* centraliza */
 }
 
 .hero-card {
   justify-self: end; 
-}
-
-.hero {
-  padding-left: 0px;
-  padding-right: 0px;
 }
 
 .eyebrow {
@@ -2582,28 +2545,6 @@ MOBILE REAL (AQUI MUDA O JOGO)
 }
 
 /* MENU MOBILE ESCONDIDO */
-@media (max-width: 740px) {
-
-  .nav-left {
-    position: fixed;
-    top: 60px;
-    left: 0;
-    width: 100%;
-    background: rgba(255,255,255,0.95);
-    backdrop-filter: blur(20px);
-
-    flex-direction: column;
-    padding: 20px;
-
-    transform: translateY(-120%);
-    transition: 0.3s ease;
-  }
-
-  .nav-left.active {
-    transform: translateY(0);
-  }
-
-}
 
 .menu-toggle {
   width: 36px;
@@ -3095,4 +3036,301 @@ DESKTOP / MOBILE CONTROL
   .hero-copy h1 {
     font-size: 42px;
   }
+}
+
+/* =========================
+MOBILE FIX FINAL
+cole no final do style.css
+========================= */
+
+@media (max-width: 768px) {
+  :root {
+    --header-h: 64px;
+  }
+
+  .container {
+    width: min(calc(100% - 24px), 100%);
+  }
+
+  .topbar {
+    height: var(--header-h);
+  }
+
+  .topbar-inner {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 10px;
+    height: 100%;
+  }
+
+  .nav-left {
+    display: none !important;
+  }
+
+  .nav-right .nav-link {
+    display: none !important;
+  }
+
+  .brand-mark {
+    justify-self: center;
+  }
+
+  .brand-mark img {
+    width: 112px;
+    height: auto;
+    object-fit: contain;
+  }
+
+  .nav-right {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .icon-btn,
+  .menu-toggle {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    border-radius: 999px;
+  }
+
+  .menu-toggle .l1 {
+    top: 14px;
+  }
+
+  .menu-toggle .l2 {
+    bottom: 14px;
+  }
+
+  .hero {
+    min-height: auto;
+    padding-top: calc(var(--header-h) + 16px);
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .hero-inner {
+    min-height: auto;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 24px;
+    align-items: start;
+    padding-bottom: 40px;
+  }
+
+  .hero-copy {
+    width: 100%;
+    max-width: 100%;
+    justify-self: stretch;
+  }
+
+  .eyebrow {
+    font-size: 10px;
+    padding: 8px 12px;
+    margin-bottom: 14px;
+  }
+
+  .hero-copy h1 {
+    font-size: clamp(32px, 9vw, 44px);
+    line-height: 0.96;
+    letter-spacing: -0.04em;
+    max-width: 100%;
+  }
+
+  .hero-copy p {
+    margin-top: 14px;
+    font-size: 15px;
+    line-height: 1.55;
+    max-width: 100%;
+  }
+
+  .hero-actions {
+    margin-top: 22px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .hero-actions .btn {
+    width: 100%;
+    min-height: 52px;
+    padding: 0 18px;
+  }
+
+  .hero-card {
+    width: 100%;
+    max-width: 100%;
+    justify-self: stretch;
+    margin: 0;
+    padding: 18px;
+    border-radius: 22px;
+  }
+
+  .hero-card-top {
+    margin-bottom: 16px;
+  }
+
+  .hero-card-price {
+    font-size: 24px;
+  }
+
+  .hero-card-image {
+    height: 260px;
+    border-radius: 18px;
+    margin-bottom: 14px;
+  }
+
+  .hero-card h3 {
+    font-size: 20px;
+    line-height: 1.1;
+  }
+
+  .hero-card p {
+    font-size: 13px;
+    line-height: 1.45;
+  }
+
+  .hero-mini-tags {
+    gap: 6px;
+    margin-top: 12px;
+  }
+
+  .hero-mini-tags span {
+    font-size: 10px;
+    padding: 6px 9px;
+  }
+
+  .hero-card .btn-dark {
+    height: 52px;
+    margin-top: 14px;
+  }
+
+  .section-head {
+    display: grid;
+    grid-template-columns: 1fr;
+    align-items: start;
+    gap: 12px;
+    margin-bottom: 22px;
+  }
+
+  .section-head h2 {
+    font-size: clamp(28px, 8vw, 38px);
+    line-height: 1;
+  }
+
+  .section-head p {
+    font-size: 14px;
+    line-height: 1.55;
+  }
+
+  .editorial-grid,
+  .newsletter,
+  .footer-wrap,
+  .story-grid,
+  .promo-band {
+    grid-template-columns: 1fr !important;
+    gap: 18px;
+  }
+
+  .benefits-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .quote-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    width: min(calc(100% - 20px), 100%);
+  }
+
+  .brand-mark img {
+    width: 104px;
+  }
+
+  .icon-btn,
+  .menu-toggle {
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+  }
+
+  .hero {
+    padding-top: calc(var(--header-h) + 12px);
+  }
+
+  .hero-copy h1 {
+    font-size: 32px;
+  }
+
+  .hero-copy p {
+    font-size: 14px;
+  }
+
+  .hero-card {
+    padding: 16px;
+    border-radius: 20px;
+  }
+
+  .hero-card-image {
+    height: 240px;
+  }
+
+  .quote-metrics {
+    grid-template-columns: 1fr;
+  }
+}
+
+.checkout-header p {
+  margin-top: 8px;
+  color: var(--muted);
+}
+
+.checkout-fields {
+  display: grid;
+  gap: 12px;
+}
+
+.checkout-fields input {
+  width: 100%;
+}
+
+.checkout-review {
+  display: grid;
+  gap: 16px;
+}
+
+.checkout-review-block {
+  padding: 16px;
+  border-radius: 18px;
+  background: rgba(17,17,17,.03);
+  border: 1px solid rgba(17,17,17,.06);
+}
+
+.checkout-review-block h4 {
+  margin-bottom: 10px;
+}
+
+.checkout-review-block p {
+  margin-top: 6px;
+  color: var(--muted);
+}
+
+.checkout-review-item,
+.checkout-review-total {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 10px;
 }

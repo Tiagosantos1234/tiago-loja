@@ -470,6 +470,39 @@
     </div>
   </div>
 
+  <div id="checkoutModal" class="auth-modal">
+  <div class="auth-box" id="checkoutBox">
+    <button class="auth-close" id="closeCheckoutModal" type="button">✕</button>
+
+    <div class="auth-tabs" style="margin-bottom: 18px;">
+      <button class="auth-tab active" type="button">Checkout</button>
+    </div>
+
+    <div class="checkout-header">
+      <h3 id="checkoutStepTitle">Dados do cliente</h3>
+      <p>Preencha os dados para finalizar sua compra com segurança.</p>
+    </div>
+
+    <div id="checkoutStepContent"></div>
+
+    <div class="cart-actions" style="margin-top: 20px;">
+      <button class="btn btn-secondary" id="checkoutPrevBtn" type="button"
+        style="color:#111; border-color: rgba(17,17,17,.1); background: rgba(17,17,17,.04);">
+        Voltar
+      </button>
+
+      <button class="btn-dark" id="checkoutNextBtn" type="button">
+        Continuar
+      </button>
+
+      <button class="btn-dark" id="checkoutConfirmBtn" type="button" style="display:none;">
+        Ir para pagamento
+      </button>
+    </div>
+  </div>
+</div>
+
+
 
   <script src="./js/script.js"></script>
 </body>

@@ -14,6 +14,25 @@ const state = {
   cart: JSON.parse(localStorage.getItem("tl_cart_v1") || "[]"),
 };
 
+const checkoutData = {
+  customer: {
+    name: "",
+    email: ""
+  },
+  shipping: {
+    zip: "",
+    street: "",
+    number: "",
+    neighborhood: "",
+    city: "",
+    state: "",
+    complement: ""
+  }
+}
+
+let checkoutStep = 1;
+
+
 let products = [];
 let currentCategory = "all";
 
@@ -36,7 +55,8 @@ document.addEventListener("DOMContentLoaded", () => {
   loadProducts();
   checkUser();
   initMobileMenu();
-  
+  initCheckoutFlow();
+
 });
 
 function initUserDropdown() {
@@ -511,6 +531,272 @@ window.removeFromCart = function (id) {
   showToast("Produto removido");
 };
 
+async function openCheckoutFlow() {
+  const modal = document.getElementById("checkoutModal");
+  if (!modal) return;
+
+  await hydrateCheckoutFromUser();
+  checkoutStep = 1;
+  renderCheckoutStep();
+  modal.classList.add("active");
+  document.body.style.overflow = "hidden";
+}
+
+function closeCheckoutFlow() {
+  const modal = document.getElementById("checkoutModal");
+  if (!modal) return;
+
+  modal.classList.remove("active");
+  document.body.style.overflow = "";
+}
+
+async function hydrateCheckoutFromUser() {
+  try {
+    const { data } = await supabaseClient.auth.getUser();
+
+    if (data?.user) {
+      checkoutData.customer.name =
+        checkoutData.customer.name ||
+        data.user.user_metadata?.full_name ||
+        data.user.user_metadata?.name ||
+        "";
+
+      checkoutData.customer.email =
+        checkoutData.customer.email ||
+        data.user.email ||
+        "";
+    }
+
+    if (data?.user?.id) {
+      const { data: profile } = await supabaseClient
+        .from("profiles")
+        .select("*")
+        .eq("id", data.user.id)
+        .single();
+
+      if (profile) {
+        checkoutData.shipping.zip = checkoutData.shipping.zip || profile.cep || "";
+        checkoutData.shipping.street = checkoutData.shipping.street || profile.street || "";
+        checkoutData.shipping.number = checkoutData.shipping.number || profile.number || "";
+        checkoutData.shipping.city = checkoutData.shipping.city || profile.city || "";
+        checkoutData.shipping.state = checkoutData.shipping.state || profile.state || "";
+      }
+    }
+  } catch (err) {
+    console.log("Checkout sem preload de usuário");
+  }
+}
+
+function renderCheckoutStep() {
+  const title = document.getElementById("checkoutStepTitle");
+  const content = document.getElementById("checkoutStepContent");
+  const prevBtn = document.getElementById("checkoutPrevBtn");
+  const nextBtn = document.getElementById("checkoutNextBtn");
+  const confirmBtn = document.getElementById("checkoutConfirmBtn");
+
+  if (!content) return;
+
+  if (title) {
+    title.textContent =
+      checkoutStep === 1
+        ? "Dados do cliente"
+        : checkoutStep === 2
+          ? "Endereço de entrega"
+          : "Revisão do pedido";
+  }
+
+  if (prevBtn) prevBtn.style.display = checkoutStep === 1 ? "none" : "inline-flex";
+  if (nextBtn) nextBtn.style.display = checkoutStep === 3 ? "none" : "inline-flex";
+  if (confirmBtn) confirmBtn.style.display = checkoutStep === 3 ? "inline-flex" : "none";
+
+  if (checkoutStep === 1) {
+    content.innerHTML = `
+      <div class="checkout-fields">
+        <input id="checkoutName" type="text" placeholder="Nome completo" value="${safeText(checkoutData.customer.name)}" />
+        <input id="checkoutEmail" type="email" placeholder="Seu e-mail" value="${safeText(checkoutData.customer.email)}" />
+      </div>
+    `;
+    return;
+  }
+
+  if (checkoutStep === 2) {
+    content.innerHTML = `
+      <div class="checkout-fields">
+        <input id="checkoutZip" type="text" placeholder="CEP" value="${safeText(checkoutData.shipping.zip)}" />
+        <input id="checkoutStreet" type="text" placeholder="Rua" value="${safeText(checkoutData.shipping.street)}" />
+        <input id="checkoutNumber" type="text" placeholder="Número" value="${safeText(checkoutData.shipping.number)}" />
+        <input id="checkoutNeighborhood" type="text" placeholder="Bairro" value="${safeText(checkoutData.shipping.neighborhood)}" />
+        <input id="checkoutCity" type="text" placeholder="Cidade" value="${safeText(checkoutData.shipping.city)}" />
+        <input id="checkoutState" type="text" placeholder="Estado" value="${safeText(checkoutData.shipping.state)}" />
+        <input id="checkoutComplement" type="text" placeholder="Complemento" value="${safeText(checkoutData.shipping.complement)}" />
+      </div>
+    `;
+    return;
+  }
+
+  const totalItems = state.cart.reduce((acc, item) => acc + item.quantity, 0);
+  const total = state.cart.reduce(
+    (acc, item) => acc + Number(item.price) * Number(item.quantity),
+    0
+  );
+
+  content.innerHTML = `
+    <div class="checkout-review">
+      <div class="checkout-review-block">
+        <h4>Cliente</h4>
+        <p>${safeText(checkoutData.customer.name, "Não informado")}</p>
+        <p>${safeText(checkoutData.customer.email, "Não informado")}</p>
+      </div>
+
+      <div class="checkout-review-block">
+        <h4>Entrega</h4>
+        <p>${safeText(checkoutData.shipping.street)} ${safeText(checkoutData.shipping.number)}</p>
+        <p>${safeText(checkoutData.shipping.neighborhood)}</p>
+        <p>${safeText(checkoutData.shipping.city)} - ${safeText(checkoutData.shipping.state)}</p>
+        <p>CEP: ${safeText(checkoutData.shipping.zip)}</p>
+        <p>${safeText(checkoutData.shipping.complement)}</p>
+      </div>
+
+      <div class="checkout-review-block">
+        <h4>Pedido</h4>
+        ${state.cart
+      .map(
+        (item) => `
+              <div class="checkout-review-item">
+                <span>${safeText(item.name)} x${item.quantity}</span>
+                <strong>${formatPrice(Number(item.price) * Number(item.quantity))}</strong>
+              </div>
+            `
+      )
+      .join("")}
+        <div class="checkout-review-total">
+          <span>${totalItems} item(ns)</span>
+          <strong>${formatPrice(total)}</strong>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function persistCheckoutStep() {
+  if (checkoutStep === 1) {
+    checkoutData.customer.name = document.getElementById("checkoutName")?.value.trim() || "";
+    checkoutData.customer.email = document.getElementById("checkoutEmail")?.value.trim() || "";
+    return;
+  }
+
+  if (checkoutStep === 2) {
+    checkoutData.shipping.zip = document.getElementById("checkoutZip")?.value.trim() || "";
+    checkoutData.shipping.street = document.getElementById("checkoutStreet")?.value.trim() || "";
+    checkoutData.shipping.number = document.getElementById("checkoutNumber")?.value.trim() || "";
+    checkoutData.shipping.neighborhood = document.getElementById("checkoutNeighborhood")?.value.trim() || "";
+    checkoutData.shipping.city = document.getElementById("checkoutCity")?.value.trim() || "";
+    checkoutData.shipping.state = document.getElementById("checkoutState")?.value.trim() || "";
+    checkoutData.shipping.complement = document.getElementById("checkoutComplement")?.value.trim() || "";
+  }
+}
+
+function validateCheckoutStep() {
+  persistCheckoutStep();
+
+  if (checkoutStep === 1) {
+    if (!checkoutData.customer.name) {
+      showToast("Digite seu nome");
+      return false;
+    }
+
+    if (!checkoutData.customer.email || !checkoutData.customer.email.includes("@")) {
+      showToast("Digite um e-mail válido");
+      return false;
+    }
+  }
+
+  if (checkoutStep === 2) {
+    if (!checkoutData.shipping.zip || !checkoutData.shipping.street || !checkoutData.shipping.number) {
+      showToast("Preencha CEP, rua e número");
+      return false;
+    }
+
+    if (!checkoutData.shipping.city || !checkoutData.shipping.state) {
+      showToast("Preencha cidade e estado");
+      return false;
+    }
+  }
+
+  return true;
+}
+
+function nextCheckoutStep() {
+  if (!validateCheckoutStep()) return;
+  if (checkoutStep < 3) {
+    checkoutStep += 1;
+    renderCheckoutStep();
+  }
+}
+
+function prevCheckoutStep() {
+  persistCheckoutStep();
+  if (checkoutStep > 1) {
+    checkoutStep -= 1;
+    renderCheckoutStep();
+  }
+}
+
+function initCheckoutFlow() {
+  const closeBtn = document.getElementById("closeCheckoutModal");
+  const prevBtn = document.getElementById("checkoutPrevBtn");
+  const nextBtn = document.getElementById("checkoutNextBtn");
+  const confirmBtn = document.getElementById("checkoutConfirmBtn");
+  const modal = document.getElementById("checkoutModal");
+  const box = document.getElementById("checkoutBox");
+
+  closeBtn?.addEventListener("click", closeCheckoutFlow);
+  prevBtn?.addEventListener("click", prevCheckoutStep);
+  nextBtn?.addEventListener("click", nextCheckoutStep);
+  confirmBtn?.addEventListener("click", confirmCheckout);
+
+  if (modal && box) {
+    modal.addEventListener("click", (e) => {
+      if (!box.contains(e.target)) closeCheckoutFlow();
+    });
+  }
+}
+
+async function confirmCheckout() {
+  persistCheckoutStep();
+
+  try {
+    const res = await fetch("/api/create-checkout", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        cart: state.cart,
+        customer: checkoutData.customer,
+        shipping: checkoutData.shipping,
+      }),
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(text || "Erro na API de checkout");
+    }
+
+    const data = await res.json();
+
+    if (!data.init_point) {
+      throw new Error("Pagamento não gerado");
+    }
+
+    window.location.href = data.init_point;
+  } catch (err) {
+    console.error("Erro checkout:", err);
+    showToast("Erro ao iniciar pagamento");
+  }
+}
+
+
 // =====================
 // AUTH UI BÁSICA
 // =====================
@@ -655,32 +941,9 @@ window.startCheckout = async function () {
     return;
   }
 
-  try {
-    const res = await fetch("/api/create-checkout", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ cart: state.cart }),
-    });
-
-    if (!res.ok) {
-      const text = await res.text();
-      throw new Error(text || "Erro na API de checkout");
-    }
-
-    const data = await res.json();
-
-    if (!data.init_point) {
-      throw new Error("Pagamento não gerado");
-    }
-
-    window.location.href = data.init_point;
-  } catch (err) {
-    console.error("Erro checkout:", err);
-    showToast("Erro ao iniciar pagamento");
-  }
+  openCheckoutFlow();
 };
+
 
 window.loginWithGoogle = async function () {
   try {
