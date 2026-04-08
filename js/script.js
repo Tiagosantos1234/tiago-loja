@@ -7,11 +7,25 @@ const SUPABASE_ANON_KEY = "sb_publishable_RrPDyew7vfhihy3WvrNr6w_zZJ3kLql";
 window.supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const supabaseClient = window.supabaseClient;
 
+function readStoredCart() {
+  try {
+    const raw = localStorage.getItem("tl_cart_v1");
+    if (!raw) return [];
+
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (err) {
+    console.warn("Carrinho local inválido, resetando armazenamento:", err);
+    localStorage.removeItem("tl_cart_v1");
+    return [];
+  }
+}
+
 // =====================
 // STATE
 // =====================
 const state = {
-  cart: JSON.parse(localStorage.getItem("tl_cart_v1") || "[]"),
+  cart: readStoredCart(),
 };
 
 const checkoutData = {
@@ -155,6 +169,67 @@ function getProductPrice(product) {
 
 function getProductCategory(product) {
   return safeText(product?.category, "").toLowerCase();
+}
+
+function isPositiveInteger(value) {
+  const num = Number(value);
+  return Number.isInteger(num) && num > 0;
+}
+
+function isValidCheckoutCart() {
+  if (!Array.isArray(state.cart) || !state.cart.length) {
+    showToast("Carrinho vazio");
+    return false;
+  }
+
+  const hasInvalidItem = state.cart.some((item) => {
+    const productId = safeText(item?.id).trim();
+    return !productId || !isPositiveInteger(item?.quantity);
+  });
+
+  if (hasInvalidItem) {
+    showToast("Carrinho inválido. Atualize a página e tente novamente.");
+    return false;
+  }
+
+  return true;
+}
+
+function isValidCheckoutCustomer() {
+  const name = safeText(checkoutData.customer?.name).trim();
+  const email = safeText(checkoutData.customer?.email).trim();
+
+  if (!name) {
+    showToast("Digite seu nome");
+    return false;
+  }
+
+  if (!email || !email.includes("@")) {
+    showToast("Digite um e-mail válido");
+    return false;
+  }
+
+  return true;
+}
+
+function isValidCheckoutShipping() {
+  const shipping = checkoutData.shipping || {};
+
+  if (
+    !safeText(shipping.zip).trim() ||
+    !safeText(shipping.street).trim() ||
+    !safeText(shipping.number).trim()
+  ) {
+    showToast("Preencha CEP, rua e número");
+    return false;
+  }
+
+  if (!safeText(shipping.city).trim() || !safeText(shipping.state).trim()) {
+    showToast("Preencha cidade e estado");
+    return false;
+  }
+
+  return true;
 }
 
 // =====================
@@ -558,7 +633,6 @@ async function hydrateCheckoutFromUser() {
 
     const user = data.user;
 
-    // 🔥 DADOS DO CLIENTE
     checkoutData.customer.name =
       user.user_metadata?.full_name ||
       user.user_metadata?.name ||
@@ -570,7 +644,6 @@ async function hydrateCheckoutFromUser() {
       checkoutData.customer.email ||
       "";
 
-    // 🔥 BUSCAR PERFIL COMPLETO
     const { data: profile } = await supabaseClient
       .from("profiles")
       .select("*")
@@ -600,6 +673,8 @@ function renderCheckoutStep() {
   const prevBtn = document.getElementById("checkoutPrevBtn");
   const nextBtn = document.getElementById("checkoutNextBtn");
   const confirmBtn = document.getElementById("checkoutConfirmBtn");
+
+  updateCheckoutProgress();
 
   if (!content) return;
 
@@ -641,48 +716,65 @@ function renderCheckoutStep() {
     return;
   }
 
-  const totalItems = state.cart.reduce((acc, item) => acc + item.quantity, 0);
-  const total = state.cart.reduce(
-    (acc, item) => acc + Number(item.price) * Number(item.quantity),
-    0
-  );
+  if (checkoutStep === 3) {
+    content.innerHTML = `
+    <div class="checkout-step-enter">
+      <div class="checkout-review">
 
-  content.innerHTML = `
-    <div class="checkout-review">
-      <div class="checkout-review-block">
-        <h4>Cliente</h4>
-        <p>${safeText(checkoutData.customer.name, "Não informado")}</p>
-        <p>${safeText(checkoutData.customer.email, "Não informado")}</p>
-      </div>
-
-      <div class="checkout-review-block">
-        <h4>Entrega</h4>
-        <p>${safeText(checkoutData.shipping.street)} ${safeText(checkoutData.shipping.number)}</p>
-        <p>${safeText(checkoutData.shipping.neighborhood)}</p>
-        <p>${safeText(checkoutData.shipping.city)} - ${safeText(checkoutData.shipping.state)}</p>
-        <p>CEP: ${safeText(checkoutData.shipping.zip)}</p>
-        <p>${safeText(checkoutData.shipping.complement)}</p>
-      </div>
-
-      <div class="checkout-review-block">
-        <h4>Pedido</h4>
-        ${state.cart
-      .map(
-        (item) => `
-              <div class="checkout-review-item">
-                <span>${safeText(item.name)} x${item.quantity}</span>
-                <strong>${formatPrice(Number(item.price) * Number(item.quantity))}</strong>
-              </div>
-            `
-      )
-      .join("")}
-        <div class="checkout-review-total">
-          <span>${totalItems} item(ns)</span>
-          <strong>${formatPrice(total)}</strong>
+        <div class="checkout-review-block">
+          <h4>Cliente</h4>
+          <p>${checkoutData.customer.name || "-"}</p>
+          <p>${checkoutData.customer.email || "-"}</p>
         </div>
+
+        <div class="checkout-review-block">
+          <h4>Entrega</h4>
+          <p>${checkoutData.shipping.street || ""} ${checkoutData.shipping.number || ""}</p>
+          <p>${checkoutData.shipping.neighborhood || ""}</p>
+          <p>${checkoutData.shipping.city || ""} - ${checkoutData.shipping.state || ""}</p>
+          <p>CEP: ${checkoutData.shipping.zip || ""}</p>
+        </div>
+
+        <div class="checkout-review-block">
+          <h4>Pedido</h4>
+          ${state.cart.map(item => `
+            <div class="checkout-review-item">
+              <span>${item.name} x${item.quantity}</span>
+              <strong>${formatPrice(Number(item.price) * Number(item.quantity))}</strong>
+            </div>
+          `).join("")}
+
+          <div class="checkout-review-total">
+            <span>Total</span>
+            <strong>${formatPrice(
+      state.cart.reduce((acc, item) => acc + Number(item.price) * Number(item.quantity), 0)
+    )}</strong>
+          </div>
+        </div>
+
       </div>
     </div>
   `;
+    return;
+  }
+}
+
+function updateCheckoutProgress() {
+  const progress = document.getElementById("checkoutProgress");
+  const steps = document.querySelectorAll(".progress-steps .step");
+
+  if (!progress) return;
+
+  let width = 33;
+
+  if (checkoutStep === 2) width = 66;
+  if (checkoutStep === 3) width = 100;
+
+  progress.style.width = width + "%";
+
+  steps.forEach((el, i) => {
+    el.classList.toggle("active", i < checkoutStep);
+  });
 }
 
 function persistCheckoutStep() {
@@ -771,9 +863,22 @@ function initCheckoutFlow() {
 
 async function confirmCheckout() {
   persistCheckoutStep();
-  await saveCheckoutProfile();
+
+  const btn = document.getElementById("checkoutConfirmBtn");
+  if (!btn) return;
+
+  if (!isValidCheckoutCart() || !isValidCheckoutCustomer() || !isValidCheckoutShipping()) {
+    btn.innerText = "Ir para pagamento";
+    btn.disabled = false;
+    return;
+  }
+
+  btn.innerText = "Processando...";
+  btn.disabled = true;
 
   try {
+    await saveCheckoutProfile();
+
     const res = await fetch("/api/create-checkout", {
       method: "POST",
       headers: {
@@ -801,6 +906,9 @@ async function confirmCheckout() {
   } catch (err) {
     console.error("Erro checkout:", err);
     showToast("Erro ao iniciar pagamento");
+  } finally {
+    btn.innerText = "Ir para pagamento";
+    btn.disabled = false;
   }
 }
 
@@ -884,7 +992,6 @@ async function checkUser() {
   try {
     const { data, error } = await supabaseClient.auth.getUser();
 
-    // 🔥 se não tiver usuário, simplesmente ignora
     if (error || !data?.user) return;
 
     const user = data.user;
@@ -905,7 +1012,6 @@ async function checkUser() {
     );
 
   } catch (err) {
-    // 🔥 NÃO deixa quebrar o site
     console.log("Usuário não logado (normal)");
   }
 }
@@ -986,7 +1092,6 @@ async function loadProfile() {
   document.getElementById("userEmail").innerText =
     user.email
 
-  // 🔥 BUSCAR PEDIDOS
   const { data: orders } = await supabaseClient
     .from("orders")
     .select("*")
@@ -1144,16 +1249,13 @@ async function updateHeaderUser() {
   const userName = document.getElementById("userNameHeader")
   const userAvatar = document.getElementById("userAvatar")
 
-  // 🔥 ESCONDER FORTE (não só display)
   if (loginBtn) {
     loginBtn.style.display = "none"
-    loginBtn.remove() // remove completamente
+    loginBtn.remove()
   }
 
-  // mostrar usuário
   if (userArea) userArea.style.display = "flex"
 
-  // nome (primeiro nome)
   if (userName) {
     const name =
       user.user_metadata?.full_name ||
@@ -1163,14 +1265,12 @@ async function updateHeaderUser() {
     userName.innerText = name.split(" ")[0]
   }
 
-  // avatar
   if (userAvatar) {
     userAvatar.src =
       user.user_metadata?.avatar_url ||
       "https://i.pravatar.cc/150"
   }
 
-  // clique
   if (userArea) {
     userArea.onclick = (e) => {
       toggleDropdown(e)
@@ -1207,25 +1307,16 @@ function goOrders() {
   window.location.href = "/profile.html#orders"
 }
 
-// =====================
-// MODAL CONTROL (CORRETO)
-// =====================
-
-// =====================
-// MODAL CONTROL
-// =====================
 document.addEventListener("DOMContentLoaded", () => {
   const modal = document.getElementById("authModal");
   const closeBtn = document.getElementById("closeModal");
   const authBox = document.getElementById("authBox");
 
-  // garante que o modal SEMPRE comece fechado
   if (modal) {
     modal.classList.remove("active");
     modal.style.display = "";
   }
 
-  // fechar no X
   if (closeBtn && modal) {
     closeBtn.onclick = () => {
       modal.classList.remove("active");
@@ -1233,7 +1324,6 @@ document.addEventListener("DOMContentLoaded", () => {
     };
   }
 
-  // fechar clicando fora
   if (modal && authBox) {
     modal.onclick = (e) => {
       if (!authBox.contains(e.target)) {
@@ -1275,9 +1365,7 @@ if (profileBtn && profileMenu && profileOverlay) {
   });
 
 }
-// =====================
-// MENU MOBILE PREMIUM
-// =====================
+
 function initMobileMenu() {
   const menu = document.getElementById("mobileMenu");
   const menuBtn = document.getElementById("menuBtn");
@@ -1317,9 +1405,6 @@ function initMobileMenu() {
   });
 }
 
-// =====================
-// ANIMAÇÃO CARRINHO
-// =====================
 function animateToCart(imgElement) {
   const cartBtn = document.getElementById("cartToggle");
 
@@ -1352,9 +1437,6 @@ function animateToCart(imgElement) {
   }, 700);
 }
 
-// =====================
-// CLICK BOTÃO COM ANIMAÇÃO
-// =====================
 document.addEventListener("click", function (e) {
   const btn = e.target.closest(".add-to-cart");
   if (!btn) return;
@@ -1400,4 +1482,8 @@ async function saveCheckoutProfile() {
   } catch (err) {
     console.log("Erro ao salvar perfil:", err);
   }
+}
+
+if (window.location.pathname.includes("sucesso.html")) {
+  localStorage.removeItem("tl_cart_v1");
 }

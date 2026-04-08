@@ -471,33 +471,45 @@
   </div>
 
   <div id="checkoutModal" class="auth-modal">
-  <div class="auth-box" id="checkoutBox">
+    <div class="auth-box" id="checkoutBox">
 
-    <button class="auth-close" id="closeCheckoutModal" type="button">✕</button>
+      <button class="auth-close" id="closeCheckoutModal" type="button">✕</button>
 
-    <div class="checkout-header">
-      <h3 id="checkoutStepTitle">Dados do cliente</h3>
-      <p>Preencha os dados para finalizar sua compra com segurança.</p>
+      <div class="checkout-progress">
+        <div class="progress-bar">
+          <div class="progress-fill" id="checkoutProgress"></div>
+        </div>
+
+        <div class="progress-steps">
+          <span class="step active">Dados</span>
+          <span class="step">Endereço</span>
+          <span class="step">Revisão</span>
+        </div>
+      </div>
+
+      <div class="checkout-header">
+        <h3 id="checkoutStepTitle">Dados do cliente</h3>
+        <p>Preencha os dados para finalizar sua compra com segurança.</p>
+      </div>
+
+      <div id="checkoutStepContent"></div>
+
+      <div class="checkout-actions">
+        <button id="checkoutPrevBtn" type="button">
+          Voltar
+        </button>
+
+        <button id="checkoutNextBtn" type="button">
+          Continuar
+        </button>
+
+        <button id="checkoutConfirmBtn" type="button" style="display:none;">
+          Ir para pagamento
+        </button>
+      </div>
+
     </div>
-
-    <div id="checkoutStepContent"></div>
-
-    <div class="checkout-actions">
-      <button id="checkoutPrevBtn" type="button">
-        Voltar
-      </button>
-
-      <button id="checkoutNextBtn" type="button">
-        Continuar
-      </button>
-
-      <button id="checkoutConfirmBtn" type="button" style="display:none;">
-        Ir para pagamento
-      </button>
-    </div>
-
   </div>
-</div>
 
 
 

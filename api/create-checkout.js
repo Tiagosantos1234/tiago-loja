@@ -64,6 +64,98 @@ function buildOrderPayload({ external_reference, total, customer, shipping }) {
   }
 }
 
+function parsePositiveInteger(value) {
+  const num = Number(value)
+  if (!Number.isInteger(num) || num <= 0) return null
+  return num
+}
+
+function getDbProductPrice(product) {
+  const price = Number(product?.price ?? product?.preco ?? 0)
+  if (!Number.isFinite(price) || price < 0) return null
+  return price
+}
+
+function getDbProductName(product) {
+  return cleanString(product?.name || product?.nome, "Produto")
+}
+
+async function resolveCartItems(supabase, cart) {
+  const quantityById = new Map()
+
+  for (const item of cart) {
+    const productId = cleanString(item?.id)
+    const quantity = parsePositiveInteger(item?.quantity)
+
+    if (!productId) {
+      return { error: "Produto inválido no carrinho", status: 400 }
+    }
+
+    if (!quantity) {
+      return { error: "Quantidade inválida no carrinho", status: 400 }
+    }
+
+    quantityById.set(productId, (quantityById.get(productId) || 0) + quantity)
+  }
+
+  const productIds = Array.from(quantityById.keys())
+
+  const { data: products, error } = await supabase
+    .from("products")
+    .select("id, name, nome, price, preco, image_url")
+    .in("id", productIds)
+
+  if (error) {
+    return {
+      error: "Erro ao validar produtos",
+      status: 500,
+      details: error.message || error,
+    }
+  }
+
+  const productMap = new Map(
+    (products || []).map((product) => [String(product.id), product])
+  )
+
+  const resolvedItems = []
+
+  for (const productId of productIds) {
+    const product = productMap.get(productId)
+
+    if (!product) {
+      return {
+        error: "Produto não encontrado ou indisponível",
+        status: 400,
+        details: { product_id: productId },
+      }
+    }
+
+    const productPrice = getDbProductPrice(product)
+
+    if (productPrice == null) {
+      return {
+        error: "Produto com preço inválido",
+        status: 400,
+        details: { product_id: productId },
+      }
+    }
+
+    resolvedItems.push({
+      product_id: product.id,
+      product_name: getDbProductName(product),
+      product_price: productPrice,
+      quantity: quantityById.get(productId),
+      image_url: product.image_url ?? null,
+    })
+  }
+
+  const total = resolvedItems.reduce((sum, item) => {
+    return sum + item.product_price * item.quantity
+  }, 0)
+
+  return { resolvedItems, total }
+}
+
 async function insertOrderWithFallback(supabase, orderPayload) {
   const { data: extendedOrder, error: extendedError } = await supabase
     .from("orders")
@@ -120,10 +212,16 @@ export default async function handler(req, res) {
       process.env.SUPABASE_KEY
     )
 
-    const total = cart.reduce((sum, item) => {
-      return sum + Number(item.price || 0) * Number(item.quantity || 0)
-    }, 0)
+    const resolvedCart = await resolveCartItems(supabase, cart)
 
+    if (resolvedCart.error) {
+      return res.status(resolvedCart.status || 400).json({
+        error: resolvedCart.error,
+        details: resolvedCart.details,
+      })
+    }
+
+    const { resolvedItems, total } = resolvedCart
     const external_reference = "PED-" + Date.now()
     const orderPayload = buildOrderPayload({
       external_reference,
@@ -141,13 +239,13 @@ export default async function handler(req, res) {
       console.warn("Aviso ao salvar endereço no pedido:", fallbackError.message)
     }
 
-    const itemsToInsert = cart.map((item) => ({
+    const itemsToInsert = resolvedItems.map((item) => ({
       order_id: order.id,
-      product_id: item.id,
-      product_name: item.name || item.nome || "Produto",
-      product_price: Number(item.price || 0),
-      quantity: Number(item.quantity || 0),
-      image_url: null,
+      product_id: item.product_id,
+      product_name: item.product_name,
+      product_price: item.product_price,
+      quantity: item.quantity,
+      image_url: item.image_url,
     }))
 
     const { error: itemsError } = await supabase
@@ -171,11 +269,11 @@ export default async function handler(req, res) {
     }
 
     const mpPreference = {
-      items: cart.map((item) => ({
-        title: item.name || item.nome || "Produto",
-        quantity: Number(item.quantity || 0),
+      items: resolvedItems.map((item) => ({
+        title: item.product_name,
+        quantity: item.quantity,
         currency_id: "BRL",
-        unit_price: Number(item.price || 0),
+        unit_price: item.product_price,
       })),
       external_reference,
       back_urls: {

@@ -3624,3 +3624,54 @@ CHECKOUT PREMIUM
 #checkoutBox {
   padding-bottom: 30px;
 }
+
+.checkout-progress {
+  margin-bottom: 20px;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.08);
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  width: 33%;
+  background: #fff;
+  transition: width 0.4s ease;
+}
+
+.progress-steps {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+  font-size: 11px;
+  color: rgba(255,255,255,0.5);
+}
+
+.progress-steps .step.active {
+  color: #fff;
+}
+
+.checkout-step-enter {
+  animation: fadeSlide 0.3s ease;
+}
+
+@keyframes fadeSlide {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+#checkoutConfirmBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
