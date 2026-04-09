@@ -1,4 +1,4 @@
-﻿// =====================
+// =====================
 // CONFIG
 // =====================
 const SUPABASE_URL = "https://nmosbabyarqnmihihalu.supabase.co";
@@ -848,9 +848,21 @@ async function openCheckoutFlow() {
   const modal = document.getElementById("checkoutModal");
   if (!modal) return;
 
+  // Carrega os dados da base de dados
   await hydrateCheckoutFromUser();
   debugCheckout("CHECKOUT DATA BEFORE RENDER", { ...checkoutData });
-  checkoutStep = 1;
+  
+  // Verifica se o cliente já tem os dados essenciais preenchidos
+  const hasCustomer = checkoutData.customer.name && checkoutData.customer.email;
+  const hasShipping = checkoutData.shipping.zip && checkoutData.shipping.street && checkoutData.shipping.number;
+
+  // Se tiver tudo preenchido, salta logo para o passo 3. Se não, começa no passo 1.
+  if (hasCustomer && hasShipping) {
+    checkoutStep = 3;
+  } else {
+    checkoutStep = 1;
+  }
+
   renderCheckoutStep();
   modal.classList.add("active");
   document.body.style.overflow = "hidden";
@@ -1016,10 +1028,9 @@ function renderCheckoutStep() {
         buscarCEP(e.target.value);
       });
 
-      [streetInput, neighborhoodInput, cityInput, stateInput].forEach((input) => {
-        if (input) input.disabled = true;
-      });
-
+      // Os campos de morada não devem ser desabilitados (disabled = true),
+      // para que o utilizador possa editar manualmente caso o CEP falhe
+      
       cepInput.dataset.bound = "true";
     });
 
