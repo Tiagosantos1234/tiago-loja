@@ -46,6 +46,19 @@ const checkoutData = {
 
 let checkoutStep = 1;
 
+function firstFilledValue(...values) {
+  for (const value of values) {
+    if (value == null) continue;
+    const text = String(value).trim();
+    if (text) return text;
+  }
+  return "";
+}
+
+function debugCheckout(label, payload) {
+  console.debug(`[CHECKOUT] ${label}`, payload);
+}
+
 let products = [];
 let currentCategory = "all";
 
@@ -146,6 +159,69 @@ function getScopedInputValue(scope, selector) {
 
 function normalizeAuthEmail(value) {
   return safeText(value).trim().toLowerCase();
+}
+
+function getRegisterFormData() {
+  const registerBox = document.getElementById("registerBox");
+  const inputs = Array.from(registerBox?.querySelectorAll("input") || []);
+
+  return {
+    name: inputs[0]?.value?.trim() || "",
+    email: normalizeAuthEmail(inputs[1]?.value || ""),
+    password: inputs[2]?.value?.trim() || "",
+    phone: inputs[3]?.value?.trim() || "",
+    zip: inputs[4]?.value?.trim() || "",
+    street: inputs[5]?.value?.trim() || "",
+    number: inputs[6]?.value?.trim() || "",
+    complement: inputs[7]?.value?.trim() || "",
+    neighborhood: inputs[8]?.value?.trim() || "",
+    city: inputs[9]?.value?.trim() || "",
+    state: inputs[10]?.value?.trim() || "",
+    cpf: inputs[11]?.value?.trim() || "",
+    reference: inputs[12]?.value?.trim() || "",
+  };
+}
+
+function getProfileDataFromMetadata(user) {
+  const metadata = user?.user_metadata || {};
+
+  return {
+    zip: metadata.cep || metadata.zip || "",
+    street: metadata.street || "",
+    number: metadata.number || "",
+    neighborhood: metadata.neighborhood || "",
+    city: metadata.city || "",
+    state: metadata.state || "",
+    complement: metadata.complement || "",
+  };
+}
+
+async function upsertProfileForUser(user, profileData = {}) {
+  if (!user?.id) return;
+
+  const profile = {
+    id: user.id,
+    email: user.email || "",
+    name:
+      profileData.name ||
+      user.user_metadata?.full_name ||
+      user.user_metadata?.name ||
+      "",
+    cep: profileData.zip || "",
+    street: profileData.street || "",
+    number: profileData.number || "",
+    neighborhood: profileData.neighborhood || "",
+    city: profileData.city || "",
+    state: profileData.state || "",
+    complement: profileData.complement || "",
+    updated_at: new Date().toISOString(),
+  };
+
+  const { error } = await supabaseClient
+    .from("profiles")
+    .upsert([profile]);
+
+  if (error) throw error;
 }
 
 function getAuthMessage(error, mode = "login") {
@@ -683,6 +759,7 @@ async function openCheckoutFlow() {
   if (!modal) return;
 
   await hydrateCheckoutFromUser();
+  debugCheckout("CHECKOUT DATA BEFORE RENDER", { ...checkoutData });
   checkoutStep = 1;
   renderCheckoutStep();
   modal.classList.add("active");
@@ -705,16 +782,7 @@ async function hydrateCheckoutFromUser() {
 
     const user = data.user;
 
-    checkoutData.customer.name =
-      user.user_metadata?.full_name ||
-      user.user_metadata?.name ||
-      checkoutData.customer.name ||
-      "";
-
-    checkoutData.customer.email =
-      user.email ||
-      checkoutData.customer.email ||
-      "";
+    const metadataShipping = getProfileDataFromMetadata(user);
 
     const { data: profile, error: profileError } = await supabaseClient
       .from("profiles")
@@ -726,20 +794,64 @@ async function hydrateCheckoutFromUser() {
       throw profileError;
     }
 
-    if (profile) {
-      checkoutData.shipping = {
-        zip: profile.cep || "",
-        street: profile.street || "",
-        number: profile.number || "",
-        neighborhood: profile.neighborhood || "",
-        city: profile.city || "",
-        state: profile.state || "",
-        complement: profile.complement || "",
-      };
-    }
+    checkoutData.customer = {
+      name: firstFilledValue(
+        user.user_metadata?.full_name,
+        user.user_metadata?.name,
+        checkoutData.customer.name
+      ),
+      email: firstFilledValue(user.email, checkoutData.customer.email),
+    };
+
+    checkoutData.shipping = {
+      zip: firstFilledValue(profile?.cep, metadataShipping.zip, checkoutData.shipping.zip),
+      street: firstFilledValue(profile?.street, metadataShipping.street, checkoutData.shipping.street),
+      number: firstFilledValue(profile?.number, metadataShipping.number, checkoutData.shipping.number),
+      neighborhood: firstFilledValue(profile?.neighborhood, metadataShipping.neighborhood, checkoutData.shipping.neighborhood),
+      city: firstFilledValue(profile?.city, metadataShipping.city, checkoutData.shipping.city),
+      state: firstFilledValue(profile?.state, metadataShipping.state, checkoutData.shipping.state),
+      complement: firstFilledValue(profile?.complement, metadataShipping.complement, checkoutData.shipping.complement),
+    };
+
+    debugCheckout("HYDRATE PROFILE", {
+      userId: user.id,
+      profileFound: Boolean(profile),
+      customer: checkoutData.customer,
+      shipping: checkoutData.shipping,
+    });
 
   } catch (err) {
     console.log("Erro ao carregar dados do usuario:", err);
+  }
+}
+
+function syncCheckoutInputsFromState() {
+  if (checkoutStep === 1) {
+    const nameInput = document.getElementById("checkoutName");
+    const emailInput = document.getElementById("checkoutEmail");
+
+    if (nameInput) nameInput.value = safeText(checkoutData.customer.name);
+    if (emailInput) emailInput.value = safeText(checkoutData.customer.email);
+    return;
+  }
+
+  if (checkoutStep === 2) {
+    const fieldMap = [
+      ["checkoutZip", checkoutData.shipping.zip],
+      ["checkoutStreet", checkoutData.shipping.street],
+      ["checkoutNumber", checkoutData.shipping.number],
+      ["checkoutNeighborhood", checkoutData.shipping.neighborhood],
+      ["checkoutCity", checkoutData.shipping.city],
+      ["checkoutState", checkoutData.shipping.state],
+      ["checkoutComplement", checkoutData.shipping.complement],
+    ];
+
+    fieldMap.forEach(([id, value]) => {
+      const input = document.getElementById(id);
+      if (input) input.value = safeText(value);
+    });
+
+    debugCheckout("CHECKOUT STEP 2 VALUES", { ...checkoutData.shipping });
   }
 }
 
@@ -774,6 +886,11 @@ function renderCheckoutStep() {
         <input id="checkoutEmail" type="email" placeholder="Seu e-mail" value="${safeText(checkoutData.customer.email)}" />
       </div>
     `;
+
+    requestAnimationFrame(() => {
+      syncCheckoutInputsFromState();
+    });
+
     return;
   }
 
@@ -791,6 +908,8 @@ function renderCheckoutStep() {
     `;
 
     requestAnimationFrame(() => {
+      syncCheckoutInputsFromState();
+
       const cepInput = document.getElementById("checkoutZip");
       const streetInput = document.getElementById("checkoutStreet");
       const neighborhoodInput = document.getElementById("checkoutNeighborhood");
@@ -981,16 +1100,20 @@ async function confirmCheckout() {
   try {
     await saveCheckoutProfile();
 
+    const requestBody = {
+      cart: state.cart,
+      customer: checkoutData.customer,
+      shipping: checkoutData.shipping,
+    };
+
+    debugCheckout("REQUEST BODY TO CHECKOUT API", requestBody);
+
     const res = await fetch("/api/create-checkout", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        cart: state.cart,
-        customer: checkoutData.customer,
-        shipping: checkoutData.shipping,
-      }),
+      body: JSON.stringify(requestBody),
     });
 
     if (!res.ok) {
@@ -1280,10 +1403,8 @@ window.login = async function () {
 window.register = async function () {
   const registerBox = document.getElementById("registerBox");
   const registerBtn = registerBox?.querySelector(".btn-dark");
-  const textInputs = registerBox?.querySelectorAll('input[type="text"]') || [];
-  const name = textInputs[0]?.value?.trim() || "";
-  const email = normalizeAuthEmail(getScopedInputValue(registerBox, 'input[type="email"]'));
-  const password = getScopedInputValue(registerBox, 'input[type="password"]');
+  const formData = getRegisterFormData();
+  const { name, email, password } = formData;
 
   if (!name || !email || !password) {
     showToast("Preencha nome, email e senha");
@@ -1300,6 +1421,16 @@ window.register = async function () {
         data: {
           name,
           full_name: name,
+          phone: formData.phone,
+          cep: formData.zip,
+          street: formData.street,
+          number: formData.number,
+          complement: formData.complement,
+          neighborhood: formData.neighborhood,
+          city: formData.city,
+          state: formData.state,
+          cpf: formData.cpf,
+          reference: formData.reference,
         },
       },
     });
@@ -1314,6 +1445,7 @@ window.register = async function () {
     }
 
     if (data.session) {
+      await upsertProfileForUser(data.user, formData);
       await loadUserUI();
       await updateHeaderUser();
 
@@ -1418,7 +1550,7 @@ async function loadProfileData() {
     return
   }
 
-  if (!profile) return
+  const metadataProfile = getProfileDataFromMetadata(user)
 
   const cep = document.getElementById("cep")
   const street = document.getElementById("street")
@@ -1426,11 +1558,11 @@ async function loadProfileData() {
   const city = document.getElementById("city")
   const stateInput = document.getElementById("state")
 
-  if (cep) cep.value = profile.cep || ""
-  if (street) street.value = profile.street || ""
-  if (number) number.value = profile.number || ""
-  if (city) city.value = profile.city || ""
-  if (stateInput) stateInput.value = profile.state || ""
+  if (cep) cep.value = profile?.cep || metadataProfile.zip || ""
+  if (street) street.value = profile?.street || metadataProfile.street || ""
+  if (number) number.value = profile?.number || metadataProfile.number || ""
+  if (city) city.value = profile?.city || metadataProfile.city || ""
+  if (stateInput) stateInput.value = profile?.state || metadataProfile.state || ""
 }
 
 async function updateHeaderUser() {
