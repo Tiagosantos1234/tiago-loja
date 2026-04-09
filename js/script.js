@@ -65,6 +65,14 @@ function debugCheckout(label, payload) {
   console.debug(`[CHECKOUT] ${label}`, payload);
 }
 
+function sortByCreatedAtDesc(list = []) {
+  return [...list].sort((a, b) => {
+    const aTime = a?.created_at ? new Date(a.created_at).getTime() : 0;
+    const bTime = b?.created_at ? new Date(b.created_at).getTime() : 0;
+    return bTime - aTime;
+  });
+}
+
 async function clearBrokenSession(shouldReload = false) {
   try {
     await supabaseClient.auth.signOut();
@@ -1934,10 +1942,9 @@ async function loadMyOrders() {
     const { data: orders } = await supabaseClient
       .from("orders")
       .select("*")
-      .eq("customer_email", user.email)
-      .order("created_at", { ascending: false });
+      .eq("customer_email", user.email);
 
-    renderOrders(orders || []);
+    renderOrders(sortByCreatedAtDesc(orders || []));
 
   } catch (err) {
     console.log("Erro ao carregar pedidos:", err);

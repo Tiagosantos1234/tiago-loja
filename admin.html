@@ -1023,9 +1023,6 @@ FRENTE HT
 
   <div id="toast" class="toast"></div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-
-   
   JAVA 
 
   
@@ -1154,10 +1151,13 @@ FRENTE HT
       const { data, error } = await supabaseClient
         .from("orders")
         .select("*")
-        .order("created_at", { ascending: false })
 
       if (error) console.error("Erro ao carregar pedidos:", error)
-      pedidos = data || []
+      pedidos = (data || []).sort((a, b) => {
+        const aTime = a?.created_at ? new Date(a.created_at).getTime() : 0
+        const bTime = b?.created_at ? new Date(b.created_at).getTime() : 0
+        return bTime - aTime
+      })
     }
 
     async function carregarItensPedidos() {
@@ -1173,10 +1173,13 @@ FRENTE HT
       const { data, error } = await supabaseClient
         .from("products")
         .select("*")
-        .order("created_at", { ascending: false })
 
       if (error) console.error("Erro ao carregar produtos:", error)
-      produtos = data || []
+      produtos = (data || []).sort((a, b) => {
+        const aTime = a?.created_at ? new Date(a.created_at).getTime() : 0
+        const bTime = b?.created_at ? new Date(b.created_at).getTime() : 0
+        return bTime - aTime
+      })
     }
 
     function traduzirStatus(status) {
