@@ -1,4 +1,4 @@
-// =====================
+﻿// =====================
 // CONFIG
 // =====================
 const SUPABASE_URL = "https://nmosbabyarqnmihihalu.supabase.co";
@@ -15,7 +15,7 @@ function readStoredCart() {
     const parsed = JSON.parse(raw);
     return Array.isArray(parsed) ? parsed : [];
   } catch (err) {
-    console.warn("Carrinho local inválido, resetando armazenamento:", err);
+    console.warn("Carrinho local invalido, resetando armazenamento:", err);
     localStorage.removeItem("tl_cart_v1");
     return [];
   }
@@ -46,9 +46,12 @@ const checkoutData = {
 
 let checkoutStep = 1;
 
-
 let products = [];
 let currentCategory = "all";
+
+function isMobileViewport() {
+  return window.innerWidth <= 768;
+}
 
 // =====================
 // INIT
@@ -65,18 +68,25 @@ document.addEventListener("DOMContentLoaded", () => {
   showSkeleton();
   loadProducts();
   checkUser();
+  initUserDropdown();
   initMobileMenu();
   initCheckoutFlow();
-
 });
 
 function initUserDropdown() {
-  const userTrigger = document.getElementById("userTrigger");
+  const userTrigger =
+    document.getElementById("userTrigger") ||
+    document.getElementById("userArea");
   const dropdown = document.getElementById("userDropdown");
 
-  if (!userTrigger || !dropdown) return;
+  if (!userTrigger || !dropdown || userTrigger.dataset.bound === "true") return;
 
   userTrigger.addEventListener("click", (e) => {
+    if (isMobileViewport()) {
+      dropdown.classList.remove("show");
+      return;
+    }
+
     e.stopPropagation();
     dropdown.classList.toggle("show");
   });
@@ -88,6 +98,14 @@ function initUserDropdown() {
   document.addEventListener("click", () => {
     dropdown.classList.remove("show");
   });
+
+  window.addEventListener("resize", () => {
+    if (isMobileViewport()) {
+      dropdown.classList.remove("show");
+    }
+  });
+
+  userTrigger.dataset.bound = "true";
 }
 
 window.addEventListener("load", async () => {
@@ -97,8 +115,6 @@ window.addEventListener("load", async () => {
     await checkUser();
     await loadUserUI();
     await updateHeaderUser?.();
-
-    initUserDropdown();
 
   } catch (err) {
     console.log("Erro ignorado:", err);
@@ -186,7 +202,7 @@ function isValidCheckoutCart() {
   });
 
   if (hasInvalidItem) {
-    showToast("Carrinho inválido. Atualize a página e tente novamente.");
+    showToast("Carrinho invalido. Atualize a pagina e tente novamente.");
     return false;
   }
 
@@ -203,7 +219,7 @@ function isValidCheckoutCustomer() {
   }
 
   if (!email || !email.includes("@")) {
-    showToast("Digite um e-mail válido");
+    showToast("Digite um e-mail valido");
     return false;
   }
 
@@ -218,7 +234,7 @@ function isValidCheckoutShipping() {
     !safeText(shipping.street).trim() ||
     !safeText(shipping.number).trim()
   ) {
-    showToast("Preencha CEP, rua e número");
+    showToast("Preencha CEP, rua e numero");
     return false;
   }
 
@@ -546,7 +562,7 @@ function renderCart() {
   if (totalEl) totalEl.textContent = formatPrice(subtotal);
 
   if (!state.cart.length) {
-    cartItemsEl.innerHTML = `<div class="cart-empty">Seu carrinho está vazio</div>`;
+    cartItemsEl.innerHTML = `<div class="cart-empty">Seu carrinho esta vazio</div>`;
     return;
   }
 
@@ -556,7 +572,7 @@ function renderCart() {
       <div class="cart-item">
         <div>
           <h4>${safeText(item.name, "Produto")}</h4>
-          <div class="cart-meta">${item.quantity}x • ${formatPrice(item.price)}</div>
+          <div class="cart-meta">${item.quantity}x &bull; ${formatPrice(item.price)}</div>
 
           <div class="cart-row">
             <strong>${formatPrice(Number(item.price) * Number(item.quantity))}</strong>
@@ -574,7 +590,7 @@ function renderCart() {
 window.addToCart = function (id) {
   const product = products.find((p) => String(p.id) === String(id));
   if (!product) {
-    showToast("Produto não encontrado");
+    showToast("Produto nao encontrado");
     return;
   }
 
@@ -642,11 +658,15 @@ async function hydrateCheckoutFromUser() {
       checkoutData.customer.email ||
       "";
 
-    const { data: profile } = await supabaseClient
+    const { data: profile, error: profileError } = await supabaseClient
       .from("profiles")
       .select("*")
       .eq("id", user.id)
-      .single();
+      .maybeSingle();
+
+    if (profileError) {
+      throw profileError;
+    }
 
     if (profile) {
       checkoutData.shipping = {
@@ -661,7 +681,7 @@ async function hydrateCheckoutFromUser() {
     }
 
   } catch (err) {
-    console.log("Erro ao carregar dados do usuário:", err);
+    console.log("Erro ao carregar dados do usuario:", err);
   }
 }
 
@@ -681,8 +701,8 @@ function renderCheckoutStep() {
       checkoutStep === 1
         ? "Dados do cliente"
         : checkoutStep === 2
-          ? "Endereço de entrega"
-          : "Revisão do pedido";
+          ? "Endereco de entrega"
+          : "Revisao do pedido";
   }
 
   if (prevBtn) prevBtn.style.display = checkoutStep === 1 ? "none" : "inline-flex";
@@ -704,7 +724,7 @@ function renderCheckoutStep() {
       <div class="checkout-fields">
         <input id="checkoutZip" type="text" placeholder="CEP" value="${safeText(checkoutData.shipping.zip)}" />
         <input id="checkoutStreet" type="text" placeholder="Rua" value="${safeText(checkoutData.shipping.street)}" />
-        <input id="checkoutNumber" type="text" placeholder="Número" value="${safeText(checkoutData.shipping.number)}" />
+        <input id="checkoutNumber" type="text" placeholder="Numero" value="${safeText(checkoutData.shipping.number)}" />
         <input id="checkoutNeighborhood" type="text" placeholder="Bairro" value="${safeText(checkoutData.shipping.neighborhood)}" />
         <input id="checkoutCity" type="text" placeholder="Cidade" value="${safeText(checkoutData.shipping.city)}" />
         <input id="checkoutState" type="text" placeholder="Estado" value="${safeText(checkoutData.shipping.state)}" />
@@ -817,14 +837,14 @@ function validateCheckoutStep() {
     }
 
     if (!checkoutData.customer.email || !checkoutData.customer.email.includes("@")) {
-      showToast("Digite um e-mail válido");
+      showToast("Digite um e-mail valido");
       return false;
     }
   }
 
   if (checkoutStep === 2) {
     if (!checkoutData.shipping.zip || !checkoutData.shipping.street || !checkoutData.shipping.number) {
-      showToast("Preencha CEP, rua e número");
+      showToast("Preencha CEP, rua e numero");
       return false;
     }
 
@@ -877,6 +897,7 @@ async function confirmCheckout() {
   persistCheckoutStep();
 
   const btn = document.getElementById("checkoutConfirmBtn");
+  if (!btn) return;
 
   btn.classList.add("loading");
   btn.innerText = "Processando...";
@@ -914,7 +935,7 @@ async function confirmCheckout() {
     const data = await res.json();
 
     if (!data.init_point) {
-      throw new Error("Pagamento não gerado");
+      throw new Error("Pagamento nao gerado");
     }
 
     window.location.href = data.init_point;
@@ -930,13 +951,13 @@ async function confirmCheckout() {
 
 
 // =====================
-// AUTH UI BÁSICA
+// AUTH UI BASICA
 // =====================
 function initAuthUI() {
   const authModal = document.getElementById("authModal");
   const loginToggle = document.getElementById("loginToggle");
   const authClose = document.getElementById("closeModal");
-  const authTabs = document.querySelectorAll(".auth-tab");
+  const authTabs = authModal?.querySelectorAll(".auth-tab") || [];
   const loginForm = document.getElementById("loginForm");
   const registerForm = document.getElementById("registerForm");
 
@@ -981,7 +1002,7 @@ function initNewsletter() {
     const email = emailInput.value.trim();
 
     if (!email || !email.includes("@")) {
-      showToast("Digite um e-mail válido");
+      showToast("Digite um e-mail valido");
       return;
     }
 
@@ -996,7 +1017,7 @@ function initNewsletter() {
       if (error) throw error;
 
       form.reset();
-      showToast("E-mail cadastrado 🔥");
+      showToast("E-mail cadastrado com sucesso");
     } catch (err) {
       console.error("Erro ao salvar lead:", err);
       showToast("Erro ao salvar e-mail");
@@ -1028,7 +1049,7 @@ async function checkUser() {
     );
 
   } catch (err) {
-    console.log("Usuário não logado (normal)");
+    console.log("Usuario nao logado (normal)");
   }
 }
 
@@ -1053,7 +1074,7 @@ async function loadUserUI() {
         user.user_metadata?.name ||
         user.user_metadata?.full_name ||
         user.email ||
-        "Usuário";
+        "Usuario";
     }
 
     if (userEmailHeader) {
@@ -1091,7 +1112,7 @@ async function loadUserUI() {
     }
 
   } catch (err) {
-    console.log("Erro ao carregar usuário:", err);
+    console.log("Erro ao carregar usuario:", err);
   }
 }
 
@@ -1141,11 +1162,16 @@ async function loadProfile() {
 
   const user = data.user
 
-  document.getElementById("userName").innerText =
-    user.user_metadata?.full_name || "Cliente"
+  const userName = document.getElementById("userName")
+  const userEmail = document.getElementById("userEmail")
 
-  document.getElementById("userEmail").innerText =
-    user.email
+  if (userName) {
+    userName.innerText = user.user_metadata?.full_name || "Cliente"
+  }
+
+  if (userEmail) {
+    userEmail.innerText = user.email
+  }
 
   const { data: orders } = await supabaseClient
     .from("orders")
@@ -1154,6 +1180,7 @@ async function loadProfile() {
     .order("created_at", { ascending: false })
 
   const container = document.getElementById("ordersList")
+  if (!container) return;
 
   if (!orders || orders.length === 0) {
     container.innerHTML = "<p>Nenhum pedido ainda</p>"
@@ -1170,10 +1197,6 @@ async function loadProfile() {
 </div>
     </div>
   `).join("")
-}
-
-if (window.location.pathname.includes("profile")) {
-  loadProfile()
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -1210,7 +1233,7 @@ async function saveProfile() {
   const { data } = await supabaseClient.auth.getUser()
 
   if (!data?.user) {
-    alert("Faça login");
+    alert("Faca login");
     return;
   }
 
@@ -1238,7 +1261,7 @@ async function saveProfile() {
     return
   }
 
-  alert("Salvo com sucesso 🔥")
+  alert("Salvo com sucesso")
 }
 
 async function loadProfileData() {
@@ -1248,30 +1271,41 @@ async function loadProfileData() {
 
   const user = data.user
 
-  document.getElementById("userName").innerText =
-    user.user_metadata?.full_name || "Cliente"
+  const userName = document.getElementById("userName")
+  const userEmail = document.getElementById("userEmail")
 
-  document.getElementById("userEmail").innerText =
-    user.email
+  if (userName) {
+    userName.innerText = user.user_metadata?.full_name || "Cliente"
+  }
 
-  const { data: profile } = await supabaseClient
+  if (userEmail) {
+    userEmail.innerText = user.email
+  }
+
+  const { data: profile, error: profileError } = await supabaseClient
     .from("profiles")
     .select("*")
     .eq("id", user.id)
-    .single()
+    .maybeSingle()
+
+  if (profileError) {
+    console.error("Erro ao carregar perfil:", profileError)
+    return
+  }
 
   if (!profile) return
 
-  document.getElementById("cep").value = profile.cep || ""
-  document.getElementById("street").value = profile.street || ""
-  document.getElementById("number").value = profile.number || ""
-  document.getElementById("city").value = profile.city || ""
-  document.getElementById("state").value = profile.state || ""
-}
+  const cep = document.getElementById("cep")
+  const street = document.getElementById("street")
+  const number = document.getElementById("number")
+  const city = document.getElementById("city")
+  const stateInput = document.getElementById("state")
 
-if (window.location.pathname.includes("profile")) {
-  loadProfile()
-  loadProfileData()
+  if (cep) cep.value = profile.cep || ""
+  if (street) street.value = profile.street || ""
+  if (number) number.value = profile.number || ""
+  if (city) city.value = profile.city || ""
+  if (stateInput) stateInput.value = profile.state || ""
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -1333,11 +1367,6 @@ async function updateHeaderUser() {
 document.addEventListener("DOMContentLoaded", () => {
   updateHeaderUser()
 })
-
-document.addEventListener("click", () => {
-  const dropdown = document.getElementById("userDropdown");
-  if (dropdown) dropdown.classList.remove("show");
-});
 
 function goProfile() {
   window.location.href = "/profile.html"
@@ -1412,10 +1441,15 @@ function initMobileMenu() {
   const closeBtn = document.getElementById("closeMenu");
   const backdrop = document.getElementById("mobileMenuBackdrop");
   const links = document.querySelectorAll(".mobile-nav a");
+  const menuInner = menu?.querySelector(".mobile-menu-inner");
+  const menuContent = menu?.querySelector(".mobile-menu-content");
+  const dropdown = document.getElementById("userDropdown");
+  const menuPanel = menuInner || menuContent;
 
-  if (!menu || !menuBtn) return;
+  if (!menu || !menuBtn || menuBtn.dataset.mobileMenuBound === "true") return;
 
   function openMenu() {
+    dropdown?.classList.remove("show");
     menu.classList.add("active");
     menuBtn.classList.add("active");
     document.body.classList.add("menu-open");
@@ -1429,7 +1463,14 @@ function initMobileMenu() {
     document.body.style.overflow = "";
   }
 
-  menuBtn.addEventListener("click", () => {
+  menuBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!isMobileViewport()) {
+      return;
+    }
+
     menu.classList.contains("active") ? closeMenu() : openMenu();
   });
 
@@ -1440,9 +1481,34 @@ function initMobileMenu() {
     link.addEventListener("click", closeMenu);
   });
 
+  menuPanel?.addEventListener("click", (e) => {
+    e.stopPropagation();
+  });
+
+  menuContent?.querySelectorAll("button, a").forEach((item) => {
+    item.addEventListener("click", () => {
+      closeMenu();
+    });
+  });
+
+  document.addEventListener("click", (e) => {
+    if (!menu.classList.contains("active")) return;
+    if (menuBtn.contains(e.target)) return;
+    if (menuPanel?.contains(e.target)) return;
+    closeMenu();
+  });
+
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") closeMenu();
   });
+
+  window.addEventListener("resize", () => {
+    if (!isMobileViewport()) {
+      closeMenu();
+    }
+  });
+
+  menuBtn.dataset.mobileMenuBound = "true";
 }
 
 function animateToCart(imgElement) {
@@ -1539,12 +1605,17 @@ async function buscarCEP(cep) {
 
     if (data.erro) return;
 
-    document.querySelector('input[data-field="street"]').value = data.logradouro || "";
-    document.querySelector('input[data-field="neighborhood"]').value = data.bairro || "";
-    document.querySelector('input[data-field="city"]').value = data.localidade || "";
-    document.querySelector('input[data-field="state"]').value = data.uf || "";
+    const streetInput = document.querySelector('input[data-field="street"]');
+    const neighborhoodInput = document.querySelector('input[data-field="neighborhood"]');
+    const cityInput = document.querySelector('input[data-field="city"]');
+    const stateInput = document.querySelector('input[data-field="state"]');
 
-    // salva no checkoutData também
+    if (streetInput) streetInput.value = data.logradouro || "";
+    if (neighborhoodInput) neighborhoodInput.value = data.bairro || "";
+    if (cityInput) cityInput.value = data.localidade || "";
+    if (stateInput) stateInput.value = data.uf || "";
+
+    // salva no checkoutData tambem
     checkoutData.shipping.street = data.logradouro || "";
     checkoutData.shipping.neighborhood = data.bairro || "";
     checkoutData.shipping.city = data.localidade || "";
@@ -1578,6 +1649,7 @@ async function loadMyOrders() {
 
 function renderOrders(orders) {
   const container = document.getElementById("ordersList");
+  if (!container) return;
 
   if (!orders.length) {
     container.innerHTML = "<p>Nenhum pedido encontrado</p>";
@@ -1607,29 +1679,6 @@ function formatStatus(status) {
   return status;
 }
 
-if (window.location.pathname.includes("profile.html")) {
-  loadMyOrders();
-}
-
-function switchTab(tab) {
-  document.querySelectorAll(".tab-content").forEach(el => {
-    el.classList.remove("active");
-  });
-
-  document.querySelector(`#${tab}`).classList.add("active");
-
-  document.querySelectorAll(".sidebar-menu button").forEach(btn => {
-    btn.classList.remove("active");
-  });
-
-  const btns = document.querySelectorAll(".sidebar-menu button");
-  btns.forEach(b => {
-    if (b.textContent.toLowerCase().includes(tab)) {
-      b.classList.add("active");
-    }
-  });
-}
-
 function switchTab(tab) {
   document.querySelectorAll(".tab-content").forEach(el => {
     el.classList.remove("active");
@@ -1649,18 +1698,8 @@ function switchTab(tab) {
   });
 }
 
-setTimeout(() => {
-  const trigger = document.getElementById("userTrigger");
-
-  if (!trigger) {
-    console.log("❌ trigger não encontrado");
-    return;
-  }
-
-  console.log("✅ trigger encontrado");
-
-  trigger.onclick = () => {
-    console.log("🔥 CLIQUE FUNCIONOU");
-  };
-
-}, 1000);
+if (window.location.pathname.includes("profile.html")) {
+  loadProfile();
+  loadProfileData();
+  loadMyOrders();
+}

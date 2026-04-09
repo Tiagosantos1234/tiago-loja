@@ -1,66 +1,14 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 
 <head>
   <meta charset="UTF-8">
   <title>Minha Conta</title>
   <link rel="stylesheet" href="css/style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 
 <body class="app">
-  <header class="topbar" id="topbar">
-    <a href="/" class="back-store-btn">Voltar para loja</a>
-    <div class="container topbar-inner">
-      <nav class="nav-left" aria-label="Menu principal">
-        <a href="#drop" class="nav-link">Drop</a>
-        <a href="#editorial" class="nav-link">Editorial</a>
-        <a href="#story" class="nav-link">Manifesto</a>
-      </nav>
-
-      <a href="#home" class="brand-mark" aria-label="Voltar ao início">
-        <img src="logo.png" alt="Tiago Lobo Store" />
-      </a>
-
-      <div class="nav-right">
-        <a href="#benefits" class="nav-link nav-mobile">Benefícios</a>
-        <a href="#newsletter" class="nav-link">Drop List</a>
-
-        <div class="header-actions">
-
-          <button class="icon-btn" id="loginToggle" aria-label="Área do cliente">
-            <span>👤</span>
-          </button>
-
-          <button class="icon-btn" id="cartToggle" aria-label="Carrinho">
-            <span>🛒</span>
-            <span class="cart-count" id="cartCount">0</span>
-          </button>
-
-          <button class="icon-btn menu-toggle" id="menuBtn" aria-label="Abrir menu" type="button">
-            <span class="line l1"></span>
-            <span class="line l2"></span>
-          </button>
-
-        </div>
-
-        <div id="userContainer">
-          <!-- LOGADO -->
-          <div id="userArea" class="user-area" style="display:none;">
-            <img id="userAvatar" alt="Avatar do usuário" />
-            <span id="userNameHeader"></span>
-
-            <!-- DROPDOWN -->
-            <div id="userDropdown" class="dropdown">
-              <button onclick="goProfile()"><span>👤</span> Perfil</button>
-              <button onclick="goOrders()"><span>📦</span> Pedidos</button>
-              <button onclick="logout()"><span>🚪</span> Sair</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-  </header>
   <div class="app-layout">
 
   <!-- SIDEBAR -->
@@ -73,33 +21,33 @@
     </div>
 
     <nav class="sidebar-menu">
-      <button class="active" onclick="switchTab('profile')">👤 Perfil</button>
-      <button onclick="switchTab('address')">📍 Endereço</button>
-      <button onclick="switchTab('orders')">📦 Pedidos</button>
+      <button class="active" onclick="switchTab('profile')">&#128100; Perfil</button>
+      <button onclick="switchTab('address')">&#128205; Endere&ccedil;o</button>
+      <button onclick="switchTab('orders')">&#128230; Pedidos</button>
     </nav>
 
   </aside>
 
-  <!-- CONTEÚDO -->
+  <!-- CONTEUDO -->
   <main class="app-main">
 
     <!-- PERFIL -->
     <div class="tab-content active" id="profile">
       <div class="card">
-        <h3>👤 Seus dados</h3>
+        <h3>&#128100; Seus dados</h3>
         <p id="userName"></p>
         <p id="userEmail"></p>
       </div>
     </div>
 
-    <!-- ENDEREÇO -->
+    <!-- ENDERECO -->
     <div class="tab-content" id="address">
       <div class="card">
-        <h3>📍 Endereço</h3>
+        <h3>&#128205; Endere&ccedil;o</h3>
 
         <input id="cep" placeholder="CEP" />
         <input id="street" placeholder="Rua" />
-        <input id="number" placeholder="Número" />
+        <input id="number" placeholder="N&uacute;mero" />
         <input id="city" placeholder="Cidade" />
         <input id="state" placeholder="Estado" />
 
@@ -112,7 +60,7 @@
     <!-- PEDIDOS -->
     <div class="tab-content" id="orders">
       <div class="card orders-card">
-        <h3>📦 Meus pedidos</h3>
+        <h3>&#128230; Meus pedidos</h3>
         <div id="ordersList"></div>
       </div>
     </div>
@@ -122,5 +70,6 @@
 </div>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
   <div id="ordersList"></div>
+  <script src="./js/header.js"></script>
   <script src="./js/script.js"></script>
 </body>
