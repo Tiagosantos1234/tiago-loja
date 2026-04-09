@@ -15,15 +15,15 @@
   <aside class="app-sidebar">
 
     <div class="sidebar-user">
-      <img id="sidebarAvatar" src="" />
+      <img id="sidebarAvatar" src="" alt="Avatar do cliente" />
       <h3 id="sidebarName">Cliente</h3>
       <p id="sidebarEmail"></p>
     </div>
 
     <nav class="sidebar-menu">
-      <button class="active" onclick="switchTab('profile')">&#128100; Perfil</button>
-      <button onclick="switchTab('address')">&#128205; Endere&ccedil;o</button>
-      <button onclick="switchTab('orders')">&#128230; Pedidos</button>
+      <button type="button" class="active" data-tab="profile" onclick="switchTab('profile')">&#128100; Perfil</button>
+      <button type="button" data-tab="address" onclick="switchTab('address')">&#128205; Endere&ccedil;o</button>
+      <button type="button" data-tab="orders" onclick="switchTab('orders')">&#128230; Pedidos</button>
     </nav>
 
   </aside>
@@ -45,13 +45,13 @@
       <div class="card">
         <h3>&#128205; Endere&ccedil;o</h3>
 
-        <input id="cep" placeholder="CEP" />
-        <input id="street" placeholder="Rua" />
-        <input id="number" placeholder="N&uacute;mero" />
-        <input id="city" placeholder="Cidade" />
-        <input id="state" placeholder="Estado" />
+        <input id="cep" placeholder="CEP" autocomplete="postal-code" />
+        <input id="street" placeholder="Rua" autocomplete="address-line1" />
+        <input id="number" placeholder="N&uacute;mero" autocomplete="address-line2" />
+        <input id="city" placeholder="Cidade" autocomplete="address-level2" />
+        <input id="state" placeholder="Estado" autocomplete="address-level1" />
 
-        <button onclick="saveProfile()" class="primary-btn">
+        <button type="button" onclick="saveProfile()" class="primary-btn">
           Salvar
         </button>
       </div>
@@ -69,7 +69,6 @@
 
 </div>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-  <div id="ordersList"></div>
   <script src="./js/header.js"></script>
   <script src="./js/script.js"></script>
 </body>

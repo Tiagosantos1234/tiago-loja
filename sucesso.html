@@ -1,31 +1,114 @@
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pagamento aprovado</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: #0a0a0a;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
 
-<script>
-const supabase = supabase.createClient(
-  "https://nmosbabyarqnmihihalu.supabase.co",
-  "sb_publishable_RrPDyew7vfhihy3WvrNr6w_zZJ3kLql"
-);
+    .box {
+      width: 100%;
+      max-width: 460px;
+      padding: 30px;
+      border-radius: 24px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
 
-async function carregarPedido() {
-  const params = new URLSearchParams(window.location.search);
-  const ref = params.get("external_reference");
+    h1 {
+      margin: 0 0 10px;
+      font-size: 28px;
+    }
 
-  if (!ref) return;
+    p {
+      color: rgba(255,255,255,0.7);
+      margin: 0 0 18px;
+      line-height: 1.5;
+    }
 
-  const { data: order } = await supabase
-    .from("orders")
-    .select("*")
-    .eq("external_reference", ref)
-    .single();
+    #orderInfo {
+      margin: 18px 0 24px;
+      padding: 16px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.06);
+      text-align: left;
+    }
 
-  if (!order) return;
+    #orderInfo p {
+      margin-bottom: 8px;
+    }
 
-  document.getElementById("orderInfo").innerHTML = `
-    <p><strong>Pedido:</strong> ${order.external_reference}</p>
-    <p><strong>Status:</strong> ${order.status}</p>
-    <p><strong>Total:</strong> R$ ${order.total}</p>
-  `;
-}
+    button {
+      width: 100%;
+      height: 50px;
+      border: none;
+      border-radius: 999px;
+      background: #fff;
+      color: #000;
+      cursor: pointer;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h1>Pagamento aprovado</h1>
+    <p>Seu pedido foi recebido e estamos preparando os proximos passos.</p>
+    <div id="orderInfo"></div>
+    <button type="button" onclick="window.location.href='/'">Voltar para a loja</button>
+  </div>
 
-carregarPedido();
-</script>
+  <script>
+    const supabaseClient = supabase.createClient(
+      "https://nmosbabyarqnmihihalu.supabase.co",
+      "sb_publishable_RrPDyew7vfhihy3WvrNr6w_zZJ3kLql"
+    );
+
+    async function carregarPedido() {
+      const params = new URLSearchParams(window.location.search);
+      const ref = params.get("external_reference");
+      const orderInfo = document.getElementById("orderInfo");
+
+      if (!orderInfo) return;
+
+      if (!ref) {
+        orderInfo.innerHTML = "<p>Pedido nao localizado.</p>";
+        return;
+      }
+
+      const { data: order, error } = await supabaseClient
+        .from("orders")
+        .select("*")
+        .eq("external_reference", ref)
+        .maybeSingle();
+
+      if (error || !order) {
+        orderInfo.innerHTML = "<p>Nao foi possivel carregar os dados do pedido.</p>";
+        return;
+      }
+
+      orderInfo.innerHTML = `
+        <p><strong>Pedido:</strong> ${order.external_reference}</p>
+        <p><strong>Status:</strong> ${order.status}</p>
+        <p><strong>Total:</strong> R$ ${order.total}</p>
+      `;
+    }
+
+    carregarPedido();
+  </script>
+</body>
+</html>

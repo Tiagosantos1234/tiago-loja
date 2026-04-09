@@ -836,6 +836,8 @@ FILTERS / CAROUSEL
   scroll-behavior: smooth;
   scroll-snap-type: x mandatory;
   padding-bottom: 10px;
+  padding-top: 0;
+  margin-top: 0;
   cursor: grab;
   background: transparent;
   -ms-overflow-style: none;
@@ -849,6 +851,7 @@ FILTERS / CAROUSEL
 .products-grid {
   display: flex;
   gap: 22px;
+  align-items: stretch;
   width: max-content;
   background: transparent;
 }
@@ -858,25 +861,27 @@ FILTERS / CAROUSEL
   max-width: 300px;
   flex: 0 0 300px;
   scroll-snap-align: start;
+  background: transparent;
 }
 
 .product-card {
   background: #fff;
   border-radius: 28px;
   overflow: hidden;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.06);
   transition: all .4s cubic-bezier(.22, 1, .36, 1);
 }
 
 .product-card:hover {
   transform: translateY(-10px);
-  box-shadow: 0 24px 70px rgba(0, 0, 0, .14);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, .12);
 }
 
 .product-media {
   position: relative;
   aspect-ratio: 4 / 5;
   overflow: hidden;
-  background: #ece7dc;
+  background: transparent;
 }
 
 .product-img {
@@ -4745,3 +4750,1364 @@ MENU MOBILE CLIENTE
   background: #000;
 }
 
+/* =========================
+PROFILE PREMIUM UPGRADE
+========================= */
+
+/* HEADER PERFIL */
+.profile-header {
+  background: rgba(255,255,255,0.25);
+  backdrop-filter: blur(18px);
+  border-radius: 20px;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+}
+
+.profile-header img {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.profile-header strong {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.profile-header span {
+  font-size: 12px;
+  opacity: 0.6;
+}
+
+
+/* TABS */
+.profile-tabs {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.profile-tabs button {
+  flex: 1;
+  border-radius: 14px;
+  padding: 12px;
+  border: none;
+  background: rgba(0,0,0,0.05);
+  font-weight: 600;
+  transition: all .3s ease;
+}
+
+.profile-tabs button.active {
+  background: #111;
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+  transform: scale(1.02);
+}
+
+
+/* CARDS */
+.profile-card {
+  background: #0e0e0e;
+  color: #fff;
+  border-radius: 20px;
+  padding: 20px;
+  margin-top: 18px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+}
+
+
+/* INPUTS PREMIUM */
+.profile-card input {
+  width: 100%;
+  padding: 16px;
+  border-radius: 14px;
+  border: none;
+  background: rgba(255,255,255,0.06);
+  color: #fff;
+  margin-top: 12px;
+  transition: all .25s ease;
+}
+
+.profile-card input:focus {
+  outline: none;
+  background: rgba(255,255,255,0.12);
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.2);
+}
+
+
+/* TÍTULOS */
+.profile-card h3 {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.brand-mark {
+  position: relative;
+  z-index: 10;
+  pointer-events: auto;
+}
+
+.topbar-inner {
+  position: relative;
+  z-index: 2;
+}
+
+.nav-left,
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  /* 🔥 IMPORTANTE */
+  width: auto;
+  flex: none;
+}
+
+.topbar-inner > * {
+  max-width: 100%;
+}
+
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* MOBILE vira vertical automaticamente */
+@media (max-width: 768px) {
+  .app-layout {
+    flex-direction: column;
+  }
+}
+
+.app-sidebar {
+  width: 260px;
+  padding: 24px 18px;
+
+  background: rgba(255,255,255,0.6);
+  backdrop-filter: blur(18px);
+
+  border-right: 1px solid rgba(0,0,0,0.05);
+}
+
+/* MOBILE vira topo */
+@media (max-width: 768px) {
+  .app-sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+  }
+}
+
+.sidebar-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.sidebar-user img {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.sidebar-user h3 {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.sidebar-user p {
+  font-size: 12px;
+  opacity: 0.6;
+}
+
+.sidebar-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* MOBILE vira horizontal */
+@media (max-width: 768px) {
+  .sidebar-menu {
+    flex-direction: row;
+  }
+
+  .sidebar-menu button {
+    flex: 1;
+  }
+}
+
+.sidebar-menu button {
+  border: none;
+  padding: 12px;
+  border-radius: 14px;
+
+  background: rgba(0,0,0,0.05);
+  font-weight: 600;
+
+  transition: all 0.25s ease;
+}
+
+.sidebar-menu button.active {
+  background: #111;
+  color: #fff;
+
+  box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+  transform: scale(1.03);
+}
+
+.app-main {
+  flex: 1;
+  padding: 30px;
+}
+
+@media (max-width: 768px) {
+  .app-main {
+    padding: 20px 14px;
+  }
+}
+
+.card {
+  background: #0e0e0e;
+  color: #fff;
+
+  border-radius: 20px;
+  padding: 20px;
+  margin-bottom: 20px;
+
+  box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+}
+
+.card h3 {
+  font-size: 16px;
+  margin-bottom: 12px;
+}
+
+.card input {
+  width: 100%;
+  padding: 16px;
+
+  border-radius: 14px;
+  border: none;
+
+  background: rgba(255,255,255,0.06);
+  color: #fff;
+
+  margin-top: 12px;
+
+  transition: all 0.25s ease;
+}
+
+.card input:focus {
+  outline: none;
+  background: rgba(255,255,255,0.12);
+
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.2);
+}
+
+.primary-btn {
+  width: 100%;
+  margin-top: 16px;
+
+  padding: 14px;
+  border-radius: 999px;
+
+  border: none;
+  font-weight: 700;
+
+  background: #fff;
+  color: #111;
+
+  transition: all 0.25s ease;
+}
+
+.primary-btn:hover {
+  transform: translateY(-2px);
+}
+
+/* =========================
+PROFILE PAGE FINAL
+========================= */
+body.app {
+  min-height: 100vh;
+  padding-top: var(--header-h);
+  overflow-x: clip;
+}
+
+body.app .topbar {
+  overflow: visible;
+}
+
+body.app .topbar::after {
+  pointer-events: none;
+}
+
+body.app .topbar-inner {
+  width: min(calc(100% - 40px), var(--container));
+  grid-template-columns: auto 1fr auto !important;
+  gap: 16px !important;
+}
+
+body.app .nav-left,
+body.app .nav-right > .nav-link {
+  display: none !important;
+}
+
+body.app .brand-mark {
+  position: relative;
+  z-index: 4;
+  justify-self: center;
+  pointer-events: auto;
+}
+
+body.app .brand-mark img {
+  width: 152px;
+  height: 36px;
+  object-fit: contain;
+}
+
+body.app .topbar-inner > * {
+  position: relative;
+  z-index: 2;
+}
+
+body.app .back-store-btn {
+  position: absolute;
+  top: 50%;
+  left: 24px;
+  transform: translateY(-50%);
+  z-index: 4;
+  white-space: nowrap;
+}
+
+body.app .nav-right {
+  margin-left: auto;
+  gap: 12px;
+  min-width: 0;
+}
+
+body.app .header-actions,
+body.app #userContainer,
+body.app #userArea {
+  position: relative;
+  z-index: 4;
+}
+
+body.app .app-layout {
+  width: min(calc(100% - 48px), 1220px) !important;
+  margin: 34px auto 56px !important;
+  padding: 0 !important;
+  display: grid !important;
+  grid-template-columns: minmax(280px, 320px) minmax(0, 1fr) !important;
+  gap: 28px !important;
+  align-items: start;
+}
+
+body.app .app-sidebar {
+  position: sticky;
+  top: calc(var(--header-h) + 24px);
+  width: 100% !important;
+  padding: 24px !important;
+  border-radius: 28px !important;
+  border: 1px solid rgba(255, 255, 255, 0.42) !important;
+  background: rgba(255, 255, 255, 0.78) !important;
+  backdrop-filter: blur(22px) saturate(170%) !important;
+  -webkit-backdrop-filter: blur(22px) saturate(170%) !important;
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.62) !important;
+}
+
+body.app .sidebar-user {
+  display: grid !important;
+  justify-items: start;
+  gap: 10px !important;
+  margin-bottom: 20px !important;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(17, 17, 17, 0.08);
+}
+
+body.app .sidebar-user img {
+  width: 88px !important;
+  height: 88px !important;
+  border-radius: 50% !important;
+  object-fit: cover;
+  box-shadow: 0 18px 38px rgba(0, 0, 0, 0.18) !important;
+}
+
+body.app .sidebar-user h3 {
+  margin: 0;
+  font-size: 28px !important;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: #111;
+}
+
+body.app .sidebar-user p {
+  margin: 0;
+  font-size: 14px !important;
+  line-height: 1.5;
+  color: rgba(17, 17, 17, 0.58) !important;
+}
+
+body.app .sidebar-menu {
+  display: grid !important;
+  grid-template-columns: 1fr;
+  gap: 10px !important;
+}
+
+body.app .sidebar-menu button {
+  min-height: 52px;
+  padding: 0 18px !important;
+  border-radius: 18px !important;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  border: 1px solid rgba(17, 17, 17, 0.08) !important;
+  background: rgba(17, 17, 17, 0.04) !important;
+  color: rgba(17, 17, 17, 0.78) !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  text-align: left;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+body.app .sidebar-menu button:hover {
+  background: rgba(17, 17, 17, 0.07) !important;
+  border-color: rgba(17, 17, 17, 0.12) !important;
+  color: #111 !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06) !important;
+}
+
+body.app .sidebar-menu button.active {
+  background: #111 !important;
+  color: #fff !important;
+  border-color: #111 !important;
+  box-shadow: 0 18px 34px rgba(17, 17, 17, 0.18) !important;
+  transform: none !important;
+}
+
+body.app .app-main {
+  min-width: 0;
+  display: grid;
+  gap: 22px;
+  padding: 0 !important;
+}
+
+body.app .tab-content {
+  display: none;
+}
+
+body.app .tab-content.active {
+  display: block;
+}
+
+body.app .card,
+body.app .orders-card {
+  margin-bottom: 0 !important;
+  padding: 30px !important;
+  border-radius: 28px !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  background:
+    linear-gradient(180deg, rgba(22, 22, 22, 0.96) 0%, rgba(10, 10, 10, 1) 100%) !important;
+  box-shadow:
+    0 28px 70px rgba(0, 0, 0, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04) !important;
+}
+
+body.app .card h3,
+body.app .orders-card h3 {
+  margin-bottom: 18px !important;
+  font-size: clamp(28px, 3vw, 34px) !important;
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+body.app #profile .card p {
+  margin-top: 10px;
+  padding: 16px 18px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+body.app #address .card {
+  display: grid;
+  gap: 12px;
+}
+
+body.app #address .card input {
+  width: 100% !important;
+  min-height: 56px !important;
+  margin: 0 !important;
+  padding: 0 16px !important;
+  border-radius: 18px !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  color: #fff !important;
+  box-shadow: none !important;
+}
+
+body.app #address .card input:focus {
+  border-color: rgba(255, 255, 255, 0.3) !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.04) !important;
+}
+
+body.app .primary-btn {
+  min-height: 56px;
+  margin-top: 8px !important;
+  border-radius: 999px !important;
+  box-shadow: 0 16px 36px rgba(255, 255, 255, 0.12) !important;
+}
+
+body.app .orders-card #ordersList {
+  display: grid;
+  gap: 14px;
+}
+
+body.app .order-card {
+  padding: 18px 20px !important;
+  border-radius: 20px !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+body.app .order-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+body.app .order-body {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+@media (max-width: 980px) {
+  body.app .app-layout {
+    grid-template-columns: 1fr !important;
+  }
+
+  body.app .app-sidebar {
+    position: static;
+  }
+}
+
+@media (max-width: 768px) {
+  body.app .topbar {
+    height: 72px !important;
+    min-height: 72px !important;
+  }
+
+  body.app .topbar-inner {
+    width: calc(100% - 20px);
+    gap: 10px !important;
+  }
+
+  body.app .brand-mark img {
+    width: 132px;
+    height: 32px;
+  }
+
+  body.app .back-store-btn {
+    left: 12px;
+    min-height: 38px !important;
+    padding: 0 12px !important;
+    font-size: 12px !important;
+  }
+
+  body.app .nav-right {
+    gap: 8px;
+  }
+
+  body.app .header-actions .icon-btn {
+    width: 40px;
+    height: 40px;
+  }
+
+  body.app .app-layout {
+    width: calc(100% - 20px) !important;
+    margin: 18px auto 32px !important;
+    gap: 16px !important;
+  }
+
+  body.app .app-sidebar {
+    padding: 18px !important;
+    border-radius: 22px !important;
+  }
+
+  body.app .sidebar-user {
+    justify-items: center;
+    text-align: center;
+  }
+
+  body.app .sidebar-menu {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px !important;
+  }
+
+  body.app .sidebar-menu button {
+    min-height: 46px;
+    padding: 10px 8px !important;
+    justify-content: center;
+    text-align: center;
+    font-size: 13px !important;
+  }
+
+  body.app .card,
+  body.app .orders-card {
+    padding: 20px 16px !important;
+    border-radius: 22px !important;
+  }
+
+  body.app #profile .card p {
+    padding: 14px;
+  }
+
+  body.app #address .card input {
+    min-height: 50px !important;
+    font-size: 14px !important;
+  }
+
+  body.app .primary-btn {
+    min-height: 50px;
+  }
+
+  body.app .order-header,
+  body.app .order-body {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* =========================
+APP PREMIUM (FORÇA TOTAL)
+========================= */
+
+body.app {
+  background: linear-gradient(180deg, #f5f2eb, #ece6db);
+}
+
+/* LAYOUT */
+.app-layout {
+  display: flex !important;
+  min-height: 100vh;
+}
+
+/* SIDEBAR */
+.app-sidebar {
+  width: 260px !important;
+  padding: 24px 18px !important;
+
+  background: rgba(255,255,255,0.85) !important;
+  backdrop-filter: blur(18px) !important;
+
+  border-right: 1px solid rgba(0,0,0,0.06) !important;
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+  .app-sidebar {
+    width: 100% !important;
+    border-right: none !important;
+    border-bottom: 1px solid rgba(0,0,0,0.06) !important;
+  }
+}
+
+/* USER */
+.sidebar-user {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  margin-bottom: 20px !important;
+}
+
+.sidebar-user img {
+  width: 46px !important;
+  height: 46px !important;
+  border-radius: 50% !important;
+
+  box-shadow: 0 6px 16px rgba(0,0,0,0.25) !important;
+}
+
+/* MENU */
+.sidebar-menu {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+}
+
+.sidebar-menu button {
+  border: none !important;
+  padding: 12px !important;
+  border-radius: 14px !important;
+
+  background: rgba(0,0,0,0.05) !important;
+  font-weight: 600 !important;
+
+  transition: all .25s ease !important;
+}
+
+.sidebar-menu button.active {
+  background: #111 !important;
+  color: #fff !important;
+
+  box-shadow: 0 12px 30px rgba(0,0,0,0.25) !important;
+  transform: scale(1.04);
+}
+
+/* MOBILE MENU */
+@media (max-width: 768px) {
+  .sidebar-menu {
+    flex-direction: row !important;
+  }
+
+  .sidebar-menu button {
+    flex: 1;
+  }
+}
+
+/* MAIN */
+.app-main {
+  flex: 1 !important;
+  padding: 30px !important;
+}
+
+@media (max-width: 768px) {
+  .app-main {
+    padding: 20px 14px !important;
+  }
+}
+
+/* CARDS PREMIUM */
+.app-main .card {
+  background: #0e0e0e !important;
+  color: #fff !important;
+
+  border-radius: 22px !important;
+  padding: 22px !important;
+  margin-bottom: 20px !important;
+
+  box-shadow: 0 25px 60px rgba(0,0,0,0.3) !important;
+}
+
+/* INPUTS */
+.app-main .card input {
+  width: 100% !important;
+  padding: 16px !important;
+
+  border-radius: 14px !important;
+  border: none !important;
+
+  background: rgba(255,255,255,0.06) !important;
+  color: #fff !important;
+
+  margin-top: 12px !important;
+}
+
+.app-main .card input:focus {
+  background: rgba(255,255,255,0.12) !important;
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.2) !important;
+}
+
+/* BOTÃO */
+.primary-btn {
+  width: 100% !important;
+  margin-top: 16px !important;
+
+  padding: 14px !important;
+  border-radius: 999px !important;
+
+  background: #fff !important;
+  color: #111 !important;
+  font-weight: 700 !important;
+
+  transition: all .25s ease !important;
+}
+
+.primary-btn:hover {
+  transform: translateY(-2px);
+}
+
+/* LIMPA O HEADER */
+.topbar {
+  background: rgba(255,255,255,0.85) !important;
+  backdrop-filter: blur(12px) !important;
+}
+
+.app-layout {
+  margin-top: var(--header-h);
+}
+.topbar {
+  z-index: 9999;
+}
+.sidebar-user {
+  margin-top: 20px;
+  padding: 20px;
+
+  background: rgba(255,255,255,0.8);
+  border-radius: 24px;
+
+  text-align: center;
+}
+
+.app-main {
+  padding-top: 20px;
+}
+
+.app-layout {
+  display: grid !important;
+  grid-template-columns: 320px 1fr;
+  gap: 40px;
+  padding: 40px;
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+  .app-layout {
+    display: block !important;
+    padding: 16px;
+  }
+}
+
+.app-sidebar {
+  background: #fff !important;
+  border-radius: 24px !important;
+  padding: 28px !important;
+
+  box-shadow: 0 20px 60px rgba(0,0,0,0.08);
+}
+
+/* CENTRALIZA CONTEÚDO */
+.sidebar-user {
+  flex-direction: column;
+  text-align: center;
+}
+
+.sidebar-user img {
+  width: 72px !important;
+  height: 72px !important;
+  margin-bottom: 10px;
+}
+
+.sidebar-menu button {
+  height: 52px;
+  border-radius: 16px;
+
+  background: #f2f2f2 !important;
+}
+
+.sidebar-menu button.active {
+  background: #111 !important;
+  color: #fff;
+
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+.app-main .card {
+  border-radius: 28px !important;
+  padding: 30px !important;
+
+  background: linear-gradient(145deg, #0a0a0a, #1a1a1a) !important;
+
+  box-shadow:
+    0 30px 80px rgba(0,0,0,0.3),
+    inset 0 1px 0 rgba(255,255,255,0.05);
+}
+
+.card input {
+  height: 56px;
+  border-radius: 16px;
+
+  background: rgba(255,255,255,0.08) !important;
+  border: 1px solid rgba(255,255,255,0.05);
+
+  font-size: 15px;
+}
+
+@media (max-width: 768px) {
+
+  .sidebar-user img {
+    width: 64px !important;
+    height: 64px !important;
+  }
+
+  .sidebar-menu {
+    gap: 8px;
+  }
+
+  .sidebar-menu button {
+    font-size: 13px;
+    padding: 10px;
+  }
+
+  .card {
+    padding: 22px !important;
+  }
+
+}
+
+/* =========================
+PROFILE PAGE HEADER + LAYOUT FIX
+========================= */
+body.app {
+  padding-top: var(--header-h) !important;
+  overflow-x: clip !important;
+}
+
+body.app .topbar {
+  position: fixed !important;
+  inset: 0 0 auto 0 !important;
+  z-index: 1200 !important;
+  isolation: isolate;
+  overflow: visible !important;
+}
+
+body.app .topbar::after {
+  content: none !important;
+  display: none !important;
+  pointer-events: none !important;
+}
+
+body.app .topbar-inner {
+  width: min(calc(100% - 32px), var(--container)) !important;
+  margin: 0 auto !important;
+  padding: 0 !important;
+  min-height: 100% !important;
+  grid-template-columns: auto 1fr auto !important;
+  gap: 14px !important;
+  align-items: center !important;
+}
+
+body.app .nav-left,
+body.app .nav-right > .nav-link {
+  display: none !important;
+  pointer-events: none !important;
+}
+
+body.app .brand-mark {
+  position: relative !important;
+  z-index: 3 !important;
+  justify-self: center !important;
+}
+
+body.app .brand-mark img {
+  width: 150px !important;
+  height: 36px !important;
+  object-fit: contain !important;
+}
+
+body.app .back-store-btn {
+  position: absolute !important;
+  top: 50% !important;
+  left: 20px !important;
+  transform: translateY(-50%) !important;
+  z-index: 4 !important;
+}
+
+body.app .nav-right,
+body.app .header-actions,
+body.app #userContainer,
+body.app #userArea {
+  position: relative !important;
+  z-index: 4 !important;
+}
+
+body.app .nav-right {
+  justify-self: end !important;
+  justify-content: flex-end !important;
+  flex-wrap: nowrap !important;
+}
+
+body.app #userContainer {
+  flex: 0 0 auto !important;
+}
+
+body.app #userArea {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  max-width: 188px !important;
+  padding: 6px 12px 6px 6px !important;
+  border-radius: 999px !important;
+  background: rgba(255, 255, 255, 0.28) !important;
+  border: 1px solid rgba(255, 255, 255, 0.34) !important;
+  backdrop-filter: blur(18px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(180%) !important;
+  box-shadow:
+    0 14px 34px rgba(0, 0, 0, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.24) !important;
+  overflow: hidden !important;
+}
+
+body.app #userArea img {
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 32px !important;
+  border-radius: 50% !important;
+  object-fit: cover !important;
+}
+
+body.app #userNameHeader {
+  display: block !important;
+  max-width: 110px !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  color: #fff !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+}
+
+body.app .app-layout {
+  width: min(calc(100% - 40px), 1220px) !important;
+  margin: 20px auto 56px !important;
+  padding: 0 !important;
+  display: grid !important;
+  grid-template-columns: minmax(280px, 320px) minmax(0, 1fr) !important;
+  gap: 28px !important;
+  align-items: start !important;
+}
+
+body.app .app-sidebar {
+  position: sticky !important;
+  top: calc(var(--header-h) + 24px) !important;
+  width: 100% !important;
+  padding: 24px !important;
+  border-radius: 28px !important;
+}
+
+body.app .sidebar-user {
+  margin-top: 0 !important;
+  margin-bottom: 20px !important;
+  padding: 0 0 20px !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+  border-bottom: 1px solid rgba(17, 17, 17, 0.08);
+  display: grid !important;
+  justify-items: start !important;
+  text-align: left !important;
+  gap: 10px !important;
+}
+
+body.app .sidebar-user img {
+  width: 84px !important;
+  height: 84px !important;
+  margin-bottom: 0 !important;
+}
+
+body.app .sidebar-menu {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 10px !important;
+}
+
+body.app .sidebar-menu button {
+  min-height: 50px !important;
+  height: auto !important;
+  padding: 12px 16px !important;
+  border-radius: 18px !important;
+  justify-content: flex-start !important;
+  text-align: left !important;
+  transform: none !important;
+}
+
+body.app .sidebar-menu button.active {
+  transform: none !important;
+}
+
+body.app .app-main {
+  min-width: 0 !important;
+  padding: 0 !important;
+  display: grid !important;
+  gap: 22px !important;
+}
+
+body.app .tab-content.active {
+  display: block !important;
+}
+
+body.app .card,
+body.app .orders-card {
+  margin-bottom: 0 !important;
+  padding: 28px !important;
+  border-radius: 28px !important;
+}
+
+body.app #profile .card p {
+  margin-top: 10px !important;
+  padding: 16px 18px !important;
+  border-radius: 18px !important;
+}
+
+body.app #address .card {
+  display: grid !important;
+  gap: 12px !important;
+}
+
+body.app #address .card input {
+  height: 54px !important;
+  margin-top: 0 !important;
+}
+
+body.app .orders-card #ordersList {
+  display: grid !important;
+  gap: 14px !important;
+}
+
+body.app .order-card {
+  margin: 0 !important;
+}
+
+@media (max-width: 980px) {
+  body.app .app-layout {
+    grid-template-columns: 1fr !important;
+    gap: 18px !important;
+  }
+
+  body.app .app-sidebar {
+    position: static !important;
+  }
+}
+
+@media (max-width: 768px) {
+  body.app .back-store-btn {
+    display: none !important;
+  }
+
+  body.app .topbar {
+    height: 72px !important;
+    min-height: 72px !important;
+  }
+
+  body.app .topbar-inner {
+    width: calc(100% - 20px) !important;
+    gap: 10px !important;
+  }
+
+  body.app .brand-mark img {
+    width: 128px !important;
+    height: 30px !important;
+  }
+
+  body.app .back-store-btn {
+    left: 12px !important;
+    min-height: 36px !important;
+    padding: 0 12px !important;
+    font-size: 12px !important;
+  }
+
+  body.app .nav-right {
+    width: auto !important;
+    gap: 8px !important;
+  }
+
+  body.app #userContainer,
+  body.app #userArea {
+    display: none !important;
+  }
+
+  body.app .app-layout {
+    width: calc(100% - 20px) !important;
+    margin: 24px auto 30px !important;
+    gap: 16px !important;
+  }
+
+  body.app .app-sidebar {
+    padding: 18px !important;
+    border-radius: 22px !important;
+  }
+
+  body.app .sidebar-user {
+    justify-items: center !important;
+    text-align: center !important;
+  }
+
+  body.app .sidebar-menu {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+  }
+
+  body.app .sidebar-menu button {
+    min-height: 44px !important;
+    padding: 10px 8px !important;
+    justify-content: center !important;
+    text-align: center !important;
+    font-size: 13px !important;
+  }
+
+  body.app .card,
+  body.app .orders-card {
+    padding: 20px 16px !important;
+    border-radius: 22px !important;
+  }
+
+  body.app .order-header,
+  body.app .order-body {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  }
+}
+
+@media (min-width: 769px) {
+  body.app .topbar {
+    background: rgba(255, 255, 255, 0.58) !important;
+    backdrop-filter: blur(26px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(26px) saturate(180%) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.46) !important;
+    box-shadow:
+      0 20px 52px rgba(0, 0, 0, 0.08),
+      inset 0 1px 0 rgba(255, 255, 255, 0.62) !important;
+  }
+
+  body.app .topbar.scrolled {
+    background: rgba(255, 255, 255, 0.68) !important;
+    backdrop-filter: blur(30px) saturate(190%) !important;
+    -webkit-backdrop-filter: blur(30px) saturate(190%) !important;
+    box-shadow:
+      0 22px 56px rgba(0, 0, 0, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.66) !important;
+  }
+
+  body.app .nav-right {
+    width: auto !important;
+    align-items: center !important;
+    gap: 12px !important;
+  }
+
+  body.app .header-actions,
+  body.app #userContainer {
+    flex: 0 0 auto !important;
+    display: flex !important;
+    align-items: center !important;
+  }
+
+  body.app #userContainer {
+    position: relative !important;
+  }
+
+  body.app #userArea {
+    min-width: 0 !important;
+    max-width: 176px !important;
+    width: auto !important;
+    padding: 6px 12px 6px 6px !important;
+    background: rgba(255, 255, 255, 0.22) !important;
+    border: 1px solid rgba(255, 255, 255, 0.34) !important;
+    backdrop-filter: blur(18px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(18px) saturate(180%) !important;
+    box-shadow:
+      0 14px 32px rgba(0, 0, 0, 0.12),
+      inset 0 1px 0 rgba(255, 255, 255, 0.36) !important;
+    overflow: visible !important;
+  }
+
+  body.app #userArea:hover {
+    transform: translateY(-2px) !important;
+    background: rgba(255, 255, 255, 0.28) !important;
+    box-shadow:
+      0 18px 40px rgba(0, 0, 0, 0.14),
+      inset 0 1px 0 rgba(255, 255, 255, 0.42) !important;
+  }
+
+  body.app #userNameHeader {
+    max-width: 88px !important;
+  }
+
+  body.app #userDropdown {
+    position: absolute !important;
+    top: calc(100% + 12px) !important;
+    right: 0 !important;
+    left: auto !important;
+    z-index: 1300 !important;
+    min-width: 200px !important;
+    max-width: 200px !important;
+    padding: 8px !important;
+    border-radius: 20px !important;
+    background: rgba(255, 255, 255, 0.74) !important;
+    backdrop-filter: blur(22px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(22px) saturate(180%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.52) !important;
+    box-shadow:
+      0 24px 54px rgba(0, 0, 0, 0.12),
+      inset 0 1px 0 rgba(255, 255, 255, 0.62) !important;
+  }
+
+  body.app #userDropdown::before {
+    content: "" !important;
+    position: absolute !important;
+    top: -6px !important;
+    right: 20px !important;
+    width: 12px !important;
+    height: 12px !important;
+    background: rgba(255, 255, 255, 0.74) !important;
+    border-left: 1px solid rgba(255, 255, 255, 0.52) !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.52) !important;
+    transform: rotate(45deg) !important;
+  }
+
+  body.app #userDropdown button {
+    color: #111 !important;
+  }
+}
+
+/* FINAL HEADER GLASS */
+.topbar {
+  background: rgba(255, 255, 255, 0.18) !important;
+  backdrop-filter: blur(22px) saturate(170%) !important;
+  -webkit-backdrop-filter: blur(22px) saturate(170%) !important;
+  border-bottom: none !important;
+  box-shadow:
+    0 18px 48px rgba(0, 0, 0, 0.06) !important;
+}
+
+.topbar.scrolled {
+  background: rgba(255, 255, 255, 0.28) !important;
+  backdrop-filter: blur(26px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(26px) saturate(180%) !important;
+  border-bottom: none !important;
+  box-shadow:
+    0 20px 54px rgba(0, 0, 0, 0.08) !important;
+}
+
+.topbar::after {
+  display: none !important;
+  content: none !important;
+}
+
+body.app .topbar {
+  background: rgba(255, 255, 255, 0.22) !important;
+  backdrop-filter: blur(24px) saturate(175%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(175%) !important;
+  border-bottom: none !important;
+  box-shadow:
+    0 18px 48px rgba(0, 0, 0, 0.07) !important;
+}
+
+body.app .topbar.scrolled {
+  background: rgba(255, 255, 255, 0.32) !important;
+  backdrop-filter: blur(28px) saturate(185%) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(185%) !important;
+  border-bottom: none !important;
+  box-shadow:
+    0 20px 54px rgba(0, 0, 0, 0.09) !important;
+}

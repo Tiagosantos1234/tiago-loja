@@ -78,16 +78,20 @@ function initUserDropdown() {
     document.getElementById("userTrigger") ||
     document.getElementById("userArea");
   const dropdown = document.getElementById("userDropdown");
+  const mobileMenu = document.getElementById("mobileMenu");
+  const isAppPage = document.body.classList.contains("app");
 
   if (!userTrigger || !dropdown || userTrigger.dataset.bound === "true") return;
 
   userTrigger.addEventListener("click", (e) => {
-    if (isMobileViewport()) {
+    e.stopPropagation();
+
+    if (isMobileViewport() && isAppPage) {
       dropdown.classList.remove("show");
       return;
     }
 
-    e.stopPropagation();
+    mobileMenu?.classList.remove("active");
     dropdown.classList.toggle("show");
   });
 
@@ -119,7 +123,7 @@ window.addEventListener("load", async () => {
   } catch (err) {
     console.log("Erro ignorado:", err);
   }
-  
+
 });
 
 // =====================
@@ -134,6 +138,23 @@ function formatPrice(value) {
 
 function safeText(value, fallback = "") {
   return value == null ? fallback : String(value);
+}
+
+function getScopedInputValue(scope, selector) {
+  return scope?.querySelector(selector)?.value?.trim() || "";
+}
+
+function setButtonBusy(button, label) {
+  if (!button) return;
+  button.dataset.originalText = button.dataset.originalText || button.textContent;
+  button.textContent = label;
+  button.disabled = true;
+}
+
+function resetButtonBusy(button) {
+  if (!button) return;
+  button.textContent = button.dataset.originalText || button.textContent;
+  button.disabled = false;
 }
 
 function persistCart() {
@@ -722,31 +743,38 @@ function renderCheckoutStep() {
   if (checkoutStep === 2) {
     content.innerHTML = `
       <div class="checkout-fields">
-        <input id="checkoutZip" type="text" placeholder="CEP" value="${safeText(checkoutData.shipping.zip)}" />
-        <input id="checkoutStreet" type="text" placeholder="Rua" value="${safeText(checkoutData.shipping.street)}" />
-        <input id="checkoutNumber" type="text" placeholder="Numero" value="${safeText(checkoutData.shipping.number)}" />
-        <input id="checkoutNeighborhood" type="text" placeholder="Bairro" value="${safeText(checkoutData.shipping.neighborhood)}" />
-        <input id="checkoutCity" type="text" placeholder="Cidade" value="${safeText(checkoutData.shipping.city)}" />
-        <input id="checkoutState" type="text" placeholder="Estado" value="${safeText(checkoutData.shipping.state)}" />
+        <input id="checkoutZip" data-field="zip" type="text" placeholder="CEP" value="${safeText(checkoutData.shipping.zip)}" />
+        <input id="checkoutStreet" data-field="street" type="text" placeholder="Rua" value="${safeText(checkoutData.shipping.street)}" />
+        <input id="checkoutNumber" data-field="number" type="text" placeholder="Numero" value="${safeText(checkoutData.shipping.number)}" />
+        <input id="checkoutNeighborhood" data-field="neighborhood" type="text" placeholder="Bairro" value="${safeText(checkoutData.shipping.neighborhood)}" />
+        <input id="checkoutCity" data-field="city" type="text" placeholder="Cidade" value="${safeText(checkoutData.shipping.city)}" />
+        <input id="checkoutState" data-field="state" type="text" placeholder="Estado" value="${safeText(checkoutData.shipping.state)}" />
         <input id="checkoutComplement" type="text" placeholder="Complemento" value="${safeText(checkoutData.shipping.complement)}" />
       </div>
     `;
-    return;
-  }
 
-  setTimeout(() => {
-    const cepInput = document.querySelector('input[data-field="zip"]');
+    requestAnimationFrame(() => {
+      const cepInput = document.getElementById("checkoutZip");
+      const streetInput = document.getElementById("checkoutStreet");
+      const neighborhoodInput = document.getElementById("checkoutNeighborhood");
+      const cityInput = document.getElementById("checkoutCity");
+      const stateInput = document.getElementById("checkoutState");
 
-    if (cepInput) {
+      if (!cepInput || cepInput.dataset.bound === "true") return;
+
       cepInput.addEventListener("blur", (e) => {
         buscarCEP(e.target.value);
       });
-      document.querySelector('input[data-field="street"]').disabled = true;
-      document.querySelector('input[data-field="neighborhood"]').disabled = true;
-      document.querySelector('input[data-field="city"]').disabled = true;
-      document.querySelector('input[data-field="state"]').disabled = true;
-    }
-  }, 100);
+
+      [streetInput, neighborhoodInput, cityInput, stateInput].forEach((input) => {
+        if (input) input.disabled = true;
+      });
+
+      cepInput.dataset.bound = "true";
+    });
+
+    return;
+  }
 
   if (checkoutStep === 3) {
     content.innerHTML = `
@@ -904,6 +932,7 @@ async function confirmCheckout() {
   btn.disabled = true;
 
   if (!isValidCheckoutCart() || !isValidCheckoutCustomer() || !isValidCheckoutShipping()) {
+    btn.classList.remove("loading");
     btn.innerText = "Ir para pagamento";
     btn.disabled = false;
     return;
@@ -957,33 +986,48 @@ function initAuthUI() {
   const authModal = document.getElementById("authModal");
   const loginToggle = document.getElementById("loginToggle");
   const authClose = document.getElementById("closeModal");
-  const authTabs = authModal?.querySelectorAll(".auth-tab") || [];
-  const loginForm = document.getElementById("loginForm");
-  const registerForm = document.getElementById("registerForm");
+  const authBox = document.getElementById("authBox");
+  const btnLogin = document.getElementById("btnLogin");
+  const btnRegister = document.getElementById("btnRegister");
+  const loginBox = document.getElementById("loginBox");
+  const registerBox = document.getElementById("registerBox");
 
   loginToggle?.addEventListener("click", () => {
     authModal?.classList.add("active");
+    document.body.style.overflow = "hidden";
   });
 
   authClose?.addEventListener("click", () => {
     authModal?.classList.remove("active");
+    document.body.style.overflow = "";
   });
 
-  authTabs.forEach((tab) => {
-    tab.addEventListener("click", () => {
-      authTabs.forEach((t) => t.classList.remove("active"));
-      tab.classList.add("active");
+  authModal?.addEventListener("click", (e) => {
+    if (authBox && !authBox.contains(e.target)) {
+      authModal.classList.remove("active");
+      document.body.style.overflow = "";
+    }
+  });
 
-      const mode = tab.dataset.authTab;
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && authModal?.classList.contains("active")) {
+      authModal.classList.remove("active");
+      document.body.style.overflow = "";
+    }
+  });
 
-      if (mode === "login") {
-        loginForm?.classList.add("active");
-        registerForm?.classList.remove("active");
-      } else {
-        registerForm?.classList.add("active");
-        loginForm?.classList.remove("active");
-      }
-    });
+  btnLogin?.addEventListener("click", () => {
+    btnLogin.classList.add("active");
+    btnRegister?.classList.remove("active");
+    loginBox?.classList.add("active");
+    registerBox?.classList.remove("active");
+  });
+
+  btnRegister?.addEventListener("click", () => {
+    btnRegister.classList.add("active");
+    btnLogin?.classList.remove("active");
+    registerBox?.classList.add("active");
+    loginBox?.classList.remove("active");
   });
 }
 
@@ -1085,7 +1129,7 @@ async function loadUserUI() {
       userAvatar.src =
         user.user_metadata?.avatar_url ||
         user.user_metadata?.picture ||
-        "img/avatar-placeholder.png";
+        "https://i.pravatar.cc/150?img=12";
     }
 
     // ===== SIDEBAR (NOVO LAYOUT) =====
@@ -1108,7 +1152,7 @@ async function loadUserUI() {
       sidebarAvatar.src =
         user.user_metadata?.avatar_url ||
         user.user_metadata?.picture ||
-        "img/avatar-placeholder.png";
+        "https://i.pravatar.cc/150?img=12";
     }
 
   } catch (err) {
@@ -1136,7 +1180,11 @@ window.startCheckout = async function () {
 
 
 window.loginWithGoogle = async function () {
+  const googleBtn = document.querySelector("#registerBox .btn-ghost");
+
   try {
+    setButtonBusy(googleBtn, "Conectando...");
+
     const { error } = await supabaseClient.auth.signInWithOAuth({
       provider: "google",
       options: {
@@ -1149,6 +1197,81 @@ window.loginWithGoogle = async function () {
   } catch (err) {
     console.error("Erro no login Google:", err);
     showToast("Erro no login Google");
+  } finally {
+    resetButtonBusy(googleBtn);
+  }
+};
+
+window.login = async function () {
+  const loginBox = document.getElementById("loginBox");
+  const loginBtn = loginBox?.querySelector(".btn-dark");
+  const email = getScopedInputValue(loginBox, 'input[type="email"]');
+  const password = getScopedInputValue(loginBox, 'input[type="password"]');
+
+  if (!email || !password) {
+    showToast("Preencha email e senha");
+    return;
+  }
+
+  try {
+    setButtonBusy(loginBtn, "Entrando...");
+
+    const { error } = await supabaseClient.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) throw error;
+
+    await loadUserUI();
+    await updateHeaderUser();
+
+    document.getElementById("authModal")?.classList.remove("active");
+    document.body.style.overflow = "";
+    showToast("Login realizado com sucesso");
+  } catch (err) {
+    console.error("Erro no login:", err);
+    showToast("Erro ao entrar na conta");
+  } finally {
+    resetButtonBusy(loginBtn);
+  }
+};
+
+window.register = async function () {
+  const registerBox = document.getElementById("registerBox");
+  const registerBtn = registerBox?.querySelector(".btn-dark");
+  const textInputs = registerBox?.querySelectorAll('input[type="text"]') || [];
+  const name = textInputs[0]?.value?.trim() || "";
+  const email = getScopedInputValue(registerBox, 'input[type="email"]');
+  const password = getScopedInputValue(registerBox, 'input[type="password"]');
+
+  if (!name || !email || !password) {
+    showToast("Preencha nome, email e senha");
+    return;
+  }
+
+  try {
+    setButtonBusy(registerBtn, "Criando...");
+
+    const { error } = await supabaseClient.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          name,
+          full_name: name,
+        },
+      },
+    });
+
+    if (error) throw error;
+
+    showToast("Conta criada. Verifique seu email");
+  } catch (err) {
+    console.error("Erro no cadastro:", err);
+    showToast("Erro ao criar conta");
+  } finally {
+    resetButtonBusy(registerBtn);
   }
 };
 
@@ -1172,62 +1295,7 @@ async function loadProfile() {
   if (userEmail) {
     userEmail.innerText = user.email
   }
-
-  const { data: orders } = await supabaseClient
-    .from("orders")
-    .select("*")
-    .eq("customer_email", user.email)
-    .order("created_at", { ascending: false })
-
-  const container = document.getElementById("ordersList")
-  if (!container) return;
-
-  if (!orders || orders.length === 0) {
-    container.innerHTML = "<p>Nenhum pedido ainda</p>"
-    return
-  }
-
-  container.innerHTML = orders.map(order => `
-    <div class="order-card">
-      <h3>Pedido #${order.external_reference}</h3>
-      <p>Status: ${order.status}</p>
-      <div class="order-body">
-  <span>Total</span>
-  <strong>R$ ${order.total}</strong>
-</div>
-    </div>
-  `).join("")
 }
-
-document.addEventListener("DOMContentLoaded", () => {
-
-  const btnLogin = document.getElementById("btnLogin");
-  const btnRegister = document.getElementById("btnRegister");
-
-  const loginBox = document.getElementById("loginBox");
-  const registerBox = document.getElementById("registerBox");
-
-  if (btnLogin && btnRegister && loginBox && registerBox) {
-
-    btnLogin.onclick = () => {
-      btnLogin.classList.add("active");
-      btnRegister.classList.remove("active");
-
-      loginBox.classList.add("active");
-      registerBox.classList.remove("active");
-    };
-
-    btnRegister.onclick = () => {
-      btnRegister.classList.add("active");
-      btnLogin.classList.remove("active");
-
-      registerBox.classList.add("active");
-      loginBox.classList.remove("active");
-    };
-
-  }
-
-});
 
 async function saveProfile() {
   const { data } = await supabaseClient.auth.getUser()
@@ -1308,27 +1376,6 @@ async function loadProfileData() {
   if (stateInput) stateInput.value = profile.state || ""
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-
-  const tabs = document.querySelectorAll(".tab");
-  const contents = document.querySelectorAll(".tab-content");
-
-  tabs.forEach(tab => {
-    tab.addEventListener("click", () => {
-
-      tabs.forEach(t => t.classList.remove("active"));
-      contents.forEach(c => c.classList.remove("active"));
-
-      tab.classList.add("active");
-
-      const target = document.getElementById(tab.dataset.tab);
-      if (target) target.classList.add("active");
-
-    });
-  });
-
-});
-
 async function updateHeaderUser() {
   const { data } = await supabaseClient.auth.getUser()
 
@@ -1364,10 +1411,6 @@ async function updateHeaderUser() {
   }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  updateHeaderUser()
-})
-
 function goProfile() {
   window.location.href = "/profile.html"
 }
@@ -1375,33 +1418,6 @@ function goProfile() {
 function goOrders() {
   window.location.href = "/profile.html#orders"
 }
-
-document.addEventListener("DOMContentLoaded", () => {
-  const modal = document.getElementById("authModal");
-  const closeBtn = document.getElementById("closeModal");
-  const authBox = document.getElementById("authBox");
-
-  if (modal) {
-    modal.classList.remove("active");
-    modal.style.display = "";
-  }
-
-  if (closeBtn && modal) {
-    closeBtn.onclick = () => {
-      modal.classList.remove("active");
-      document.body.style.overflow = "";
-    };
-  }
-
-  if (modal && authBox) {
-    modal.onclick = (e) => {
-      if (!authBox.contains(e.target)) {
-        modal.classList.remove("active");
-        document.body.style.overflow = "";
-      }
-    };
-  }
-});
 
 document.querySelectorAll(".profile-item").forEach(item => {
   item.addEventListener("mousemove", (e) => {
@@ -1692,14 +1708,33 @@ function switchTab(tab) {
   });
 
   document.querySelectorAll(".sidebar-menu button").forEach(btn => {
-    if (btn.textContent.toLowerCase().includes(tab)) {
+    const buttonTab = btn.dataset.tab || "";
+    const clickHandler = btn.getAttribute("onclick") || "";
+    if (buttonTab === tab || clickHandler.includes(`switchTab('${tab}')`)) {
       btn.classList.add("active");
     }
   });
+
+  if (window.location.pathname.includes("profile.html")) {
+    const nextUrl = `${window.location.pathname}#${tab}`;
+    window.history.replaceState(null, "", nextUrl);
+  }
 }
 
 if (window.location.pathname.includes("profile.html")) {
   loadProfile();
   loadProfileData();
   loadMyOrders();
+
+  const initialTab = window.location.hash.replace("#", "");
+  if (initialTab) {
+    switchTab(initialTab);
+  }
+
+  window.addEventListener("hashchange", () => {
+    const nextTab = window.location.hash.replace("#", "");
+    if (nextTab) {
+      switchTab(nextTab);
+    }
+  });
 }
