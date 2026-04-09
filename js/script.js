@@ -4,7 +4,13 @@
 const SUPABASE_URL = "https://nmosbabyarqnmihihalu.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_RrPDyew7vfhihy3WvrNr6w_zZJ3kLql";
 
-const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: true
+  }
+});
 window.supabaseClient = supabaseClient;
 
 function readStoredCart() {
@@ -57,6 +63,82 @@ function firstFilledValue(...values) {
 
 function debugCheckout(label, payload) {
   console.debug(`[CHECKOUT] ${label}`, payload);
+}
+
+async function clearBrokenSession(shouldReload = false) {
+  try {
+    await supabaseClient.auth.signOut();
+  } catch (signOutError) {
+    console.warn("Falha ao limpar sessao local:", signOutError);
+  }
+
+  if (shouldReload) {
+    window.location.reload();
+  }
+}
+
+async function getSessionUser(options = {}) {
+  const {
+    context = "auth",
+    tryRefresh = true,
+    reloadOnFailure = false,
+  } = options;
+
+  try {
+    let { data, error } = await supabaseClient.auth.getSession();
+    let session = data?.session || null;
+
+    if (error || !session) {
+      console.warn("Sessao invalida, tentando renovar...", {
+        context,
+        error: error?.message || null,
+        hasSession: Boolean(session),
+      });
+
+      if (tryRefresh) {
+        const refresh = await supabaseClient.auth.refreshSession();
+
+        if (refresh.error || !refresh.data?.session) {
+          const refreshMessage =
+            refresh.error?.message ||
+            error?.message ||
+            "Sessao indisponivel";
+
+          console.warn("Sessao perdida, forçando logout", {
+            context,
+            error: refreshMessage,
+          });
+
+          if (/refresh token/i.test(refreshMessage)) {
+            await clearBrokenSession(reloadOnFailure);
+          }
+
+          return null;
+        }
+
+        session = refresh.data.session;
+      } else {
+        return null;
+      }
+    }
+
+    const user = session?.user || null;
+
+    if (!user) return null;
+
+    console.log("SESSION:", session);
+    console.log("USER:", user);
+
+    return user;
+  } catch (err) {
+    console.warn("Erro ao recuperar sessao:", { context, error: err?.message || err });
+
+    if (/refresh token/i.test(String(err?.message || err))) {
+      await clearBrokenSession(reloadOnFailure);
+    }
+
+    return null;
+  }
 }
 
 let products = [];
@@ -776,11 +858,15 @@ function closeCheckoutFlow() {
 
 async function hydrateCheckoutFromUser() {
   try {
-    const { data } = await supabaseClient.auth.getUser();
+    const user = await getSessionUser({
+      context: "checkout-hydrate",
+      reloadOnFailure: false,
+    });
 
-    if (!data?.user) return;
-
-    const user = data.user;
+    if (!user) {
+      console.warn("SEM SESSAO ATIVA");
+      return;
+    }
 
     const metadataShipping = getProfileDataFromMetadata(user);
 
@@ -1231,11 +1317,12 @@ function initNewsletter() {
 
 async function checkUser() {
   try {
-    const { data, error } = await supabaseClient.auth.getUser();
+    const user = await getSessionUser({
+      context: "check-user",
+      reloadOnFailure: false,
+    });
 
-    if (error || !data?.user) return;
-
-    const user = data.user;
+    if (!user) return;
 
     await supabaseClient.from("users").upsert(
       [
@@ -1259,11 +1346,12 @@ async function checkUser() {
 
 async function loadUserUI() {
   try {
-    const { data } = await supabaseClient.auth.getUser();
+    const user = await getSessionUser({
+      context: "load-user-ui",
+      reloadOnFailure: false,
+    });
 
-    if (!data?.user) return;
-
-    const user = data.user;
+    if (!user) return;
 
     // ===== HEADER =====
     const userArea = document.getElementById("userArea");
@@ -1386,12 +1474,10 @@ window.login = async function () {
       throw new Error("Sessao nao iniciada")
     }
 
-    await loadUserUI();
-    await updateHeaderUser();
-
     document.getElementById("authModal")?.classList.remove("active");
     document.body.style.overflow = "";
     showToast("Login realizado com sucesso");
+    window.location.reload();
   } catch (err) {
     console.error("Erro no login:", err);
     showToast(getAuthMessage(err, "login"));
@@ -1465,14 +1551,15 @@ window.register = async function () {
 };
 
 async function loadProfile() {
-  const { data } = await supabaseClient.auth.getUser()
+  const user = await getSessionUser({
+    context: "load-profile",
+    reloadOnFailure: true,
+  })
 
-  if (!data?.user) {
+  if (!user) {
     window.location.href = "/"
     return
   }
-
-  const user = data.user
 
   const userName = document.getElementById("userName")
   const userEmail = document.getElementById("userEmail")
@@ -1487,14 +1574,15 @@ async function loadProfile() {
 }
 
 async function saveProfile() {
-  const { data } = await supabaseClient.auth.getUser()
+  const user = await getSessionUser({
+    context: "save-profile",
+    reloadOnFailure: true,
+  })
 
-  if (!data?.user) {
+  if (!user) {
     alert("Faca login");
     return;
   }
-
-  const user = data.user
 
   const profile = {
     id: user.id,
@@ -1522,11 +1610,12 @@ async function saveProfile() {
 }
 
 async function loadProfileData() {
-  const { data } = await supabaseClient.auth.getUser()
+  const user = await getSessionUser({
+    context: "load-profile-data",
+    reloadOnFailure: true,
+  })
 
-  if (!data?.user) return
-
-  const user = data.user
+  if (!user) return
 
   const userName = document.getElementById("userName")
   const userEmail = document.getElementById("userEmail")
@@ -1566,11 +1655,12 @@ async function loadProfileData() {
 }
 
 async function updateHeaderUser() {
-  const { data } = await supabaseClient.auth.getUser()
+  const user = await getSessionUser({
+    context: "update-header-user",
+    reloadOnFailure: false,
+  })
 
-  if (!data?.user) return
-
-  const user = data.user
+  if (!user) return
 
   const loginBtn = document.getElementById("loginToggle")
   const userArea = document.getElementById("userArea")
@@ -1766,11 +1856,12 @@ document.addEventListener("click", function (e) {
 
 async function saveCheckoutProfile() {
   try {
-    const { data } = await supabaseClient.auth.getUser();
+    const user = await getSessionUser({
+      context: "save-checkout-profile",
+      reloadOnFailure: false,
+    });
 
-    if (!data?.user) return;
-
-    const user = data.user;
+    if (!user) return;
 
     const profile = {
       id: user.id,
@@ -1833,11 +1924,12 @@ async function buscarCEP(cep) {
 
 async function loadMyOrders() {
   try {
-    const { data } = await supabaseClient.auth.getUser();
+    const user = await getSessionUser({
+      context: "load-my-orders",
+      reloadOnFailure: true,
+    });
 
-    if (!data?.user) return;
-
-    const user = data.user;
+    if (!user) return;
 
     const { data: orders } = await supabaseClient
       .from("orders")
