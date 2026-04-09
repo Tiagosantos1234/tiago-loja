@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8">
   <title>Minha Conta</title>
@@ -7,27 +8,80 @@
 </head>
 
 <body class="app">
+  <header class="topbar" id="topbar">
+    <a href="/" class="back-store-btn">Voltar para loja</a>
+    <div class="container topbar-inner">
+      <nav class="nav-left" aria-label="Menu principal">
+        <a href="#drop" class="nav-link">Drop</a>
+        <a href="#editorial" class="nav-link">Editorial</a>
+        <a href="#story" class="nav-link">Manifesto</a>
+      </nav>
 
-<div class="app-container">
+      <a href="#home" class="brand-mark" aria-label="Voltar ao início">
+        <img src="logo.png" alt="Tiago Lobo Store" />
+      </a>
 
-  <!-- HEADER -->
-  <div class="app-header">
-    <div>
-      <h2 id="userName">Olá, Cliente</h2>
-      <p id="userEmail"></p>
+      <div class="nav-right">
+        <a href="#benefits" class="nav-link nav-mobile">Benefícios</a>
+        <a href="#newsletter" class="nav-link">Drop List</a>
+
+        <div class="header-actions">
+
+          <button class="icon-btn" id="loginToggle" aria-label="Área do cliente">
+            <span>👤</span>
+          </button>
+
+          <button class="icon-btn" id="cartToggle" aria-label="Carrinho">
+            <span>🛒</span>
+            <span class="cart-count" id="cartCount">0</span>
+          </button>
+
+          <button class="icon-btn menu-toggle" id="menuBtn" aria-label="Abrir menu" type="button">
+            <span class="line l1"></span>
+            <span class="line l2"></span>
+          </button>
+
+        </div>
+
+        <div id="userContainer">
+          <!-- LOGADO -->
+          <div id="userArea" class="user-area" style="display:none;">
+            <img id="userAvatar" alt="Avatar do usuário" />
+            <span id="userNameHeader"></span>
+
+            <!-- DROPDOWN -->
+            <div id="userDropdown" class="dropdown">
+              <button onclick="goProfile()"><span>👤</span> Perfil</button>
+              <button onclick="goOrders()"><span>📦</span> Pedidos</button>
+              <button onclick="logout()"><span>🚪</span> Sair</button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-    <button onclick="logout()" class="logout-btn">Sair</button>
-  </div>
 
-  <!-- TABS -->
-  <div class="app-tabs">
-    <button class="tab active" data-tab="profile">Perfil</button>
-    <button class="tab" data-tab="address">Endereço</button>
-    <button class="tab" data-tab="orders">Pedidos</button>
-  </div>
+  </header>
+  <div class="app-layout">
 
-  <!-- CONTENT -->
-  <div class="app-content">
+  <!-- SIDEBAR -->
+  <aside class="app-sidebar">
+
+    <div class="sidebar-user">
+      <img id="sidebarAvatar" src="" />
+      <h3 id="sidebarName">Cliente</h3>
+      <p id="sidebarEmail"></p>
+    </div>
+
+    <nav class="sidebar-menu">
+      <button class="active" onclick="switchTab('profile')">👤 Perfil</button>
+      <button onclick="switchTab('address')">📍 Endereço</button>
+      <button onclick="switchTab('orders')">📦 Pedidos</button>
+    </nav>
+
+  </aside>
+
+  <!-- CONTEÚDO -->
+  <main class="app-main">
 
     <!-- PERFIL -->
     <div class="tab-content active" id="profile">
@@ -57,15 +111,16 @@
 
     <!-- PEDIDOS -->
     <div class="tab-content" id="orders">
-      <div class="card">
+      <div class="card orders-card">
         <h3>📦 Meus pedidos</h3>
         <div id="ordersList"></div>
       </div>
     </div>
 
-  </div>
+  </main>
 
 </div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-<script src="./js/script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <div id="ordersList"></div>
+  <script src="./js/script.js"></script>
 </body>

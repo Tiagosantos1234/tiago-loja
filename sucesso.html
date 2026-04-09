@@ -1,64 +1,31 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-  <meta charset="UTF-8">
-  <title>Pagamento aprovado</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 
-  <style>
-    body{
-      margin:0;
-      background:#0a0a0a;
-      color:#fff;
-      font-family: Arial, sans-serif;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      height:100vh;
-      text-align:center;
-    }
+<script>
+const supabase = supabase.createClient(
+  "https://nmosbabyarqnmihihalu.supabase.co",
+  "sb_publishable_RrPDyew7vfhihy3WvrNr6w_zZJ3kLql"
+);
 
-    .box{
-      max-width:420px;
-      padding:30px;
-      border-radius:24px;
-      background:rgba(255,255,255,0.04);
-      border:1px solid rgba(255,255,255,0.08);
-    }
+async function carregarPedido() {
+  const params = new URLSearchParams(window.location.search);
+  const ref = params.get("external_reference");
 
-    h1{
-      font-size:24px;
-      margin-bottom:10px;
-    }
+  if (!ref) return;
 
-    p{
-      color:rgba(255,255,255,0.6);
-      margin-bottom:20px;
-    }
+  const { data: order } = await supabase
+    .from("orders")
+    .select("*")
+    .eq("external_reference", ref)
+    .single();
 
-    button{
-      height:50px;
-      border-radius:999px;
-      border:none;
-      background:#fff;
-      color:#000;
-      cursor:pointer;
-      width:100%;
-      font-weight:bold;
-    }
-  </style>
-</head>
+  if (!order) return;
 
-<body>
+  document.getElementById("orderInfo").innerHTML = `
+    <p><strong>Pedido:</strong> ${order.external_reference}</p>
+    <p><strong>Status:</strong> ${order.status}</p>
+    <p><strong>Total:</strong> R$ ${order.total}</p>
+  `;
+}
 
-<div class="box">
-  <h1>Pagamento aprovado 🎉</h1>
-  <p>Seu pedido foi confirmado com sucesso.</p>
-
-  <button onclick="window.location.href='/'">
-    Voltar para loja
-  </button>
-</div>
-
-</body>
-</html>
+carregarPedido();
+</script>

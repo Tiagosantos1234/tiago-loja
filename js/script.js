@@ -61,9 +61,6 @@ document.addEventListener("DOMContentLoaded", () => {
   initFilters();
   initAuthUI();
   initNewsletter();
-
-  initUserDropdown();
-
   renderCart();
   showSkeleton();
   loadProducts();
@@ -74,24 +71,22 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function initUserDropdown() {
-  const userArea = document.getElementById("userArea");
+  const userTrigger = document.getElementById("userTrigger");
   const dropdown = document.getElementById("userDropdown");
 
-  if (!userArea || !dropdown) return;
+  if (!userTrigger || !dropdown) return;
 
-  userArea.addEventListener("click", (e) => {
+  userTrigger.addEventListener("click", (e) => {
     e.stopPropagation();
-
-    dropdown.classList.toggle("active");
-
-    if (dropdown.classList.contains("active")) {
-      dropdown.style.willChange = "transform, opacity";
-    }
+    dropdown.classList.toggle("show");
   });
 
-  // clicar fora fecha
+  dropdown.addEventListener("click", (e) => {
+    e.stopPropagation();
+  });
+
   document.addEventListener("click", () => {
-    dropdown.classList.remove("active");
+    dropdown.classList.remove("show");
   });
 }
 
@@ -103,9 +98,12 @@ window.addEventListener("load", async () => {
     await loadUserUI();
     await updateHeaderUser?.();
 
+    initUserDropdown();
+
   } catch (err) {
     console.log("Erro ignorado:", err);
   }
+  
 });
 
 // =====================
@@ -716,6 +714,20 @@ function renderCheckoutStep() {
     return;
   }
 
+  setTimeout(() => {
+    const cepInput = document.querySelector('input[data-field="zip"]');
+
+    if (cepInput) {
+      cepInput.addEventListener("blur", (e) => {
+        buscarCEP(e.target.value);
+      });
+      document.querySelector('input[data-field="street"]').disabled = true;
+      document.querySelector('input[data-field="neighborhood"]').disabled = true;
+      document.querySelector('input[data-field="city"]').disabled = true;
+      document.querySelector('input[data-field="state"]').disabled = true;
+    }
+  }, 100);
+
   if (checkoutStep === 3) {
     content.innerHTML = `
     <div class="checkout-step-enter">
@@ -865,7 +877,10 @@ async function confirmCheckout() {
   persistCheckoutStep();
 
   const btn = document.getElementById("checkoutConfirmBtn");
-  if (!btn) return;
+
+  btn.classList.add("loading");
+  btn.innerText = "Processando...";
+  btn.disabled = true;
 
   if (!isValidCheckoutCart() || !isValidCheckoutCustomer() || !isValidCheckoutShipping()) {
     btn.innerText = "Ir para pagamento";
@@ -907,6 +922,7 @@ async function confirmCheckout() {
     console.error("Erro checkout:", err);
     showToast("Erro ao iniciar pagamento");
   } finally {
+    btn.classList.remove("loading");
     btn.innerText = "Ir para pagamento";
     btn.disabled = false;
   }
@@ -1022,21 +1038,60 @@ async function loadUserUI() {
 
     if (!data?.user) return;
 
-    const userArea = document.getElementById("userArea");
-    const userName = document.getElementById("userName");
-    const userEmail = document.getElementById("userEmail");
+    const user = data.user;
 
-    if (userArea) userArea.style.display = "block";
-    if (userName) {
-      userName.innerText =
-        data.user.user_metadata?.full_name || "Cliente";
+    // ===== HEADER =====
+    const userArea = document.getElementById("userArea");
+    const userNameHeader = document.getElementById("userNameHeader");
+    const userEmailHeader = document.getElementById("userEmailHeader");
+    const userAvatar = document.getElementById("userAvatar");
+
+    if (userArea) userArea.style.display = "flex";
+
+    if (userNameHeader) {
+      userNameHeader.textContent =
+        user.user_metadata?.name ||
+        user.user_metadata?.full_name ||
+        user.email ||
+        "Usuário";
     }
-    if (userEmail) {
-      userEmail.innerText = data.user.email;
+
+    if (userEmailHeader) {
+      userEmailHeader.textContent = user.email || "";
+    }
+
+    if (userAvatar) {
+      userAvatar.src =
+        user.user_metadata?.avatar_url ||
+        user.user_metadata?.picture ||
+        "img/avatar-placeholder.png";
+    }
+
+    // ===== SIDEBAR (NOVO LAYOUT) =====
+    const sidebarName = document.getElementById("sidebarName");
+    const sidebarEmail = document.getElementById("sidebarEmail");
+    const sidebarAvatar = document.getElementById("sidebarAvatar");
+
+    if (sidebarName) {
+      sidebarName.textContent =
+        user.user_metadata?.name ||
+        user.user_metadata?.full_name ||
+        user.email;
+    }
+
+    if (sidebarEmail) {
+      sidebarEmail.textContent = user.email;
+    }
+
+    if (sidebarAvatar) {
+      sidebarAvatar.src =
+        user.user_metadata?.avatar_url ||
+        user.user_metadata?.picture ||
+        "img/avatar-placeholder.png";
     }
 
   } catch (err) {
-    console.log("Sem usuário logado");
+    console.log("Erro ao carregar usuário:", err);
   }
 }
 
@@ -1109,7 +1164,10 @@ async function loadProfile() {
     <div class="order-card">
       <h3>Pedido #${order.external_reference}</h3>
       <p>Status: ${order.status}</p>
-      <p>Total: R$ ${order.total}</p>
+      <div class="order-body">
+  <span>Total</span>
+  <strong>R$ ${order.total}</strong>
+</div>
     </div>
   `).join("")
 }
@@ -1270,34 +1328,16 @@ async function updateHeaderUser() {
       user.user_metadata?.avatar_url ||
       "https://i.pravatar.cc/150"
   }
-
-  if (userArea) {
-    userArea.onclick = (e) => {
-      toggleDropdown(e)
-    }
-  }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
   updateHeaderUser()
 })
 
-function toggleDropdown(e) {
-  e.stopPropagation()
-
-  const dropdown = document.getElementById("userDropdown")
-
-  if (!dropdown) return
-
-  const isOpen = dropdown.style.display === "flex"
-
-  dropdown.style.display = isOpen ? "none" : "flex"
-}
-
 document.addEventListener("click", () => {
-  const dropdown = document.getElementById("userDropdown")
-  if (dropdown) dropdown.style.display = "none"
-})
+  const dropdown = document.getElementById("userDropdown");
+  if (dropdown) dropdown.classList.remove("show");
+});
 
 function goProfile() {
   window.location.href = "/profile.html"
@@ -1487,3 +1527,140 @@ async function saveCheckoutProfile() {
 if (window.location.pathname.includes("sucesso.html")) {
   localStorage.removeItem("tl_cart_v1");
 }
+
+async function buscarCEP(cep) {
+  try {
+    cep = cep.replace(/\D/g, "");
+
+    if (cep.length !== 8) return;
+
+    const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+    const data = await res.json();
+
+    if (data.erro) return;
+
+    document.querySelector('input[data-field="street"]').value = data.logradouro || "";
+    document.querySelector('input[data-field="neighborhood"]').value = data.bairro || "";
+    document.querySelector('input[data-field="city"]').value = data.localidade || "";
+    document.querySelector('input[data-field="state"]').value = data.uf || "";
+
+    // salva no checkoutData também
+    checkoutData.shipping.street = data.logradouro || "";
+    checkoutData.shipping.neighborhood = data.bairro || "";
+    checkoutData.shipping.city = data.localidade || "";
+    checkoutData.shipping.state = data.uf || "";
+
+  } catch (err) {
+    console.log("Erro ao buscar CEP:", err);
+  }
+}
+
+async function loadMyOrders() {
+  try {
+    const { data } = await supabaseClient.auth.getUser();
+
+    if (!data?.user) return;
+
+    const user = data.user;
+
+    const { data: orders } = await supabaseClient
+      .from("orders")
+      .select("*")
+      .eq("customer_email", user.email)
+      .order("created_at", { ascending: false });
+
+    renderOrders(orders || []);
+
+  } catch (err) {
+    console.log("Erro ao carregar pedidos:", err);
+  }
+}
+
+function renderOrders(orders) {
+  const container = document.getElementById("ordersList");
+
+  if (!orders.length) {
+    container.innerHTML = "<p>Nenhum pedido encontrado</p>";
+    return;
+  }
+
+  container.innerHTML = orders.map(order => `
+    <div class="order-card">
+      <div class="order-header">
+        <strong>${order.external_reference}</strong>
+        <span class="status ${order.status}">
+          ${formatStatus(order.status)}
+        </span>
+      </div>
+
+      <div class="order-body">
+        <p>Total: R$ ${order.total}</p>
+      </div>
+    </div>
+  `).join("");
+}
+
+function formatStatus(status) {
+  if (status === "approved") return "Pagamento aprovado";
+  if (status === "pending") return "Aguardando pagamento";
+  if (status === "rejected") return "Pagamento recusado";
+  return status;
+}
+
+if (window.location.pathname.includes("profile.html")) {
+  loadMyOrders();
+}
+
+function switchTab(tab) {
+  document.querySelectorAll(".tab-content").forEach(el => {
+    el.classList.remove("active");
+  });
+
+  document.querySelector(`#${tab}`).classList.add("active");
+
+  document.querySelectorAll(".sidebar-menu button").forEach(btn => {
+    btn.classList.remove("active");
+  });
+
+  const btns = document.querySelectorAll(".sidebar-menu button");
+  btns.forEach(b => {
+    if (b.textContent.toLowerCase().includes(tab)) {
+      b.classList.add("active");
+    }
+  });
+}
+
+function switchTab(tab) {
+  document.querySelectorAll(".tab-content").forEach(el => {
+    el.classList.remove("active");
+  });
+
+  const target = document.getElementById(tab);
+  if (target) target.classList.add("active");
+
+  document.querySelectorAll(".sidebar-menu button").forEach(btn => {
+    btn.classList.remove("active");
+  });
+
+  document.querySelectorAll(".sidebar-menu button").forEach(btn => {
+    if (btn.textContent.toLowerCase().includes(tab)) {
+      btn.classList.add("active");
+    }
+  });
+}
+
+setTimeout(() => {
+  const trigger = document.getElementById("userTrigger");
+
+  if (!trigger) {
+    console.log("❌ trigger não encontrado");
+    return;
+  }
+
+  console.log("✅ trigger encontrado");
+
+  trigger.onclick = () => {
+    console.log("🔥 CLIQUE FUNCIONOU");
+  };
+
+}, 1000);
