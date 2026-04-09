@@ -1,3 +1,4 @@
+import crypto from "node:crypto"
 import { createClient } from "@supabase/supabase-js"
 
 function cleanString(value, fallback = "") {
@@ -36,12 +37,97 @@ function getNotificationType(req) {
   ).toLowerCase()
 }
 
+function parseSignatureHeader(signatureHeader) {
+  const signature = {
+    ts: "",
+    v1: "",
+  }
+
+  cleanString(signatureHeader)
+    .split(",")
+    .map((part) => part.trim())
+    .forEach((part) => {
+      const [key, value] = part.split("=")
+      if (!key || !value) return
+
+      if (key === "ts") signature.ts = cleanString(value)
+      if (key === "v1") signature.v1 = cleanString(value)
+    })
+
+  return signature
+}
+
+function safeCompareHex(a, b) {
+  const left = cleanString(a).toLowerCase()
+  const right = cleanString(b).toLowerCase()
+
+  if (!left || !right || left.length !== right.length) {
+    return false
+  }
+
+  try {
+    return crypto.timingSafeEqual(
+      Buffer.from(left, "hex"),
+      Buffer.from(right, "hex")
+    )
+  } catch {
+    return false
+  }
+}
+
+function validateMercadoPagoSignature(req) {
+  const webhookSecret = cleanString(
+    process.env.MP_WEBHOOK_SECRET ||
+      process.env.MERCADO_PAGO_WEBHOOK_SECRET ||
+      process.env.MP_WEBHOOK_SIGNING_SECRET
+  )
+
+  if (!webhookSecret) {
+    return {
+      ok: false,
+      reason: "missing_webhook_secret",
+    }
+  }
+
+  const signatureHeader = req.headers?.["x-signature"]
+  const requestIdHeader = req.headers?.["x-request-id"]
+  const { ts, v1 } = parseSignatureHeader(signatureHeader)
+  const paymentId = cleanString(getPaymentId(req)).toLowerCase()
+  const requestId = cleanString(requestIdHeader)
+
+  if (!ts || !v1 || !paymentId || !requestId) {
+    return {
+      ok: false,
+      reason: "missing_signature_parts",
+      details: {
+        has_ts: Boolean(ts),
+        has_v1: Boolean(v1),
+        has_payment_id: Boolean(paymentId),
+        has_request_id: Boolean(requestId),
+      },
+    }
+  }
+
+  const manifest = `id:${paymentId};request-id:${requestId};ts:${ts};`
+  const expected = crypto
+    .createHmac("sha256", webhookSecret)
+    .update(manifest)
+    .digest("hex")
+
+  return {
+    ok: safeCompareHex(expected, v1),
+    reason: "validated",
+    manifest,
+  }
+}
+
 async function fetchPayment(paymentId) {
+  const mpToken = cleanString(process.env.MP_TOKEN)
   const mpResponse = await fetch(
     `https://api.mercadopago.com/v1/payments/${paymentId}`,
     {
       headers: {
-        Authorization: `Bearer ${process.env.MP_TOKEN}`,
+        Authorization: `Bearer ${mpToken}`,
       },
     }
   )
@@ -91,8 +177,20 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: "Supabase não configurado" })
     }
 
-    if (!process.env.MP_TOKEN) {
+    const mpToken = cleanString(process.env.MP_TOKEN)
+
+    if (!mpToken) {
       return res.status(500).json({ error: "MP_TOKEN não configurado" })
+    }
+
+    const signatureValidation = validateMercadoPagoSignature(req)
+
+    if (!signatureValidation.ok) {
+      console.error("WEBHOOK ASSINATURA INVALIDA:", signatureValidation)
+      return res.status(401).json({
+        error: "Assinatura do webhook inválida",
+        reason: signatureValidation.reason,
+      })
     }
 
     const supabase = createClient(
@@ -116,8 +214,7 @@ export default async function handler(req, res) {
 
     if (
       notificationType &&
-      notificationType !== "payment" &&
-      notificationType !== "merchant_order"
+      notificationType !== "payment"
     ) {
       return res.status(200).json({ ok: true, ignored: "unsupported_type" })
     }
@@ -136,7 +233,7 @@ export default async function handler(req, res) {
       .from("orders")
       .select("id, status, mp_payment_id, external_reference")
       .eq("external_reference", external_reference)
-      .single()
+      .maybeSingle()
 
     if (orderError || !order) {
       console.error("ERRO AO LOCALIZAR PEDIDO:", orderError)
@@ -144,28 +241,59 @@ export default async function handler(req, res) {
     }
 
     const paymentStatus = cleanString(payment.status, "pending")
-    const wasAlreadyApproved = order.status === "approved"
     const isNowApproved = paymentStatus === "approved"
+    let stockDecremented = false
 
-    const { error: updateError } = await supabase
-      .from("orders")
-      .update({
-        status: paymentStatus,
-        mp_payment_id: payment.id,
-      })
-      .eq("id", order.id)
+    if (isNowApproved) {
+      const { data: approvalTransition, error: approvalError } = await supabase
+        .from("orders")
+        .update({
+          status: paymentStatus,
+          mp_payment_id: payment.id,
+        })
+        .eq("id", order.id)
+        .neq("status", "approved")
+        .select("id")
 
-    if (updateError) {
-      console.error("ERRO UPDATE:", updateError)
-      return res.status(500).json({ error: "Erro ao atualizar pedido" })
-    }
+      if (approvalError) {
+        console.error("ERRO UPDATE APPROVAL:", approvalError)
+        return res.status(500).json({ error: "Erro ao atualizar pedido" })
+      }
 
-    if (isNowApproved && !wasAlreadyApproved) {
-      try {
-        await decrementOrderStockOnce(supabase, order.id)
-      } catch (stockError) {
-        console.error("ERRO ESTOQUE:", stockError)
-        return res.status(500).json({ error: "Erro ao decrementar estoque" })
+      if (approvalTransition?.length) {
+        try {
+          await decrementOrderStockOnce(supabase, order.id)
+          stockDecremented = true
+        } catch (stockError) {
+          console.error("ERRO ESTOQUE:", stockError)
+          return res.status(500).json({ error: "Erro ao decrementar estoque" })
+        }
+      } else if (order.mp_payment_id !== payment.id) {
+        const { error: syncApprovedError } = await supabase
+          .from("orders")
+          .update({
+            status: paymentStatus,
+            mp_payment_id: payment.id,
+          })
+          .eq("id", order.id)
+
+        if (syncApprovedError) {
+          console.error("ERRO SYNC APPROVED:", syncApprovedError)
+          return res.status(500).json({ error: "Erro ao sincronizar pedido" })
+        }
+      }
+    } else if (order.status !== "approved") {
+      const { error: updateError } = await supabase
+        .from("orders")
+        .update({
+          status: paymentStatus,
+          mp_payment_id: payment.id,
+        })
+        .eq("id", order.id)
+
+      if (updateError) {
+        console.error("ERRO UPDATE:", updateError)
+        return res.status(500).json({ error: "Erro ao atualizar pedido" })
       }
     }
 
@@ -173,10 +301,14 @@ export default async function handler(req, res) {
       ok: true,
       external_reference,
       status: paymentStatus,
-      stock_decremented: isNowApproved && !wasAlreadyApproved,
+      stock_decremented: stockDecremented,
     })
   } catch (err) {
     console.error("ERRO WEBHOOK:", err)
     return res.status(500).json({ error: "Erro webhook" })
   }
+}
+
+if (!isValidSignature) {
+  return res.status(401)
 }

@@ -6,6 +6,20 @@ function cleanString(value, fallback = "") {
   return text || fallback
 }
 
+async function cleanupOrder(supabase, orderId) {
+  if (!orderId) return
+
+  await supabase
+    .from("order_items")
+    .delete()
+    .eq("order_id", orderId)
+
+  await supabase
+    .from("orders")
+    .delete()
+    .eq("id", orderId)
+}
+
 function buildAppBaseUrl(req) {
   const envUrl =
     process.env.APP_BASE_URL ||
@@ -203,7 +217,9 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: "Supabase não configurado" })
     }
 
-    if (!process.env.MP_TOKEN) {
+    const mpToken = cleanString(process.env.MP_TOKEN)
+
+    if (!mpToken) {
       return res.status(500).json({ error: "MP_TOKEN não configurado" })
     }
 
@@ -254,6 +270,7 @@ export default async function handler(req, res) {
 
     if (itemsError) {
       console.error("ERRO ITEMS:", itemsError)
+      await cleanupOrder(supabase, order.id)
       return res.status(500).json({
         error: "Erro ao salvar itens",
         details: itemsError.message || itemsError,
@@ -275,11 +292,15 @@ export default async function handler(req, res) {
         currency_id: "BRL",
         unit_price: item.product_price,
       })),
+      payer: {
+        name: cleanString(customer?.name) || undefined,
+        email: cleanString(customer?.email) || undefined,
+      },
       external_reference,
       back_urls: {
-        success: `${appBaseUrl}/sucesso.html`,
-        failure: `${appBaseUrl}/erro.html`,
-        pending: `${appBaseUrl}/`,
+        success: `${appBaseUrl}/sucesso.html?external_reference=${encodeURIComponent(external_reference)}`,
+        failure: `${appBaseUrl}/erro.html?external_reference=${encodeURIComponent(external_reference)}`,
+        pending: `${appBaseUrl}/?external_reference=${encodeURIComponent(external_reference)}`,
       },
       notification_url: `${appBaseUrl}/api/webhook`,
       auto_return: "approved",
@@ -290,7 +311,7 @@ export default async function handler(req, res) {
       {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${process.env.MP_TOKEN}`,
+          Authorization: `Bearer ${mpToken}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify(mpPreference),
@@ -300,6 +321,7 @@ export default async function handler(req, res) {
     if (!mpResponse.ok) {
       const errorText = await mpResponse.text()
       console.error("MP ERROR RAW:", errorText)
+      await cleanupOrder(supabase, order.id)
 
       return res.status(500).json({
         error: "Erro Mercado Pago",
@@ -310,6 +332,7 @@ export default async function handler(req, res) {
     const mpData = await mpResponse.json()
 
     if (!mpData.init_point) {
+      await cleanupOrder(supabase, order.id)
       return res.status(500).json({
         error: "Mercado Pago não retornou link",
         details: mpData,
