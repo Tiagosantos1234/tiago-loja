@@ -4,8 +4,8 @@
 const SUPABASE_URL = "https://nmosbabyarqnmihihalu.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_RrPDyew7vfhihy3WvrNr6w_zZJ3kLql";
 
-window.supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-const supabaseClient = window.supabaseClient;
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+window.supabaseClient = supabaseClient;
 
 function readStoredCart() {
   try {
@@ -142,6 +142,43 @@ function safeText(value, fallback = "") {
 
 function getScopedInputValue(scope, selector) {
   return scope?.querySelector(selector)?.value?.trim() || "";
+}
+
+function normalizeAuthEmail(value) {
+  return safeText(value).trim().toLowerCase();
+}
+
+function getAuthMessage(error, mode = "login") {
+  const rawMessage = safeText(error?.message || error, "").trim();
+  const message = rawMessage.toLowerCase();
+
+  if (!rawMessage) {
+    return mode === "register"
+      ? "Nao foi possivel criar a conta"
+      : "Nao foi possivel entrar na conta";
+  }
+
+  if (message.includes("invalid login credentials")) {
+    return "Email ou senha invalidos";
+  }
+
+  if (message.includes("email not confirmed")) {
+    return "Confirme seu email antes de entrar";
+  }
+
+  if (message.includes("user already registered")) {
+    return "Este email ja esta cadastrado";
+  }
+
+  if (message.includes("password should be")) {
+    return rawMessage;
+  }
+
+  if (message.includes("unable to validate email address")) {
+    return "Digite um email valido";
+  }
+
+  return rawMessage;
 }
 
 function setButtonBusy(button, label) {
@@ -1205,7 +1242,7 @@ window.loginWithGoogle = async function () {
 window.login = async function () {
   const loginBox = document.getElementById("loginBox");
   const loginBtn = loginBox?.querySelector(".btn-dark");
-  const email = getScopedInputValue(loginBox, 'input[type="email"]');
+  const email = normalizeAuthEmail(getScopedInputValue(loginBox, 'input[type="email"]'));
   const password = getScopedInputValue(loginBox, 'input[type="password"]');
 
   if (!email || !password) {
@@ -1216,12 +1253,15 @@ window.login = async function () {
   try {
     setButtonBusy(loginBtn, "Entrando...");
 
-    const { error } = await supabaseClient.auth.signInWithPassword({
+    const { data, error } = await supabaseClient.auth.signInWithPassword({
       email,
       password,
     });
 
     if (error) throw error;
+    if (!data?.session || !data?.user) {
+      throw new Error("Sessao nao iniciada")
+    }
 
     await loadUserUI();
     await updateHeaderUser();
@@ -1231,7 +1271,7 @@ window.login = async function () {
     showToast("Login realizado com sucesso");
   } catch (err) {
     console.error("Erro no login:", err);
-    showToast("Erro ao entrar na conta");
+    showToast(getAuthMessage(err, "login"));
   } finally {
     resetButtonBusy(loginBtn);
   }
@@ -1242,7 +1282,7 @@ window.register = async function () {
   const registerBtn = registerBox?.querySelector(".btn-dark");
   const textInputs = registerBox?.querySelectorAll('input[type="text"]') || [];
   const name = textInputs[0]?.value?.trim() || "";
-  const email = getScopedInputValue(registerBox, 'input[type="email"]');
+  const email = normalizeAuthEmail(getScopedInputValue(registerBox, 'input[type="email"]'));
   const password = getScopedInputValue(registerBox, 'input[type="password"]');
 
   if (!name || !email || !password) {
@@ -1253,7 +1293,7 @@ window.register = async function () {
   try {
     setButtonBusy(registerBtn, "Criando...");
 
-    const { error } = await supabaseClient.auth.signUp({
+    const { data, error } = await supabaseClient.auth.signUp({
       email,
       password,
       options: {
@@ -1265,11 +1305,28 @@ window.register = async function () {
     });
 
     if (error) throw error;
+    if (!data?.user) {
+      throw new Error("Nao foi possivel criar o usuario")
+    }
 
-    showToast("Conta criada. Verifique seu email");
+    if (Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+      throw new Error("Este email ja esta cadastrado")
+    }
+
+    if (data.session) {
+      await loadUserUI();
+      await updateHeaderUser();
+
+      document.getElementById("authModal")?.classList.remove("active");
+      document.body.style.overflow = "";
+      showToast("Conta criada e login realizado");
+      return;
+    }
+
+    showToast("Conta criada. Confirme seu email antes de entrar");
   } catch (err) {
     console.error("Erro no cadastro:", err);
-    showToast("Erro ao criar conta");
+    showToast(getAuthMessage(err, "register"));
   } finally {
     resetButtonBusy(registerBtn);
   }
