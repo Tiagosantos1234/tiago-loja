@@ -1,4 +1,4 @@
-﻿:root {
+:root {
       --bg: #07101f;
       --bg-2: #0b1730;
       --panel: #0d1728;
@@ -822,5 +822,162 @@
 
       .cards {
         grid-template-columns: 1fr;
+      }
+    }
+
+    /* ========================
+       NOVOS ESTILOS — PAINEL COMPLETO
+    ======================== */
+
+    /* Botão voltar à loja */
+    .btn-back-store {
+      display: block;
+      text-align: center;
+      text-decoration: none;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 600;
+      padding: 10px 14px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: var(--panel-3);
+      transition: background .18s ease, color .18s ease;
+    }
+
+    .btn-back-store:hover {
+      background: rgba(59,130,246,.12);
+      color: var(--text);
+    }
+
+    /* Row de pedido — 5 colunas: info | total | pagamento | envio | ações */
+    .orders-list .row {
+      grid-template-columns: 1.8fr .7fr .85fr 1.1fr auto;
+    }
+
+    /* Cabeçalho da tabela de pedidos */
+    .table-header-row {
+      display: grid;
+      grid-template-columns: 1.8fr .7fr .85fr 1.1fr auto;
+      gap: 14px;
+      padding: 10px 16px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--muted);
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 10px;
+    }
+
+    /* Total destacado na linha */
+    .order-total {
+      font-weight: 700;
+      font-size: 15px;
+    }
+
+    /* Célula de envio — badge + select */
+    .shipping-cell {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      align-items: flex-start;
+    }
+
+    .ship-select {
+      font-size: 12px;
+      padding: 6px 8px;
+      border-radius: 12px;
+      max-width: 120px;
+    }
+
+    /* Badges de status de envio */
+    .ship-created {
+      background: rgba(255,255,255,.06);
+      color: #adc4f0;
+    }
+
+    .ship-preparing {
+      background: rgba(245,158,11,.14);
+      color: #ffc85a;
+    }
+
+    .ship-shipped {
+      background: rgba(59,130,246,.14);
+      color: #82b9ff;
+    }
+
+    .ship-delivered {
+      background: rgba(16,185,129,.14);
+      color: #54ebb8;
+    }
+
+    /* Detalhes expandidos */
+    .details-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+      font-size: 13px;
+    }
+
+    .details-items {
+      font-size: 13px;
+    }
+
+    .details-items strong {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+
+    .detail-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255,255,255,.04);
+    }
+
+    .detail-item:last-child {
+      border-bottom: none;
+    }
+
+    .detail-img {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      object-fit: cover;
+      background: #132039;
+      border: 1px solid var(--line);
+      flex-shrink: 0;
+    }
+
+    /* Login — logo */
+    .login-logo {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -.04em;
+      margin-bottom: 16px;
+      background: linear-gradient(135deg, var(--blue), var(--cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* Responsivo — pedidos */
+    @media (max-width: 980px) {
+      .orders-list .row,
+      .table-header-row {
+        grid-template-columns: 1fr;
+      }
+
+      .table-header-row {
+        display: none;
+      }
+
+      .shipping-cell {
+        flex-direction: row;
+        align-items: center;
+        gap: 10px;
       }
     }

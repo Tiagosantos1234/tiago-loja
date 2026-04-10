@@ -1,219 +1,248 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
-
-<!-- TOPO -->
-
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>RESPEITA Fintech Admin</title>
-
-  <link rel="stylesheet" href="css/admin.css">
+  <title>RESPEITA — Painel Admin</title>
+  <meta name="description" content="Painel administrativo da loja RESPEITA. Gerencie pedidos, produtos e estoque em tempo real." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/admin.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-
-  <!-- CSS -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
-FRENTE HT 
-
 <body>
+
+  <!-- TELA DE LOGIN -->
   <div id="loginScreen" class="login-screen">
     <div class="login-card glass">
-      <h1>Login Admin</h1>
-      <p>Entre para acessar o painel da RESPEITA.</p>
-      <input id="email" type="email" placeholder="Seu e-mail">
-      <input id="password" type="password" placeholder="Sua senha">
-      <button onclick="loginAdmin()">Entrar</button>
+      <div class="login-logo">RESPEITA</div>
+      <h1>Painel Admin</h1>
+      <p>Entre com suas credenciais para acessar o painel.</p>
+      <input id="email" type="email" placeholder="E-mail" autocomplete="email" />
+      <input id="password" type="password" placeholder="Senha" autocomplete="current-password" />
+      <button id="loginBtn" onclick="loginAdmin()">Entrar</button>
       <div id="loginError" class="login-error"></div>
     </div>
   </div>
 
+  <!-- DASHBOARD -->
   <div id="dashboardScreen" class="hidden">
     <div class="app">
+
+      <!-- SIDEBAR -->
       <aside class="sidebar">
         <div class="brand">
           <h2>RESPEITA</h2>
-          <button id="themeBtn" class="theme-btn" type="button">☀️</button>
+          <button id="themeBtn" class="theme-btn" type="button" title="Alternar tema">☀️</button>
         </div>
 
         <nav class="nav">
-          <a class="active">Dashboard</a>
-          <a>Pedidos</a>
-          <a>Produtos</a>
-          <a>Estoque <span class="nav-dot"></span></a>
+          <a id="navDashboard" class="active" onclick="showSection('dashboard')">📊 Dashboard</a>
+          <a id="navPedidos" onclick="showSection('pedidos')">📦 Pedidos</a>
+          <a id="navProdutos" onclick="showSection('produtos')">🛍 Produtos</a>
         </nav>
 
         <div class="sidebar-card glass">
-          <h4>Atualização disponível</h4>
-          <p>Seu painel está em modo premium com dados em tempo real.</p>
-          <button type="button">Painel Pro</button>
+          <h4>Tempo real ativo</h4>
+          <p>Dados sincronizados automaticamente via Supabase Realtime.</p>
         </div>
 
+        <a href="/" class="btn-back-store">← Voltar para a loja</a>
         <button class="logout-btn" onclick="logoutAdmin()">Sair</button>
       </aside>
 
+      <!-- CONTEÚDO -->
       <main class="content">
+
+        <!-- TOPBAR -->
         <div class="topbar">
           <div class="topbar-left">
-            <h1>Dashboard</h1>
-            <p>Visão geral das vendas, pedidos, produtos e estoque.</p>
+            <h1 id="pageTitle">Dashboard</h1>
+            <p id="pageSubtitle">Visão geral das vendas, pedidos e estoque.</p>
           </div>
-
           <div class="topbar-right">
-            <input id="searchInput" class="search" placeholder="Buscar referência...">
+            <input id="searchInput" class="search" placeholder="Buscar por nome, e-mail ou referência..." />
             <div class="admin-pill">Admin</div>
           </div>
         </div>
 
-        <section class="cards">
-          <div class="metric-card blue neon">
-            <span>Total de pedidos</span>
-            <strong id="count">0</strong>
-            <div class="metric-sub">Atualizado em tempo real</div>
+        <!-- SECTION: DASHBOARD -->
+        <section id="sectionDashboard">
+
+          <!-- CARDS DE MÉTRICAS -->
+          <div class="cards">
+            <div class="metric-card blue neon">
+              <span>Total de pedidos</span>
+              <strong id="count">0</strong>
+              <div class="metric-sub">Atualizado em tempo real</div>
+            </div>
+            <div class="metric-card green">
+              <span>Faturamento</span>
+              <strong>R$ <span id="total">0,00</span></strong>
+              <div class="metric-sub">Receita acumulada</div>
+            </div>
+            <div class="metric-card purple">
+              <span>Aprovados</span>
+              <strong id="approvedCount">0</strong>
+              <div class="metric-sub">Pedidos confirmados</div>
+            </div>
+            <div class="metric-card dark">
+              <span>Pendentes</span>
+              <strong id="pendingCount">0</strong>
+              <div class="metric-sub">Aguardando decisão</div>
+            </div>
           </div>
 
-          <div class="metric-card green">
-            <span>Faturamento</span>
-            <strong>R$ <span id="total">0</span></strong>
-            <div class="metric-sub">Receita acumulada</div>
-          </div>
+          <!-- GRÁFICOS -->
+          <div class="layout-grid">
+            <div class="chart-card glass">
+              <div class="card-head">
+                <div>
+                  <h3>Vendas por dia</h3>
+                  <p>Receita acumulada diariamente.</p>
+                </div>
+                <div class="pill">Mensal</div>
+              </div>
+              <div class="chart-wrap">
+                <canvas id="graficoVendas"></canvas>
+              </div>
+            </div>
 
-          <div class="metric-card purple">
-            <span>Aprovados</span>
-            <strong id="approvedCount">0</strong>
-            <div class="metric-sub">Pedidos confirmados</div>
-          </div>
+            <div class="side-stack">
+              <div class="panel-card glass">
+                <div class="card-head">
+                  <div>
+                    <h3>Status</h3>
+                    <p>Distribuição dos pedidos.</p>
+                  </div>
+                </div>
+                <div class="mini-chart-wrap">
+                  <canvas id="graficoStatus"></canvas>
+                </div>
+              </div>
 
-          <div class="metric-card dark">
-            <span>Pendentes</span>
-            <strong id="pendingCount">0</strong>
-            <div class="metric-sub">Aguardando decisão</div>
+              <div class="panel-card glass">
+                <div class="card-head">
+                  <div>
+                    <h3>Meta de vendas</h3>
+                    <p>Objetivo mensal do painel.</p>
+                  </div>
+                </div>
+                <div class="goal-row">
+                  <strong>R$ <span id="goalCurrent">0</span></strong>
+                  <span class="muted">de R$ <span id="goalTarget">10000</span></span>
+                </div>
+                <div class="goal-progress">
+                  <div id="goalBar" class="goal-progress-bar"></div>
+                </div>
+              </div>
+
+              <div class="panel-card glass">
+                <div class="card-head">
+                  <div>
+                    <h3>Top produtos</h3>
+                    <p>Mais vendidos no período.</p>
+                  </div>
+                </div>
+                <div id="rankingProdutos" class="ranking-list"></div>
+              </div>
+            </div>
           </div>
         </section>
 
-        <section class="layout-grid">
-          <div class="chart-card glass">
-            <div class="card-head">
+        <!-- SECTION: PEDIDOS -->
+        <section id="sectionPedidos" class="hidden">
+          <div class="table-card glass">
+            <div class="table-head">
               <div>
-                <h3>Transaction Reports</h3>
-                <p>Vendas por dia com leitura rápida de faturamento.</p>
+                <h3>Pedidos</h3>
+                <p>Acompanhe e atualize o status em tempo real.</p>
               </div>
-              <div class="pill">Mensal</div>
-            </div>
-
-            <div class="chart-wrap">
-              <canvas id="graficoVendas"></canvas>
-            </div>
-          </div>
-
-          <div class="side-stack">
-            <div class="panel-card status-card glass">
-              <div class="card-head">
-                <div>
-                  <h3>Status</h3>
-                  <p>Distribuição atual dos pedidos.</p>
-                </div>
-              </div>
-              <div class="mini-chart-wrap">
-                <canvas id="graficoStatus"></canvas>
+              <div class="table-filters">
+                <select id="filterStatus" class="filter" onchange="renderPedidos()">
+                  <option value="all">Todos os status</option>
+                  <option value="pending">Pendentes</option>
+                  <option value="approved">Aprovados</option>
+                  <option value="rejected">Cancelados</option>
+                </select>
+                <select id="filterShipping" class="filter" onchange="renderPedidos()">
+                  <option value="all">Todos os envios</option>
+                  <option value="created">Criado</option>
+                  <option value="preparing">Preparando</option>
+                  <option value="shipped">Enviado</option>
+                  <option value="delivered">Entregue</option>
+                </select>
               </div>
             </div>
 
-            <div class="panel-card goal-card glass">
-              <div class="card-head">
-                <div>
-                  <h3>Meta de vendas</h3>
-                  <p>Objetivo mensal do dashboard.</p>
-                </div>
-              </div>
-
-              <div class="goal-row">
-                <strong>R$ <span id="goalCurrent">0</span></strong>
-                <span class="muted">de R$ <span id="goalTarget">10000</span></span>
-              </div>
-
-              <div class="goal-progress">
-                <div id="goalBar" class="goal-progress-bar"></div>
-              </div>
+            <!-- CABEÇALHO DA TABELA -->
+            <div class="table-header-row">
+              <span>Pedido / Cliente</span>
+              <span>Total</span>
+              <span>Pagamento</span>
+              <span>Envio</span>
+              <span>Ações</span>
             </div>
 
-            <div class="panel-card products-ranking glass">
-              <div class="card-head">
-                <div>
-                  <h3>Top produtos</h3>
-                  <p>Mais vendidos no período.</p>
-                </div>
-              </div>
-              <div id="rankingProdutos" class="ranking-list"></div>
-            </div>
+            <div id="orders" class="orders-list"></div>
           </div>
         </section>
 
-        <section class="table-card glass">
-          <div class="table-head">
-            <div>
-              <h3>Pedidos</h3>
-              <p>Acompanhe e atualize o status em tempo real.</p>
+        <!-- SECTION: PRODUTOS -->
+        <section id="sectionProdutos" class="hidden">
+          <div class="table-card glass">
+            <div class="table-head">
+              <div>
+                <h3>Produtos</h3>
+                <p>Gerencie produtos, estoque, imagem e preço.</p>
+              </div>
             </div>
 
-            <div class="table-filters">
-              <select id="filter" class="filter">
-                <option value="all">Todos</option>
-                <option value="pending">Pendentes</option>
-                <option value="approved">Aprovados</option>
-                <option value="rejected">Cancelados</option>
-              </select>
+            <div class="products-form">
+              <input id="newName"  class="small-input" placeholder="Nome do produto" />
+              <input id="newPrice" class="small-input" placeholder="Preço (R$)" type="number" min="0" step="0.01" />
+              <input id="newStock" class="small-input" placeholder="Estoque"       type="number" min="0" />
+              <input id="newImage" class="small-input" placeholder="URL da imagem" />
+              <button class="btn btn-create" onclick="criarProduto()">+ Criar</button>
             </div>
+
+            <div id="lowStockAlert" class="low-stock-alert"></div>
+            <div id="productsList" class="products-list"></div>
           </div>
-
-          <div id="orders" class="orders-list"></div>
         </section>
 
-        <section class="table-card glass">
-          <div class="table-head">
-            <div>
-              <h3>Produtos</h3>
-              <p>Gerencie produtos, estoque, imagem e preço.</p>
-            </div>
-          </div>
-
-          <div class="products-form">
-            <input id="newName" class="small-input" placeholder="Nome do produto">
-            <input id="newPrice" class="small-input" placeholder="Preço">
-            <input id="newStock" class="small-input" placeholder="Estoque">
-            <input id="newImage" class="small-input" placeholder="Imagem URL">
-            <button class="btn btn-create" onclick="criarProduto()">Criar</button>
-          </div>
-
-          <div id="lowStockAlert" class="low-stock-alert"></div>
-
-          <div id="productsList" class="products-list"></div>
-        </section>
       </main>
     </div>
   </div>
 
+  <!-- TOAST -->
   <div id="toast" class="toast"></div>
 
-  JAVA 
-
-  
   <script>
+    // ========================
+    // SUPABASE
+    // ========================
     const supabaseClient = supabase.createClient(
       "https://nmosbabyarqnmihihalu.supabase.co",
       "sb_publishable_RrPDyew7vfhihy3WvrNr6w_zZJ3kLql"
     )
 
-    let pedidos = []
-    let itensPedidos = []
-    let produtos = []
-
-    let chartVendas = null
-    let chartStatus = null
-
+    // ========================
+    // ESTADO GLOBAL
+    // ========================
+    let pedidos       = []
+    let itensPedidos  = []
+    let produtos      = []
+    let chartVendas   = null
+    let chartStatus   = null
     const META_VENDAS = 10000
 
+    // ========================
+    // TEMA
+    // ========================
     function setTheme(theme) {
       document.body.classList.toggle("light", theme === "light")
       localStorage.setItem("admin-theme", theme)
@@ -222,8 +251,7 @@ FRENTE HT
     }
 
     function initTheme() {
-      const salvo = localStorage.getItem("admin-theme") || "dark"
-      setTheme(salvo)
+      setTheme(localStorage.getItem("admin-theme") || "dark")
     }
 
     function toggleTheme() {
@@ -233,86 +261,116 @@ FRENTE HT
       gerarGraficoStatus()
     }
 
+    // ========================
+    // NAVEGAÇÃO POR SEÇÕES
+    // ========================
+    function showSection(section) {
+      const sections = { dashboard: "sectionDashboard", pedidos: "sectionPedidos", produtos: "sectionProdutos" }
+      const titles   = { dashboard: ["Dashboard", "Visão geral das vendas, pedidos e estoque."],
+                         pedidos:   ["Pedidos", "Acompanhe e atualize o status em tempo real."],
+                         produtos:  ["Produtos", "Gerencie produtos, estoque, imagem e preço."] }
+
+      Object.entries(sections).forEach(([key, id]) => {
+        document.getElementById(id).classList.toggle("hidden", key !== section)
+      })
+      Object.keys(sections).forEach(key => {
+        const nav = document.getElementById("nav" + key.charAt(0).toUpperCase() + key.slice(1))
+        if (nav) nav.classList.toggle("active", key === section)
+      })
+
+      document.getElementById("pageTitle").textContent   = titles[section][0]
+      document.getElementById("pageSubtitle").textContent = titles[section][1]
+
+      // Esconder search no dashboard
+      const searchInput = document.getElementById("searchInput")
+      searchInput.style.display = section === "dashboard" ? "none" : ""
+    }
+
+    // ========================
+    // TOAST
+    // ========================
     function mostrarNotificacao(texto, tipo = "ok") {
       const toast = document.getElementById("toast")
       toast.textContent = texto
-      toast.className = `toast ${tipo}`
+      toast.className   = `toast ${tipo}`
       toast.style.display = "block"
-
       clearTimeout(window._toastTimer)
-      window._toastTimer = setTimeout(() => {
-        toast.style.display = "none"
-      }, 2500)
+      window._toastTimer = setTimeout(() => { toast.style.display = "none" }, 2800)
     }
 
-    function animateCounter(element, target, prefix = "", decimals = 0) {
+    // ========================
+    // ANIMAÇÃO CONTADOR
+    // ========================
+    function animateCounter(element, target, decimals = 0) {
       if (!element) return
-      const start = Number(element.dataset.current || 0)
-      const end = Number(target || 0)
+      const start    = Number(element.dataset.current || 0)
+      const end      = Number(target || 0)
       const duration = 700
-      const startTime = performance.now()
+      const t0       = performance.now()
 
       function frame(now) {
-        const progress = Math.min((now - startTime) / duration, 1)
-        const value = start + (end - start) * progress
-        element.textContent = `${prefix}${value.toFixed(decimals)}`
-        if (progress < 1) {
-          requestAnimationFrame(frame)
-        } else {
-          element.dataset.current = String(end)
-        }
+        const progress = Math.min((now - t0) / duration, 1)
+        const value    = start + (end - start) * progress
+        element.textContent = value.toFixed(decimals)
+        if (progress < 1) requestAnimationFrame(frame)
+        else element.dataset.current = String(end)
       }
-
       requestAnimationFrame(frame)
     }
 
+    // ========================
+    // AUTH
+    // ========================
     async function loginAdmin() {
-      const email = document.getElementById("email").value.trim()
+      const btn = document.getElementById("loginBtn")
+      btn.disabled = true
+      btn.textContent = "Entrando..."
+
+      const email    = document.getElementById("email").value.trim()
       const password = document.getElementById("password").value
 
-      const { error } = await supabaseClient.auth.signInWithPassword({
-        email,
-        password
-      })
+      const { error } = await supabaseClient.auth.signInWithPassword({ email, password })
+
+      btn.disabled = false
+      btn.textContent = "Entrar"
 
       if (error) {
-        document.getElementById("loginError").innerText = "Login inválido"
+        document.getElementById("loginError").innerText = "Credenciais inválidas. Tente novamente."
         return
       }
 
       document.getElementById("loginError").innerText = ""
-      document.getElementById("loginScreen").classList.add("hidden")
-      document.getElementById("dashboardScreen").classList.remove("hidden")
+      mostrarLogin(false)
       await carregarTudo()
     }
 
     async function logoutAdmin() {
       await supabaseClient.auth.signOut()
-      document.getElementById("dashboardScreen").classList.add("hidden")
-      document.getElementById("loginScreen").classList.remove("hidden")
+      mostrarLogin(true)
+    }
+
+    function mostrarLogin(show) {
+      document.getElementById("loginScreen").classList.toggle("hidden", !show)
+      document.getElementById("dashboardScreen").classList.toggle("hidden", show)
     }
 
     async function verificarSessao() {
       const { data } = await supabaseClient.auth.getSession()
-
       if (data.session) {
-        document.getElementById("loginScreen").classList.add("hidden")
-        document.getElementById("dashboardScreen").classList.remove("hidden")
+        mostrarLogin(false)
         await carregarTudo()
       } else {
-        document.getElementById("loginScreen").classList.remove("hidden")
-        document.getElementById("dashboardScreen").classList.add("hidden")
+        mostrarLogin(true)
       }
     }
 
+    // ========================
+    // CARREGAMENTO DE DADOS
+    // ========================
     async function carregarTudo() {
-      await Promise.all([
-        carregarPedidos(),
-        carregarItensPedidos(),
-        carregarProdutos()
-      ])
-
+      await Promise.all([carregarPedidos(), carregarItensPedidos(), carregarProdutos()])
       renderPedidos()
+      renderMetrics()
       renderRanking()
       renderProdutos()
       renderMeta()
@@ -324,20 +382,13 @@ FRENTE HT
       const { data, error } = await supabaseClient
         .from("orders")
         .select("*")
-
+        .order("created_at", { ascending: false })
       if (error) console.error("Erro ao carregar pedidos:", error)
-      pedidos = (data || []).sort((a, b) => {
-        const aTime = a?.created_at ? new Date(a.created_at).getTime() : 0
-        const bTime = b?.created_at ? new Date(b.created_at).getTime() : 0
-        return bTime - aTime
-      })
+      pedidos = data || []
     }
 
     async function carregarItensPedidos() {
-      const { data, error } = await supabaseClient
-        .from("order_items")
-        .select("*")
-
+      const { data, error } = await supabaseClient.from("order_items").select("*")
       if (error) console.error("Erro ao carregar itens:", error)
       itensPedidos = data || []
     }
@@ -346,46 +397,72 @@ FRENTE HT
       const { data, error } = await supabaseClient
         .from("products")
         .select("*")
-
+        .order("created_at", { ascending: false })
       if (error) console.error("Erro ao carregar produtos:", error)
-      produtos = (data || []).sort((a, b) => {
-        const aTime = a?.created_at ? new Date(a.created_at).getTime() : 0
-        const bTime = b?.created_at ? new Date(b.created_at).getTime() : 0
-        return bTime - aTime
+      produtos = data || []
+    }
+
+    // ========================
+    // HELPERS DE STATUS
+    // ========================
+    function labelPagamento(status) {
+      const map = { approved: "Aprovado", pending: "Pendente", rejected: "Cancelado" }
+      return map[status] || "Sem status"
+    }
+
+    function labelEnvio(status) {
+      const map = { created: "Criado", preparing: "Preparando", shipped: "Enviado", delivered: "Entregue" }
+      return map[status] || "Não iniciado"
+    }
+
+    function classPagamento(status) {
+      const map = { approved: "approved", pending: "pending", rejected: "rejected" }
+      return map[status] || "pending"
+    }
+
+    function classEnvio(status) {
+      const map = { created: "ship-created", preparing: "ship-preparing", shipped: "ship-shipped", delivered: "ship-delivered" }
+      return map[status] || "ship-created"
+    }
+
+    // ========================
+    // FILTRO & BUSCA
+    // ========================
+    function getPedidosFiltrados() {
+      const filtroStatus   = document.getElementById("filterStatus")?.value || "all"
+      const filtroShipping = document.getElementById("filterShipping")?.value || "all"
+      const busca = (document.getElementById("searchInput")?.value || "").trim().toLowerCase()
+
+      return pedidos.filter(p => {
+        const batePagamento = filtroStatus   === "all" ? true : p.status === filtroStatus
+        const bateEnvio     = filtroShipping === "all" ? true : (p.shipping_status || "created") === filtroShipping
+        const bateBusca     = !busca ? true :
+          String(p.external_reference || "").toLowerCase().includes(busca) ||
+          String(p.customer_name     || "").toLowerCase().includes(busca) ||
+          String(p.customer_email    || "").toLowerCase().includes(busca)
+
+        return batePagamento && bateEnvio && bateBusca
       })
     }
 
-    function traduzirStatus(status) {
-      if (status === "approved") return "Aprovado"
-      if (status === "pending") return "Pendente"
-      if (status === "rejected") return "Cancelado"
-      return "Sem status"
+    // ========================
+    // RENDER MÉTRICAS (CARDS)
+    // ========================
+    function renderMetrics() {
+      const lista = pedidos
+      animateCounter(document.getElementById("count"),         lista.length)
+      const totalVal = lista.reduce((s, p) => s + Number(p.total || 0), 0)
+      animateCounter(document.getElementById("total"),         totalVal, 2)
+      animateCounter(document.getElementById("approvedCount"), lista.filter(p => p.status === "approved").length)
+      animateCounter(document.getElementById("pendingCount"),  lista.filter(p => p.status === "pending").length)
     }
 
+    // ========================
+    // RENDER PEDIDOS
+    // ========================
     function renderPedidos() {
-      const filtro = document.getElementById("filter").value
-      const busca = document.getElementById("searchInput").value.trim().toLowerCase()
-
-      const lista = pedidos.filter(p => {
-        const bateFiltro = filtro === "all" ? true : p.status === filtro
-        const bateBusca = !busca
-          ? true
-          : String(p.external_reference || "").toLowerCase().includes(busca)
-
-        return bateFiltro && bateBusca
-      })
-
-      animateCounter(document.getElementById("count"), lista.length, "", 0)
-
-      const total = lista.reduce((s, p) => s + Number(p.total || 0), 0)
-      animateCounter(document.getElementById("total"), total, "", 2)
-
-      const approvedCount = lista.filter(p => p.status === "approved").length
-      const pendingCount = lista.filter(p => p.status === "pending").length
-
-      animateCounter(document.getElementById("approvedCount"), approvedCount, "", 0)
-      animateCounter(document.getElementById("pendingCount"), pendingCount, "", 0)
-
+      renderMetrics()
+      const lista     = getPedidosFiltrados()
       const container = document.getElementById("orders")
       container.innerHTML = ""
 
@@ -395,38 +472,65 @@ FRENTE HT
       }
 
       lista.forEach(order => {
-        const row = document.createElement("div")
-        row.className = "row"
-
-        const statusClass = order.status || "pending"
-        const detalhesId = `d-${order.id}`
-        const itens = itensPedidos.filter(item => item.order_id === order.id)
+        const row        = document.createElement("div")
+        row.className    = "row"
+        const detId      = `d-${order.id}`
+        const itens      = itensPedidos.filter(i => i.order_id === order.id)
+        const shipStatus = order.shipping_status || "created"
+        const dataFormatada = order.created_at
+          ? new Date(order.created_at).toLocaleString("pt-BR")
+          : "—"
 
         row.innerHTML = `
           <div class="order-main">
             <strong>${order.external_reference || "Sem referência"}</strong>
-            <small>${new Date(order.created_at).toLocaleString()}</small>
+            <small class="muted">${order.customer_name || "Cliente"}</small>
+            <small class="muted">${order.customer_email || ""}</small>
+            <small class="muted">${dataFormatada}</small>
           </div>
 
-          <div>R$ ${Number(order.total || 0).toFixed(2)}</div>
+          <div class="order-total">R$ ${Number(order.total || 0).toFixed(2)}</div>
 
-          <div class="status ${statusClass}">${traduzirStatus(order.status)}</div>
+          <div class="status ${classPagamento(order.status)}">${labelPagamento(order.status)}</div>
+
+          <div class="shipping-cell">
+            <div class="status ${classEnvio(shipStatus)}">${labelEnvio(shipStatus)}</div>
+            <select class="filter ship-select" onchange="atualizarEnvio('${order.id}', this.value)">
+              <option value="created"   ${shipStatus === "created"   ? "selected" : ""}>Criado</option>
+              <option value="preparing" ${shipStatus === "preparing" ? "selected" : ""}>Preparando</option>
+              <option value="shipped"   ${shipStatus === "shipped"   ? "selected" : ""}>Enviado</option>
+              <option value="delivered" ${shipStatus === "delivered" ? "selected" : ""}>Entregue</option>
+            </select>
+          </div>
 
           <div class="actions">
-            <button class="btn btn-details" onclick="toggleDetalhes('${detalhesId}')">Detalhes</button>
+            <button class="btn btn-details" onclick="toggleDetalhes('${detId}')">Ver detalhes</button>
             <button class="btn btn-approve" onclick="mudarStatus('${order.id}','approved')">Aprovar</button>
-            <button class="btn btn-cancel" onclick="mudarStatus('${order.id}','rejected')">Cancelar</button>
+            <button class="btn btn-cancel"  onclick="mudarStatus('${order.id}','rejected')">Cancelar</button>
           </div>
 
-          <div id="${detalhesId}" class="details" style="grid-column:1 / -1;">
-            ${
-              itens.length
-                ? itens.map(i => `<div>${i.product_name} × ${i.quantity}</div>`).join("")
-                : `<div>Nenhum item encontrado.</div>`
-            }
+          <div id="${detId}" class="details" style="grid-column:1 / -1; display:none;">
+            <div class="details-grid">
+              <div><strong>ID:</strong> ${order.id}</div>
+              <div><strong>Referência:</strong> ${order.external_reference || "—"}</div>
+              <div><strong>Cliente:</strong> ${order.customer_name || "—"}</div>
+              <div><strong>E-mail:</strong> ${order.customer_email || "—"}</div>
+              <div><strong>Total:</strong> R$ ${Number(order.total || 0).toFixed(2)}</div>
+              <div><strong>Criado em:</strong> ${dataFormatada}</div>
+            </div>
+            <div class="details-items">
+              <strong>Itens:</strong>
+              ${itens.length
+                ? itens.map(i => `
+                    <div class="detail-item">
+                      ${i.image_url ? `<img src="${i.image_url}" class="detail-img" alt="${i.product_name}" onerror="this.style.display='none'" />` : ""}
+                      <span>${i.product_name} × ${i.quantity} — R$ ${Number(i.product_price || 0).toFixed(2)} cada</span>
+                    </div>`).join("")
+                : "<div>Nenhum item encontrado.</div>"
+              }
+            </div>
           </div>
         `
-
         container.appendChild(row)
       })
     }
@@ -437,19 +541,13 @@ FRENTE HT
       el.style.display = el.style.display === "block" ? "none" : "block"
     }
 
+    // ========================
+    // AÇÕES DE PEDIDO
+    // ========================
     async function mudarStatus(id, status) {
-      const { error } = await supabaseClient
-        .from("orders")
-        .update({ status })
-        .eq("id", id)
-
-      if (error) {
-        console.error("Erro ao atualizar status:", error)
-        mostrarNotificacao("Erro ao atualizar status", "erro")
-        return
-      }
-
-      mostrarNotificacao("Status atualizado", "ok")
+      const { error } = await supabaseClient.from("orders").update({ status }).eq("id", id)
+      if (error) { mostrarNotificacao("Erro ao atualizar status", "erro"); return }
+      mostrarNotificacao("Status atualizado com sucesso!", "ok")
       await carregarPedidos()
       renderPedidos()
       renderMeta()
@@ -457,45 +555,55 @@ FRENTE HT
       gerarGraficoStatus()
     }
 
+    async function atualizarEnvio(id, shipping_status) {
+      const { error } = await supabaseClient.from("orders").update({ shipping_status }).eq("id", id)
+      if (error) { mostrarNotificacao("Erro ao atualizar envio", "erro"); return }
+      mostrarNotificacao(`Envio atualizado: ${labelEnvio(shipping_status)}`, "ok")
+      await carregarPedidos()
+      renderPedidos()
+    }
+
+    // ========================
+    // GRÁFICOS
+    // ========================
+    function getChartColors() {
+      const style = getComputedStyle(document.body)
+      return {
+        text:  style.getPropertyValue("--text").trim()  || "#eef4ff",
+        muted: style.getPropertyValue("--muted").trim() || "#8ea2c9",
+      }
+    }
+
     function gerarGraficoVendas() {
       const vendas = {}
-
       pedidos.forEach(p => {
         if (!p.created_at) return
-        const d = new Date(p.created_at).toLocaleDateString()
+        const d = new Date(p.created_at).toLocaleDateString("pt-BR")
         vendas[d] = (vendas[d] || 0) + Number(p.total || 0)
       })
 
       if (chartVendas) chartVendas.destroy()
+      const { text, muted } = getChartColors()
 
       chartVendas = new Chart(document.getElementById("graficoVendas"), {
         type: "bar",
         data: {
           labels: Object.keys(vendas),
           datasets: [{
-            label: "Vendas",
+            label: "Vendas (R$)",
             data: Object.values(vendas),
-            backgroundColor: "#3b82f6",
-            borderRadius: 10
+            backgroundColor: "rgba(59,130,246,0.75)",
+            borderRadius: 10,
+            borderSkipped: false,
           }]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              labels: { color: getComputedStyle(document.body).getPropertyValue("--text").trim() }
-            }
-          },
+          plugins: { legend: { labels: { color: text } } },
           scales: {
-            x: {
-              ticks: { color: getComputedStyle(document.body).getPropertyValue("--muted").trim() },
-              grid: { color: "rgba(255,255,255,.05)" }
-            },
-            y: {
-              ticks: { color: getComputedStyle(document.body).getPropertyValue("--muted").trim() },
-              grid: { color: "rgba(255,255,255,.05)" }
-            }
+            x: { ticks: { color: muted }, grid: { color: "rgba(255,255,255,.04)" } },
+            y: { ticks: { color: muted }, grid: { color: "rgba(255,255,255,.04)" } }
           }
         }
       })
@@ -504,9 +612,10 @@ FRENTE HT
     function gerarGraficoStatus() {
       const aprovados = pedidos.filter(p => p.status === "approved").length
       const pendentes = pedidos.filter(p => p.status === "pending").length
-      const cancelados = pedidos.filter(p => p.status === "rejected").length
+      const cancelados= pedidos.filter(p => p.status === "rejected").length
 
       if (chartStatus) chartStatus.destroy()
+      const { text } = getChartColors()
 
       chartStatus = new Chart(document.getElementById("graficoStatus"), {
         type: "doughnut",
@@ -515,45 +624,42 @@ FRENTE HT
           datasets: [{
             data: [aprovados, pendentes, cancelados],
             backgroundColor: ["#10b981", "#f59e0b", "#ef4444"],
-            borderWidth: 0
+            borderWidth: 0,
           }]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              labels: { color: getComputedStyle(document.body).getPropertyValue("--text").trim() }
-            }
-          }
+          plugins: { legend: { labels: { color: text } } }
         }
       })
     }
 
+    // ========================
+    // META DE VENDAS
+    // ========================
     function renderMeta() {
       const faturamento = pedidos
         .filter(p => p.status === "approved" || p.status === "pending")
         .reduce((s, p) => s + Number(p.total || 0), 0)
 
       document.getElementById("goalTarget").textContent = META_VENDAS.toFixed(0)
-      animateCounter(document.getElementById("goalCurrent"), faturamento, "", 2)
-
+      animateCounter(document.getElementById("goalCurrent"), faturamento, 2)
       const progress = Math.min((faturamento / META_VENDAS) * 100, 100)
       document.getElementById("goalBar").style.width = `${progress}%`
     }
 
+    // ========================
+    // RANKING
+    // ========================
     function renderRanking() {
       const ranking = {}
-
       itensPedidos.forEach(item => {
         const nome = item.product_name || "Produto"
         ranking[nome] = (ranking[nome] || 0) + Number(item.quantity || 0)
       })
 
-      const top = Object.entries(ranking)
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 5)
-
+      const top = Object.entries(ranking).sort((a, b) => b[1] - a[1]).slice(0, 5)
       const container = document.getElementById("rankingProdutos")
 
       if (!top.length) {
@@ -569,6 +675,9 @@ FRENTE HT
       `).join("")
     }
 
+    // ========================
+    // PRODUTOS
+    // ========================
     function renderProdutos() {
       const container = document.getElementById("productsList")
 
@@ -582,23 +691,20 @@ FRENTE HT
         <div class="row">
           <div class="product-main">
             <div class="product-inline">
-              <img class="product-thumb" src="${produto.image_url || ""}" alt="${produto.name || "Produto"}" onerror="this.style.visibility='hidden'">
+              <img class="product-thumb" src="${produto.image_url || ""}" alt="${produto.name || "Produto"}" onerror="this.style.visibility='hidden'" />
               <div>
                 <strong>${produto.name || "Sem nome"}</strong>
                 <small class="muted">${produto.image_url ? "Com imagem" : "Sem imagem"}</small>
               </div>
             </div>
           </div>
-
           <div>R$ ${Number(produto.price || 0).toFixed(2)}</div>
-
           <div class="status ${Number(produto.stock || 0) <= 3 ? "stock-low" : "stock-ok"}">
             Estoque: ${produto.stock || 0}
           </div>
-
           <div class="actions">
             <button class="btn btn-details" onclick="editarProduto('${produto.id}')">Editar</button>
-            <button class="btn btn-cancel" onclick="excluirProduto('${produto.id}')">Excluir</button>
+            <button class="btn btn-cancel"  onclick="excluirProduto('${produto.id}')">Excluir</button>
           </div>
         </div>
       `).join("")
@@ -609,45 +715,29 @@ FRENTE HT
     function renderAlertaEstoque() {
       const alerta = document.getElementById("lowStockAlert")
       const baixos = produtos.filter(p => Number(p.stock || 0) <= 3)
-
-      if (!baixos.length) {
-        alerta.style.display = "none"
-        alerta.textContent = ""
-        return
-      }
-
+      if (!baixos.length) { alerta.style.display = "none"; alerta.textContent = ""; return }
       alerta.style.display = "block"
       alerta.textContent = `⚠ Estoque baixo em ${baixos.length} produto(s): ${baixos.map(p => p.name).join(", ")}`
     }
 
     async function criarProduto() {
-      const name = document.getElementById("newName").value.trim()
-      const price = Number(document.getElementById("newPrice").value)
-      const stock = Number(document.getElementById("newStock").value)
+      const name      = document.getElementById("newName").value.trim()
+      const price     = Number(document.getElementById("newPrice").value)
+      const stock     = Number(document.getElementById("newStock").value)
       const image_url = document.getElementById("newImage").value.trim()
 
-      if (!name) {
-        mostrarNotificacao("Digite o nome do produto", "erro")
-        return
-      }
+      if (!name) { mostrarNotificacao("Digite o nome do produto", "erro"); return }
 
-      const { error } = await supabaseClient
-        .from("products")
-        .insert([{
-          name,
-          price: isNaN(price) ? 0 : price,
-          stock: isNaN(stock) ? 0 : stock,
-          image_url
-        }])
+      const { error } = await supabaseClient.from("products").insert([{
+        name,
+        price:     isNaN(price) ? 0 : price,
+        stock:     isNaN(stock) ? 0 : stock,
+        image_url
+      }])
 
-      if (error) {
-        console.error("Erro ao criar produto:", error)
-        mostrarNotificacao("Erro ao criar produto", "erro")
-        return
-      }
-
+      if (error) { mostrarNotificacao("Erro ao criar produto", "erro"); return }
       limparInputsProduto()
-      mostrarNotificacao("Produto criado com sucesso", "ok")
+      mostrarNotificacao("Produto criado com sucesso!", "ok")
       await carregarProdutos()
       renderProdutos()
     }
@@ -656,114 +746,90 @@ FRENTE HT
       const produto = produtos.find(p => p.id === id)
       if (!produto) return
 
-      const novoNome = prompt("Nome do produto:", produto.name || "")
-      if (novoNome === null) return
-
-      const novoPreco = prompt("Preço:", produto.price ?? 0)
-      if (novoPreco === null) return
-
-      const novoEstoque = prompt("Estoque:", produto.stock ?? 0)
+      const novoNome    = prompt("Nome do produto:", produto.name    || "")
+      if (novoNome    === null) return
+      const novoPreco   = prompt("Preço:",           produto.price   ?? 0)
+      if (novoPreco   === null) return
+      const novoEstoque = prompt("Estoque:",         produto.stock   ?? 0)
       if (novoEstoque === null) return
+      const novaImagem  = prompt("URL da imagem:",   produto.image_url || "")
+      if (novaImagem  === null) return
 
-      const novaImagem = prompt("URL da imagem:", produto.image_url || "")
-      if (novaImagem === null) return
+      const { error } = await supabaseClient.from("products").update({
+        name:      novoNome.trim(),
+        price:     Number(novoPreco),
+        stock:     Number(novoEstoque),
+        image_url: novaImagem.trim()
+      }).eq("id", id)
 
-      const { error } = await supabaseClient
-        .from("products")
-        .update({
-          name: novoNome.trim(),
-          price: Number(novoPreco),
-          stock: Number(novoEstoque),
-          image_url: novaImagem.trim()
-        })
-        .eq("id", id)
-
-      if (error) {
-        console.error("Erro ao editar produto:", error)
-        mostrarNotificacao("Erro ao editar produto", "erro")
-        return
-      }
-
-      mostrarNotificacao("Produto atualizado", "ok")
+      if (error) { mostrarNotificacao("Erro ao editar produto", "erro"); return }
+      mostrarNotificacao("Produto atualizado!", "ok")
       await carregarProdutos()
       renderProdutos()
     }
 
     async function excluirProduto(id) {
-      const confirmar = confirm("Deseja excluir este produto?")
-      if (!confirmar) return
+      if (!confirm("Deseja excluir este produto?")) return
 
-      const { error } = await supabaseClient
-        .from("products")
-        .delete()
-        .eq("id", id)
-
-      if (error) {
-        console.error("Erro ao excluir produto:", error)
-        mostrarNotificacao("Erro ao excluir produto", "erro")
-        return
-      }
-
-      mostrarNotificacao("Produto excluído", "ok")
+      const { error } = await supabaseClient.from("products").delete().eq("id", id)
+      if (error) { mostrarNotificacao("Erro ao excluir produto", "erro"); return }
+      mostrarNotificacao("Produto excluído!", "ok")
       await carregarProdutos()
       renderProdutos()
     }
 
     function limparInputsProduto() {
-      document.getElementById("newName").value = ""
-      document.getElementById("newPrice").value = ""
-      document.getElementById("newStock").value = ""
-      document.getElementById("newImage").value = ""
+      ["newName", "newPrice", "newStock", "newImage"].forEach(id => {
+        document.getElementById(id).value = ""
+      })
     }
 
-    document.getElementById("filter").addEventListener("change", renderPedidos)
+    // ========================
+    // EVENT LISTENERS
+    // ========================
     document.getElementById("searchInput").addEventListener("input", renderPedidos)
     document.getElementById("themeBtn").addEventListener("click", toggleTheme)
 
-    supabaseClient
-      .channel("orders-realtime")
-      .on("postgres_changes", {
-        event: "*",
-        schema: "public",
-        table: "orders"
-      }, async () => {
+    // Enter no login
+    document.getElementById("password").addEventListener("keypress", e => {
+      if (e.key === "Enter") loginAdmin()
+    })
+
+    // ========================
+    // REALTIME
+    // ========================
+    supabaseClient.channel("orders-realtime")
+      .on("postgres_changes", { event: "*", schema: "public", table: "orders" }, async () => {
         await carregarPedidos()
         renderPedidos()
+        renderMetrics()
         renderMeta()
         gerarGraficoVendas()
         gerarGraficoStatus()
       })
       .subscribe()
 
-    supabaseClient
-      .channel("order-items-realtime")
-      .on("postgres_changes", {
-        event: "*",
-        schema: "public",
-        table: "order_items"
-      }, async () => {
+    supabaseClient.channel("order-items-realtime")
+      .on("postgres_changes", { event: "*", schema: "public", table: "order_items" }, async () => {
         await carregarItensPedidos()
         renderRanking()
         renderPedidos()
       })
       .subscribe()
 
-    supabaseClient
-      .channel("products-realtime")
-      .on("postgres_changes", {
-        event: "*",
-        schema: "public",
-        table: "products"
-      }, async () => {
+    supabaseClient.channel("products-realtime")
+      .on("postgres_changes", { event: "*", schema: "public", table: "products" }, async () => {
         await carregarProdutos()
         renderProdutos()
       })
       .subscribe()
 
+    // ========================
+    // INIT
+    // ========================
     initTheme()
+    showSection("dashboard")
     verificarSessao()
   </script>
 </body>
-
-
 </html>
