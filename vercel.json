@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "name": "loja-respeita",
+  "buildCommand": null,
+  "outputDirectory": ".",
+  "functions": {
+    "api/**/*.js": {
+      "runtime": "@vercel/node@5"
+    }
+  },
+  "rewrites": [
+    { "source": "/api/create-checkout", "destination": "/api/create-checkout.js" },
+    { "source": "/api/webhook", "destination": "/api/webhook.js" }
+  ]
+}

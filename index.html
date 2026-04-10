@@ -18,8 +18,14 @@
   <!-- CSS -->
   <link rel="stylesheet" href="css/style.css?v=2">
 
-  <!-- Supabase -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Import Map: mapeia @supabase/supabase-js para a CDN ESM -->
+  <script type="importmap">
+  {
+    "imports": {
+      "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2"
+    }
+  }
+  </script>
 
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon.png">
 </head>
@@ -361,8 +367,8 @@
         <!-- LOGIN -->
         <div id="loginBox" class="auth-form active">
           <h3>Entrar na sua conta</h3>
-          <input type="email" placeholder="Seu email" />
-          <input type="password" placeholder="Senha" />
+          <input id="loginEmail" type="email" name="email" placeholder="Seu email" autocomplete="email" />
+          <input id="loginPassword" type="password" name="password" placeholder="Senha" autocomplete="current-password" />
           <button class="btn-dark" type="button" onclick="login()">Entrar</button>
         </div>
 
@@ -370,21 +376,21 @@
         <div id="registerBox" class="auth-form">
           <h3>Criar conta</h3>
 
-          <input type="text" placeholder="Nome completo" />
-          <input type="email" placeholder="Email" />
-          <input type="password" placeholder="Senha" />
-          <input type="tel" placeholder="Telefone (WhatsApp)" />
+          <input id="registerName" type="text" name="name" placeholder="Nome completo" autocomplete="name" />
+          <input id="registerEmail" type="email" name="email" placeholder="Email" autocomplete="email" />
+          <input id="registerPassword" type="password" name="password" placeholder="Senha" autocomplete="new-password" />
+          <input id="registerPhone" type="tel" name="phone" placeholder="Telefone (WhatsApp)" autocomplete="tel" />
 
-          <input type="text" placeholder="CEP" />
-          <input type="text" placeholder="Rua" />
-          <input type="text" placeholder="N&uacute;mero" />
-          <input type="text" placeholder="Complemento" />
-          <input type="text" placeholder="Bairro" />
-          <input type="text" placeholder="Cidade" />
-          <input type="text" placeholder="Estado" />
+          <input id="registerZip" type="text" name="zip" placeholder="CEP" autocomplete="postal-code" />
+          <input id="registerStreet" type="text" name="street" placeholder="Rua" autocomplete="address-line1" />
+          <input id="registerNumber" type="text" name="number" placeholder="N&uacute;mero" />
+          <input id="registerComplement" type="text" name="complement" placeholder="Complemento" />
+          <input id="registerNeighborhood" type="text" name="neighborhood" placeholder="Bairro" />
+          <input id="registerCity" type="text" name="city" placeholder="Cidade" autocomplete="address-level2" />
+          <input id="registerState" type="text" name="state" placeholder="Estado" autocomplete="address-level1" />
 
-          <input type="text" placeholder="CPF" />
-          <input type="text" placeholder="Refer&ecirc;ncia" />
+          <input id="registerCpf" type="text" name="cpf" placeholder="CPF" />
+          <input id="registerReference" type="text" name="reference" placeholder="Refer&ecirc;ncia" />
 
           <button class="btn-dark" type="button" onclick="register()">Criar conta</button>
           <button class="btn-ghost" type="button" onclick="loginWithGoogle()">Entrar com Google</button>
@@ -437,9 +443,8 @@
   </div>
 
 
-
   <script src="./js/header.js"></script>
-  <script src="./js/script.js"></script>
+  <script type="module" src="./js/app.js"></script>
 </body>
 
 </html>

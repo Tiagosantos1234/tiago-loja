@@ -3,8 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pagamento aprovado</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <title>Pagamento aprovado — Tiago Lobo Store</title>
+  <meta name="robots" content="noindex">
+
+  <!-- Import Map: mapeia @supabase/supabase-js para a CDN ESM -->
+  <script type="importmap">
+  {
+    "imports": {
+      "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2"
+    }
+  }
+  </script>
+
   <style>
     body {
       margin: 0;
@@ -15,7 +25,7 @@
       padding: 24px;
       background: #0a0a0a;
       color: #fff;
-      font-family: Arial, sans-serif;
+      font-family: Inter, Arial, sans-serif;
       text-align: center;
     }
 
@@ -67,16 +77,19 @@
 <body>
   <div class="box">
     <h1>Pagamento aprovado</h1>
-    <p>Seu pedido foi recebido e estamos preparando os proximos passos.</p>
+    <p>Seu pedido foi recebido e estamos preparando os próximos passos.</p>
     <div id="orderInfo"></div>
     <button type="button" onclick="window.location.href='/'">Voltar para a loja</button>
   </div>
 
-  <script>
-    const supabaseClient = supabase.createClient(
-      "https://nmosbabyarqnmihihalu.supabase.co",
-      "sb_publishable_RrPDyew7vfhihy3WvrNr6w_zZJ3kLql"
-    );
+  <script type="module">
+    import { createClient } from "@supabase/supabase-js";
+    import { SUPABASE_URL, SUPABASE_ANON_KEY } from "./js/config.js";
+
+    // Limpa carrinho ao chegar nesta página
+    localStorage.removeItem("tl_cart_v1");
+
+    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     async function carregarPedido() {
       const params = new URLSearchParams(window.location.search);
@@ -86,7 +99,7 @@
       if (!orderInfo) return;
 
       if (!ref) {
-        orderInfo.innerHTML = "<p>Pedido nao localizado.</p>";
+        orderInfo.innerHTML = "<p>Pedido não localizado.</p>";
         return;
       }
 
@@ -97,14 +110,16 @@
         .maybeSingle();
 
       if (error || !order) {
-        orderInfo.innerHTML = "<p>Nao foi possivel carregar os dados do pedido.</p>";
+        orderInfo.innerHTML = "<p>Não foi possível carregar os dados do pedido.</p>";
         return;
       }
+
+      const total = Number(order.total || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
       orderInfo.innerHTML = `
         <p><strong>Pedido:</strong> ${order.external_reference}</p>
         <p><strong>Status:</strong> ${order.status}</p>
-        <p><strong>Total:</strong> R$ ${order.total}</p>
+        <p><strong>Total:</strong> ${total}</p>
       `;
     }
 
