@@ -1,23 +1,20 @@
-import { createClient } from "@supabase/supabase-js"
+import { createClient } from "@supabase/supabase-js";
+import { cleanString, parsePositiveInteger } from "./lib/utils.js";
 
-function cleanString(value, fallback = "") {
-  if (value == null) return fallback
-  const text = String(value).trim()
-  return text || fallback
+function getDbProductPrice(product) {
+  const price = Number(product?.price ?? product?.preco ?? 0);
+  if (!Number.isFinite(price) || price < 0) return null;
+  return price;
+}
+
+function getDbProductName(product) {
+  return cleanString(product?.name || product?.nome, "Produto");
 }
 
 async function cleanupOrder(supabase, orderId) {
-  if (!orderId) return
-
-  await supabase
-    .from("order_items")
-    .delete()
-    .eq("order_id", orderId)
-
-  await supabase
-    .from("orders")
-    .delete()
-    .eq("id", orderId)
+  if (!orderId) return;
+  await supabase.from("order_items").delete().eq("order_id", orderId);
+  await supabase.from("orders").delete().eq("id", orderId);
 }
 
 function buildAppBaseUrl(req) {
@@ -25,30 +22,29 @@ function buildAppBaseUrl(req) {
     process.env.APP_BASE_URL ||
     process.env.NEXT_PUBLIC_APP_URL ||
     process.env.SITE_URL ||
-    process.env.VERCEL_URL
+    process.env.VERCEL_URL;
 
   if (envUrl) {
-    if (/^https?:\/\//i.test(envUrl)) return envUrl.replace(/\/+$/, "")
-    return `https://${envUrl.replace(/\/+$/, "")}`
+    if (/^https?:\/\//i.test(envUrl)) return envUrl.replace(/\/+$/, "");
+    return `https://${envUrl.replace(/\/+$/, "")}`;
   }
 
-  const origin = cleanString(req.headers?.origin)
-  if (origin) return origin.replace(/\/+$/, "")
+  const origin = cleanString(req.headers?.origin);
+  if (origin && !/localhost|127\.0\.0/.test(origin)) return origin.replace(/\/+$/, "");
 
-  const forwardedProto = cleanString(req.headers?.["x-forwarded-proto"], "https")
-  const forwardedHost = cleanString(req.headers?.["x-forwarded-host"])
-  const host = forwardedHost || cleanString(req.headers?.host)
+  const forwardedProto = cleanString(req.headers?.["x-forwarded-proto"], "https");
+  const forwardedHost = cleanString(req.headers?.["x-forwarded-host"]);
+  const host = forwardedHost || cleanString(req.headers?.host);
 
-  if (host) {
-    return `${forwardedProto}://${host}`.replace(/\/+$/, "")
-  }
+  if (host && !/localhost|127\.0\.0/.test(host)) return `${forwardedProto}://${host}`.replace(/\/+$/, "");
 
-  return null
+  // Em desenvolvimento local, retorna null — o MP não aceita localhost em back_urls
+  return null;
 }
 
 function buildOrderPayload({ external_reference, total, customer, shipping }) {
-  const customerName = cleanString(customer?.name, "Cliente Site")
-  const customerEmail = cleanString(customer?.email)
+  const customerName = cleanString(customer?.name, "Cliente Site");
+  const customerEmail = cleanString(customer?.email);
   const shippingPayload = {
     zip: cleanString(shipping?.zip),
     street: cleanString(shipping?.street),
@@ -57,102 +53,52 @@ function buildOrderPayload({ external_reference, total, customer, shipping }) {
     city: cleanString(shipping?.city),
     state: cleanString(shipping?.state),
     complement: cleanString(shipping?.complement),
-  }
+  };
+
+  const base = {
+    external_reference,
+    customer_name: customerName,
+    customer_email: customerEmail || null,
+    total,
+    status: "pending",
+  };
 
   return {
-    base: {
-      external_reference,
-      customer_name: customerName,
-      customer_email: customerEmail || null,
-      total,
-      status: "pending",
-    },
-    extended: {
-      external_reference,
-      customer_name: customerName,
-      customer_email: customerEmail || null,
-      total,
-      status: "pending",
-      shipping_address: shippingPayload,
-    },
-  }
-}
-
-function parsePositiveInteger(value) {
-  const num = Number(value)
-  if (!Number.isInteger(num) || num <= 0) return null
-  return num
-}
-
-function getDbProductPrice(product) {
-  const price = Number(product?.price ?? product?.preco ?? 0)
-  if (!Number.isFinite(price) || price < 0) return null
-  return price
-}
-
-function getDbProductName(product) {
-  return cleanString(product?.name || product?.nome, "Produto")
+    base,
+    extended: { ...base, shipping_address: shippingPayload },
+  };
 }
 
 async function resolveCartItems(supabase, cart) {
-  const quantityById = new Map()
+  const quantityById = new Map();
 
   for (const item of cart) {
-    const productId = cleanString(item?.id)
-    const quantity = parsePositiveInteger(item?.quantity)
+    const productId = cleanString(item?.id);
+    const quantity = parsePositiveInteger(item?.quantity);
 
-    if (!productId) {
-      return { error: "Produto inválido no carrinho", status: 400 }
-    }
+    if (!productId) return { error: "Produto inválido no carrinho", status: 400 };
+    if (!quantity) return { error: "Quantidade inválida no carrinho", status: 400 };
 
-    if (!quantity) {
-      return { error: "Quantidade inválida no carrinho", status: 400 }
-    }
-
-    quantityById.set(productId, (quantityById.get(productId) || 0) + quantity)
+    quantityById.set(productId, (quantityById.get(productId) || 0) + quantity);
   }
 
-  const productIds = Array.from(quantityById.keys())
-
+  const productIds = Array.from(quantityById.keys());
   const { data: products, error } = await supabase
     .from("products")
-    .select("id, name, nome, price, preco, image_url")
-    .in("id", productIds)
+    .select("id, nome, price, image_url")
+    .in("id", productIds);
 
-  if (error) {
-    return {
-      error: "Erro ao validar produtos",
-      status: 500,
-      details: error.message || error,
-    }
-  }
+  if (error) return { error: "Erro ao validar produtos", status: 500, details: error.message };
 
-  const productMap = new Map(
-    (products || []).map((product) => [String(product.id), product])
-  )
-
-  const resolvedItems = []
+  const productMap = new Map((products || []).map((p) => [String(p.id), p]));
+  const resolvedItems = [];
 
   for (const productId of productIds) {
-    const product = productMap.get(productId)
+    const product = productMap.get(productId);
+    if (!product) return { error: "Produto não encontrado ou indisponível", status: 400, details: { product_id: productId } };
 
-    if (!product) {
-      return {
-        error: "Produto não encontrado ou indisponível",
-        status: 400,
-        details: { product_id: productId },
-      }
-    }
-
-    const productPrice = getDbProductPrice(product)
-
-    if (productPrice == null) {
-      return {
-        error: "Produto com preço inválido",
-        status: 400,
-        details: { product_id: productId },
-      }
-    }
+    const productPrice = getDbProductPrice(product);
+    if (productPrice == null) return { error: "Produto com preço inválido", status: 400, details: { product_id: productId } };
 
     resolvedItems.push({
       product_id: product.id,
@@ -160,14 +106,11 @@ async function resolveCartItems(supabase, cart) {
       product_price: productPrice,
       quantity: quantityById.get(productId),
       image_url: product.image_url ?? null,
-    })
+    });
   }
 
-  const total = resolvedItems.reduce((sum, item) => {
-    return sum + item.product_price * item.quantity
-  }, 0)
-
-  return { resolvedItems, total }
+  const total = resolvedItems.reduce((sum, item) => sum + item.product_price * item.quantity, 0);
+  return { resolvedItems, total };
 }
 
 async function insertOrderWithFallback(supabase, orderPayload) {
@@ -175,84 +118,58 @@ async function insertOrderWithFallback(supabase, orderPayload) {
     .from("orders")
     .insert([orderPayload.extended])
     .select()
-    .single()
+    .single();
 
-  if (!extendedError && extendedOrder) {
-    return { order: extendedOrder, mode: "extended" }
-  }
+  if (!extendedError && extendedOrder) return { order: extendedOrder, mode: "extended" };
 
   const { data: baseOrder, error: baseError } = await supabase
     .from("orders")
     .insert([orderPayload.base])
     .select()
-    .single()
+    .single();
 
-  if (baseError || !baseOrder) {
-    throw baseError || new Error("Erro ao salvar pedido")
-  }
+  if (baseError || !baseOrder) throw baseError || new Error("Erro ao salvar pedido");
 
-  return {
-    order: baseOrder,
-    mode: "base",
-    fallbackError: extendedError,
-  }
+  return { order: baseOrder, mode: "base", fallbackError: extendedError };
 }
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
-    return res.status(405).json({ error: "Método não permitido" })
+    return res.status(405).json({ error: "Método não permitido" });
   }
 
   try {
-    const body = req.body || {}
-    const cart = Array.isArray(body.cart) ? body.cart : []
-    const customer = body.customer || {}
-    const shipping = body.shipping || {}
+    const body = req.body || {};
+    const cart = Array.isArray(body.cart) ? body.cart : [];
+    const customer = body.customer || {};
+    const shipping = body.shipping || {};
 
-    if (!cart.length) {
-      return res.status(400).json({ error: "Carrinho vazio" })
-    }
+    if (!cart.length) return res.status(400).json({ error: "Carrinho vazio" });
 
     if (!process.env.SUPABASE_URL || !process.env.SUPABASE_KEY) {
-      return res.status(500).json({ error: "Supabase não configurado" })
+      return res.status(500).json({ error: "Supabase não configurado" });
     }
 
-    const mpToken = cleanString(process.env.MP_TOKEN)
+    const mpToken = cleanString(process.env.MP_TOKEN);
+    if (!mpToken) return res.status(500).json({ error: "MP_TOKEN não configurado" });
 
-    if (!mpToken) {
-      return res.status(500).json({ error: "MP_TOKEN não configurado" })
-    }
-
-    const supabase = createClient(
-      process.env.SUPABASE_URL,
-      process.env.SUPABASE_KEY
-    )
-
-    const resolvedCart = await resolveCartItems(supabase, cart)
+    const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
+    const resolvedCart = await resolveCartItems(supabase, cart);
 
     if (resolvedCart.error) {
       return res.status(resolvedCart.status || 400).json({
         error: resolvedCart.error,
         details: resolvedCart.details,
-      })
+      });
     }
 
-    const { resolvedItems, total } = resolvedCart
-    const external_reference = "PED-" + Date.now()
-    const orderPayload = buildOrderPayload({
-      external_reference,
-      total,
-      customer,
-      shipping,
-    })
-
-    const { order, fallbackError } = await insertOrderWithFallback(
-      supabase,
-      orderPayload
-    )
+    const { resolvedItems, total } = resolvedCart;
+    const external_reference = "PED-" + Date.now();
+    const orderPayload = buildOrderPayload({ external_reference, total, customer, shipping });
+    const { order, fallbackError } = await insertOrderWithFallback(supabase, orderPayload);
 
     if (fallbackError) {
-      console.warn("Aviso ao salvar endereço no pedido:", fallbackError.message)
+      console.warn("Aviso ao salvar endereço:", fallbackError.message);
     }
 
     const itemsToInsert = resolvedItems.map((item) => ({
@@ -262,28 +179,17 @@ export default async function handler(req, res) {
       product_price: item.product_price,
       quantity: item.quantity,
       image_url: item.image_url,
-    }))
+    }));
 
-    const { error: itemsError } = await supabase
-      .from("order_items")
-      .insert(itemsToInsert)
+    const { error: itemsError } = await supabase.from("order_items").insert(itemsToInsert);
 
     if (itemsError) {
-      console.error("ERRO ITEMS:", itemsError)
-      await cleanupOrder(supabase, order.id)
-      return res.status(500).json({
-        error: "Erro ao salvar itens",
-        details: itemsError.message || itemsError,
-      })
+      await cleanupOrder(supabase, order.id);
+      return res.status(500).json({ error: "Erro ao salvar itens", details: itemsError.message });
     }
 
-    const appBaseUrl = buildAppBaseUrl(req)
-
-    if (!appBaseUrl) {
-      return res.status(500).json({
-        error: "Base URL da aplicação não pôde ser resolvida",
-      })
-    }
+    const appBaseUrl = buildAppBaseUrl(req);
+    const isLocal = !appBaseUrl;
 
     const mpPreference = {
       items: resolvedItems.map((item) => ({
@@ -297,57 +203,46 @@ export default async function handler(req, res) {
         email: cleanString(customer?.email) || undefined,
       },
       external_reference,
-      back_urls: {
-        success: `${appBaseUrl}/sucesso.html?external_reference=${encodeURIComponent(external_reference)}`,
-        failure: `${appBaseUrl}/erro.html?external_reference=${encodeURIComponent(external_reference)}`,
-        pending: `${appBaseUrl}/?external_reference=${encodeURIComponent(external_reference)}`,
-      },
-      notification_url: `${appBaseUrl}/api/webhook`,
-      auto_return: "approved",
-    }
+      // Em produção: redireciona automaticamente após aprovação
+      // Em localhost: o MP não aceita URLs de localhost, entao remove auto_return e back_urls
+      ...(isLocal
+        ? {}
+        : {
+            back_urls: {
+              success: `${appBaseUrl}/sucesso.html?external_reference=${encodeURIComponent(external_reference)}`,
+              failure: `${appBaseUrl}/erro.html?external_reference=${encodeURIComponent(external_reference)}`,
+              pending: `${appBaseUrl}/?external_reference=${encodeURIComponent(external_reference)}`,
+            },
+            notification_url: `${appBaseUrl}/api/webhook`,
+            auto_return: "approved",
+          }),
+    };
 
-    const mpResponse = await fetch(
-      "https://api.mercadopago.com/checkout/preferences",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${mpToken}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(mpPreference),
-      }
-    )
+    const mpResponse = await fetch("https://api.mercadopago.com/checkout/preferences", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${mpToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(mpPreference),
+    });
 
     if (!mpResponse.ok) {
-      const errorText = await mpResponse.text()
-      console.error("MP ERROR RAW:", errorText)
-      await cleanupOrder(supabase, order.id)
-
-      return res.status(500).json({
-        error: "Erro Mercado Pago",
-        details: errorText,
-      })
+      const errorText = await mpResponse.text();
+      await cleanupOrder(supabase, order.id);
+      return res.status(500).json({ error: "Erro Mercado Pago", details: errorText });
     }
 
-    const mpData = await mpResponse.json()
+    const mpData = await mpResponse.json();
 
     if (!mpData.init_point) {
-      await cleanupOrder(supabase, order.id)
-      return res.status(500).json({
-        error: "Mercado Pago não retornou link",
-        details: mpData,
-      })
+      await cleanupOrder(supabase, order.id);
+      return res.status(500).json({ error: "Mercado Pago não retornou link", details: mpData });
     }
 
-    return res.status(200).json({
-      init_point: mpData.init_point,
-    })
+    return res.status(200).json({ init_point: mpData.init_point });
   } catch (err) {
-    console.error("ERRO GERAL:", err)
-
-    return res.status(500).json({
-      error: "Erro interno",
-      details: err.message,
-    })
+    console.error("ERRO GERAL:", err);
+    return res.status(500).json({ error: "Erro interno", details: err.message });
   }
 }

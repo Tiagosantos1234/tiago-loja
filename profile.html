@@ -1,11 +1,22 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 
 <head>
   <meta charset="UTF-8">
-  <title>Minha Conta</title>
+  <title>Minha Conta — Tiago Lobo Store</title>
+  <meta name="description" content="Gerencie seus dados, endereço e acompanhe seus pedidos." />
   <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.png">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Import Map: mapeia @supabase/supabase-js para a CDN ESM -->
+  <script type="importmap">
+  {
+    "imports": {
+      "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2"
+    }
+  }
+  </script>
 </head>
 
 <body class="app">
@@ -22,7 +33,7 @@
 
     <nav class="sidebar-menu">
       <button type="button" class="active" data-tab="profile" onclick="switchTab('profile')">&#128100; Perfil</button>
-      <button type="button" data-tab="address" onclick="switchTab('address')">&#128205; Endere&ccedil;o</button>
+      <button type="button" data-tab="address" onclick="switchTab('address')">&#128205; Endereço</button>
       <button type="button" data-tab="orders" onclick="switchTab('orders')">&#128230; Pedidos</button>
     </nav>
 
@@ -43,11 +54,11 @@
     <!-- ENDERECO -->
     <div class="tab-content" id="address">
       <div class="card">
-        <h3>&#128205; Endere&ccedil;o</h3>
+        <h3>&#128205; Endereço</h3>
 
         <input id="cep" placeholder="CEP" autocomplete="postal-code" />
         <input id="street" placeholder="Rua" autocomplete="address-line1" />
-        <input id="number" placeholder="N&uacute;mero" autocomplete="address-line2" />
+        <input id="number" placeholder="Número" autocomplete="address-line2" />
         <input id="city" placeholder="Cidade" autocomplete="address-level2" />
         <input id="state" placeholder="Estado" autocomplete="address-level1" />
 
@@ -68,7 +79,9 @@
   </main>
 
 </div>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
+  <div class="toast" id="toast"></div>
+
   <script src="./js/header.js"></script>
-  <script src="./js/script.js"></script>
+  <script type="module" src="./js/app.js"></script>
 </body>
