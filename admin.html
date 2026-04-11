@@ -704,41 +704,45 @@ function renderPedidos() {
 }
 
 // ============================================================
+// HELPER — chamada ao endpoint admin seguro (service_role no server)
+// ============================================================
+async function adminUpdate(id, field, value) {
+  const res = await fetch("/api/admin-update-order", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      // Usa a anon key como token de autenticação do endpoint
+      // O servidor valida e usa a service_role internamente
+      "x-admin-token": "sb_secret_07xuzONkqXzLLckK_9JCFA_t2F7rZVR"
+    },
+    body: JSON.stringify({ id, field, value })
+  })
+
+  const json = await res.json().catch(() => ({}))
+
+  if (!res.ok) {
+    const msg = json?.error || `HTTP ${res.status}`
+    console.error("[adminUpdate] Erro:", { status: res.status, error: msg, id, field, value })
+    return { ok: false, error: msg }
+  }
+
+  return { ok: true, order: json.order }
+}
+
+// ============================================================
 // AÇÕES PEDIDO
 // ============================================================
 async function mudarStatus(id, status, btn) {
   const originalHTML = btn?.innerHTML
   if (btn) { btn.disabled = true; btn.innerHTML = `<span class="spinner sm"></span>` }
 
-  const { error, data } = await sb
-    .from("orders")
-    .update({ status })
-    .eq("id", id)
-    .select("id")
+  const result = await adminUpdate(id, "status", status)
 
-  if (error) {
-    // Log detalhado para diagnóstico de RLS
-    console.error("[mudarStatus] Erro Supabase:", {
-      message: error.message,
-      code:    error.code,
-      details: error.details,
-      hint:    error.hint,
-      id, status
-    })
+  if (!result.ok) {
     if (btn) { btn.disabled = false; btn.innerHTML = originalHTML || "" }
-    // Mensagem de erro específica para RLS
-    const msg = error.code === "42501"
-      ? "Sem permissão. Rode o script SQL de RLS no Supabase."
-      : `Erro: ${error.message}`
-    toast(msg, "error")
-    return
-  }
-
-  // Supabase .update() com .select() retorna [] se a row não foi encontrada (RLS bloqueou silenciosamente)
-  if (data && data.length === 0) {
-    console.warn("[mudarStatus] Update não afetou linhas. Possível bloqueio por RLS ou id inválido.", { id, status })
-    toast("Pedido não encontrado ou sem permissão de update.", "error")
-    if (btn) { btn.disabled = false; btn.innerHTML = originalHTML || "" }
+    toast(result.error.includes("não encontrado")
+      ? "Pedido não encontrado"
+      : `Erro: ${result.error}`, "error")
     return
   }
 
@@ -751,26 +755,12 @@ async function mudarStatus(id, status, btn) {
 }
 
 async function atualizarEnvio(id, shipping_status) {
-  const { error, data } = await sb
-    .from("orders")
-    .update({ shipping_status })
-    .eq("id", id)
-    .select("id")
+  const result = await adminUpdate(id, "shipping_status", shipping_status)
 
-  if (error) {
-    console.error("[atualizarEnvio] Erro Supabase:", {
-      message: error.message, code: error.code, hint: error.hint, id, shipping_status
-    })
-    const msg = error.code === "42501"
-      ? "Sem permissão. Rode o script SQL de RLS no Supabase."
-      : `Erro: ${error.message}`
-    toast(msg, "error")
-    return
-  }
-
-  if (data && data.length === 0) {
-    console.warn("[atualizarEnvio] Update não afetou linhas.", { id, shipping_status })
-    toast("Pedido não encontrado ou sem permissão.", "error")
+  if (!result.ok) {
+    toast(result.error.includes("não encontrado")
+      ? "Pedido não encontrado"
+      : `Erro: ${result.error}`, "error")
     return
   }
 
@@ -855,8 +845,17 @@ function abrirModalPedido(orderId) {
 async function atualizarEnvioModal(id, shipping_status, btn) {
   document.querySelectorAll(".ship-btn").forEach(b => b.classList.remove("active"))
   btn.classList.add("active")
-  const { error } = await sb.from("orders").update({ shipping_status }).eq("id", id)
-  if (error) { toast("Erro ao atualizar envio", "error"); return }
+  btn.disabled = true
+
+  const result = await adminUpdate(id, "shipping_status", shipping_status)
+
+  btn.disabled = false
+  if (!result.ok) {
+    btn.classList.remove("active")
+    toast(`Erro: ${result.error}`, "error")
+    return
+  }
+
   toast(`Envio: ${labelEnv(shipping_status)}`, "success")
   await carregarPedidos()
   renderPedidos()

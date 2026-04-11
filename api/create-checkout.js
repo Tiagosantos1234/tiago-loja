@@ -43,22 +43,25 @@ function buildAppBaseUrl(req) {
 }
 
 function buildOrderPayload({ external_reference, total, customer, shipping }) {
-  const customerName = cleanString(customer?.name, "Cliente Site");
+  const customerName  = cleanString(customer?.name, "Cliente Site");
   const customerEmail = cleanString(customer?.email);
+  const customerPhone = cleanString(customer?.phone);
+
   const shippingPayload = {
-    zip: cleanString(shipping?.zip),
-    street: cleanString(shipping?.street),
-    number: cleanString(shipping?.number),
+    zip:          cleanString(shipping?.zip),
+    street:       cleanString(shipping?.street),
+    number:       cleanString(shipping?.number),
     neighborhood: cleanString(shipping?.neighborhood),
-    city: cleanString(shipping?.city),
-    state: cleanString(shipping?.state),
-    complement: cleanString(shipping?.complement),
+    city:         cleanString(shipping?.city),
+    state:        cleanString(shipping?.state),
+    complement:   cleanString(shipping?.complement),
   };
 
   const base = {
     external_reference,
-    customer_name: customerName,
+    customer_name:  customerName,
     customer_email: customerEmail || null,
+    customer_phone: customerPhone || null,
     total,
     status: "pending",
   };
@@ -85,7 +88,7 @@ async function resolveCartItems(supabase, cart) {
   const productIds = Array.from(quantityById.keys());
   const { data: products, error } = await supabase
     .from("products")
-    .select("id, nome, price, image_url")
+    .select("id, name, nome, price, preco, image_url")
     .in("id", productIds);
 
   if (error) return { error: "Erro ao validar produtos", status: 500, details: error.message };
@@ -169,7 +172,14 @@ export default async function handler(req, res) {
     const { order, fallbackError } = await insertOrderWithFallback(supabase, orderPayload);
 
     if (fallbackError) {
-      console.warn("Aviso ao salvar endereço:", fallbackError.message);
+      // Log completo para diagnóstico — geralmente indica que a coluna shipping_address
+      // ainda não existe na tabela orders. Execute o SQL de migration para corrigir.
+      console.warn("[create-checkout] Fallback para payload base (sem shipping_address):", {
+        message: fallbackError.message,
+        code:    fallbackError.code,
+        details: fallbackError.details,
+        hint:    fallbackError.hint,
+      });
     }
 
     const itemsToInsert = resolvedItems.map((item) => ({
