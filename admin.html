@@ -390,9 +390,11 @@
 // ============================================================
 // CONFIGURAÇÃO SUPABASE
 // ============================================================
-const sb = supabase.createClient(
-  "https://nmosbabyarqnmihihalu.supabase.co",
-  "sb_publishable_RrPDyew7vfhihy3WvrNr6w_zZJ3kLql"
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+
+const supabase = createClient(
+  'https://hnjmiyargbabymoshihaalu.supabase.co',
+  'sb_publishable_RrPDyew7vfhihy3WvrNr6w_zZJ3kLql'
 )
 
 // ============================================================
@@ -711,9 +713,9 @@ async function adminUpdate(id, field, value) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      // Usa a anon key como token de autenticação do endpoint
-      // O servidor valida e usa a service_role internamente
-      "x-admin-token": "sb_secret_07xuzONkqXzLLckK_9JCFA_t2F7rZVR"
+      // Token dedicado do admin — NÃO é a service_role key
+      // A service_role fica apenas nas env vars do servidor (Vercel)
+      "x-admin-token": "RESPEITA-ADMIN-2026"
     },
     body: JSON.stringify({ id, field, value })
   })

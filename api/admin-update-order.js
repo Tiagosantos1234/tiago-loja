@@ -27,9 +27,11 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Método não permitido" });
   }
 
-  // Verificar secret do admin (header x-admin-token)
-  const adminToken = cleanString(req.headers?.["x-admin-token"]);
-  const expectedToken = cleanString(process.env.ADMIN_SECRET || process.env.SUPABASE_KEY);
+  // Verificar token do admin (header x-admin-token)
+  // Configure ADMIN_SECRET nas env vars da Vercel para produção
+  // Valor padrão local: RESPEITA-ADMIN-2026
+  const adminToken    = cleanString(req.headers?.["x-admin-token"]);
+  const expectedToken = cleanString(process.env.ADMIN_SECRET) || "RESPEITA-ADMIN-2026";
 
   if (!adminToken || adminToken !== expectedToken) {
     return res.status(401).json({ error: "Não autorizado" });
