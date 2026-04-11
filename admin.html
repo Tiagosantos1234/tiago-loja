@@ -161,6 +161,17 @@
             </div>
             <div class="metric-change up">em trânsito</div>
           </div>
+
+          <div class="metric-card" data-color="cyan">
+            <div class="metric-icon">
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+            </div>
+            <div class="metric-info">
+              <span class="metric-label">Leads</span>
+              <strong class="metric-value" id="leadsCount">—</strong>
+            </div>
+            <div class="metric-change up" id="leadsHoje">hoje</div>
+          </div>
         </div>
 
         <!-- GRÁFICOS -->
@@ -390,6 +401,7 @@ const sb = supabase.createClient(
 let pedidos      = []
 let itensPedidos = []
 let produtos     = []
+let leads        = []
 let chartVendas  = null
 let chartStatus  = null
 const META       = 10000
@@ -512,7 +524,7 @@ async function verificarSessao() {
 // CARREGAR DADOS
 // ============================================================
 async function carregarTudo() {
-  await Promise.all([carregarPedidos(), carregarItensPedidos(), carregarProdutos()])
+  await Promise.all([carregarPedidos(), carregarItensPedidos(), carregarProdutos(), carregarLeads()])
   renderMetrics()
   renderPedidos()
   renderRanking()
@@ -538,6 +550,17 @@ async function carregarProdutos() {
   const { data, error } = await sb.from("products").select("*").order("created_at", { ascending: false })
   if (error) console.error("[products]", error)
   produtos = data || []
+}
+
+async function carregarLeads() {
+  const { data, error } = await sb.from("leads").select("id, created_at")
+  if (error) {
+    // Ignora graciosamente — tabela pode ainda não existir
+    console.warn("[leads]", error.message)
+    leads = []
+    return
+  }
+  leads = data || []
 }
 
 // ============================================================
@@ -578,26 +601,30 @@ function getPedidosFiltrados() {
 // MÉTRICAS
 // ============================================================
 function renderMetrics() {
-  const total     = pedidos.length
-  const revenue   = pedidos.filter(p => isPaid(p.status)).reduce((s, p) => s + Number(p.total || 0), 0)
-  const pending   = pedidos.filter(p => p.status === "pending").length
-  const shipped   = pedidos.filter(p => p.shipping_status === "shipped" || p.shipping_status === "delivered").length
-  const todayN    = pedidos.filter(p => {
-    if (!p.created_at) return false
-    const d = new Date(p.created_at)
-    const now = new Date()
-    return d.toDateString() === now.toDateString()
-  }).length
+  const total   = pedidos.length
+  const revenue = pedidos.filter(p => isPaid(p.status)).reduce((s, p) => s + Number(p.total || 0), 0)
+  const pending = pedidos.filter(p => p.status === "pending").length
+  const shipped = pedidos.filter(p => p.shipping_status === "shipped" || p.shipping_status === "delivered").length
+
+  const today = new Date().toDateString()
+  const todayN = pedidos.filter(p => p.created_at && new Date(p.created_at).toDateString() === today).length
+  const leadsTotal = leads.length
+  const leadsHoje  = leads.filter(l => l.created_at && new Date(l.created_at).toDateString() === today).length
 
   animCount(document.getElementById("count"),        total)
-  animCount(document.getElementById("totalRevenue"), revenue,  2, "R$ ")
+  animCount(document.getElementById("totalRevenue"), revenue, 2, "R$ ")
   animCount(document.getElementById("pendingCount"), pending)
   animCount(document.getElementById("shippedCount"), shipped)
+  animCount(document.getElementById("leadsCount"),   leadsTotal)
 
-  document.getElementById("metricTodayCount").textContent = `+${todayN} hoje`
-  document.getElementById("metricRevSub").textContent     = `${pedidos.filter(p => isPaid(p.status)).length} pagos`
+  const metricToday = document.getElementById("metricTodayCount")
+  const metricRev   = document.getElementById("metricRevSub")
+  const leadsHojeEl = document.getElementById("leadsHoje")
 
-  // Badge de pedidos pendentes na nav
+  if (metricToday) metricToday.textContent = `+${todayN} hoje`
+  if (metricRev)   metricRev.textContent   = `${pedidos.filter(p => isPaid(p.status)).length} pagos`
+  if (leadsHojeEl) leadsHojeEl.textContent = `+${leadsHoje} hoje`
+
   const badge = document.getElementById("pedidosBadge")
   if (badge) {
     badge.textContent = pending
@@ -680,9 +707,41 @@ function renderPedidos() {
 // AÇÕES PEDIDO
 // ============================================================
 async function mudarStatus(id, status, btn) {
+  const originalHTML = btn?.innerHTML
   if (btn) { btn.disabled = true; btn.innerHTML = `<span class="spinner sm"></span>` }
-  const { error } = await sb.from("orders").update({ status }).eq("id", id)
-  if (error) { toast("Erro ao atualizar status", "error"); if (btn) { btn.disabled = false } return }
+
+  const { error, data } = await sb
+    .from("orders")
+    .update({ status })
+    .eq("id", id)
+    .select("id")
+
+  if (error) {
+    // Log detalhado para diagnóstico de RLS
+    console.error("[mudarStatus] Erro Supabase:", {
+      message: error.message,
+      code:    error.code,
+      details: error.details,
+      hint:    error.hint,
+      id, status
+    })
+    if (btn) { btn.disabled = false; btn.innerHTML = originalHTML || "" }
+    // Mensagem de erro específica para RLS
+    const msg = error.code === "42501"
+      ? "Sem permissão. Rode o script SQL de RLS no Supabase."
+      : `Erro: ${error.message}`
+    toast(msg, "error")
+    return
+  }
+
+  // Supabase .update() com .select() retorna [] se a row não foi encontrada (RLS bloqueou silenciosamente)
+  if (data && data.length === 0) {
+    console.warn("[mudarStatus] Update não afetou linhas. Possível bloqueio por RLS ou id inválido.", { id, status })
+    toast("Pedido não encontrado ou sem permissão de update.", "error")
+    if (btn) { btn.disabled = false; btn.innerHTML = originalHTML || "" }
+    return
+  }
+
   toast(`Pedido ${status === "paid" ? "aprovado" : "cancelado"}!`, status === "paid" ? "success" : "info")
   await carregarPedidos()
   renderPedidos()
@@ -692,8 +751,29 @@ async function mudarStatus(id, status, btn) {
 }
 
 async function atualizarEnvio(id, shipping_status) {
-  const { error } = await sb.from("orders").update({ shipping_status }).eq("id", id)
-  if (error) { toast("Erro ao atualizar envio", "error"); return }
+  const { error, data } = await sb
+    .from("orders")
+    .update({ shipping_status })
+    .eq("id", id)
+    .select("id")
+
+  if (error) {
+    console.error("[atualizarEnvio] Erro Supabase:", {
+      message: error.message, code: error.code, hint: error.hint, id, shipping_status
+    })
+    const msg = error.code === "42501"
+      ? "Sem permissão. Rode o script SQL de RLS no Supabase."
+      : `Erro: ${error.message}`
+    toast(msg, "error")
+    return
+  }
+
+  if (data && data.length === 0) {
+    console.warn("[atualizarEnvio] Update não afetou linhas.", { id, shipping_status })
+    toast("Pedido não encontrado ou sem permissão.", "error")
+    return
+  }
+
   toast(`Envio: ${labelEnv(shipping_status)}`, "success")
   await carregarPedidos()
   renderPedidos()
@@ -1070,6 +1150,13 @@ sb.channel("realtime:products")
   .on("postgres_changes", { event: "*", schema: "public", table: "products" }, async () => {
     await carregarProdutos()
     renderProdutos()
+  })
+  .subscribe()
+
+sb.channel("realtime:leads")
+  .on("postgres_changes", { event: "*", schema: "public", table: "leads" }, async () => {
+    await carregarLeads()
+    renderMetrics()
   })
   .subscribe()
 

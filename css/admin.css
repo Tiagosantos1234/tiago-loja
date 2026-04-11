@@ -24,6 +24,7 @@
   --amber:       #f59e0b;
   --red:         #ef4444;
   --blue:        #3b82f6;
+  --cyan:        #06b6d4;
 
   --shadow-sm:   0 1px 3px rgba(0,0,0,.3);
   --shadow-md:   0 4px 16px rgba(0,0,0,.35);
@@ -453,7 +454,7 @@ section { padding: 24px 28px }
 ============================================================ */
 .metrics-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 16px;
   margin-bottom: 24px;
 }
@@ -497,6 +498,7 @@ section { padding: 24px 28px }
 .metric-card[data-color="green"]  .metric-icon { background: rgba(34,197,94,.15);   color: var(--green) }
 .metric-card[data-color="amber"]  .metric-icon { background: rgba(245,158,11,.15);  color: var(--amber) }
 .metric-card[data-color="purple"] .metric-icon { background: rgba(99,102,241,.15);  color: var(--accent2) }
+.metric-card[data-color="cyan"]   .metric-icon { background: rgba(6,182,212,.15);   color: var(--cyan) }
 
 .metric-label {
   display: block;

@@ -362,7 +362,11 @@ export async function confirmCheckout() {
   }
 
   try {
-    await saveCheckoutProfile();
+    // Salva perfil e captura lead (não bloqueia o checkout se falhar)
+    await Promise.allSettled([
+      saveCheckoutProfile(),
+      captureCheckoutLead(checkoutData.customer.email),
+    ]);
 
     const requestBody = {
       cart: cartState.cart,
@@ -395,6 +399,22 @@ export async function confirmCheckout() {
     btn.classList.remove("loading");
     btn.textContent = "Ir para pagamento";
     btn.disabled = false;
+  }
+}
+
+/**
+ * Salva o email do cliente como lead com source = 'checkout'.
+ * Usa upsert para não duplicar emails já cadastrados.
+ * Nunca lança erro — operação de melhoria silenciosa.
+ */
+async function captureCheckoutLead(email) {
+  if (!email || !email.includes("@")) return;
+  try {
+    await supabaseClient
+      .from("leads")
+      .upsert([{ email: email.toLowerCase().trim(), source: "checkout" }], { onConflict: "email" });
+  } catch (err) {
+    console.warn("Lead checkout não salvo:", err);
   }
 }
 
