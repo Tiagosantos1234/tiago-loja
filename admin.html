@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
@@ -394,7 +394,7 @@
 // para funcionar com onclick="..." no HTML.
 // ============================================================
 const supabaseClient = window.supabase.createClient(
-  'https://hnjmiyargbabymoshihaalu.supabase.co',
+  'https://nmosbabyarqnmihihalu.supabase.co',
   'sb_publishable_RrPDyew7vfhihy3WvrNr6w_zZJ3kLql'
 )
 
@@ -478,51 +478,71 @@ function animCount(el, to, decimals = 0, prefix = "") {
 // AUTH
 // ============================================================
 async function loginAdmin() {
-  const btn     = document.getElementById("loginBtn")
-  const spinner = document.getElementById("loginSpinner")
-  const btnText = document.getElementById("loginBtnText")
-  const errEl   = document.getElementById("loginError")
+  const email    = document.querySelector('#email').value.trim();
+  const password = document.querySelector('#password').value;
+  const errEl    = document.getElementById('loginError');
+  const btn      = document.getElementById('loginBtn');
+  const spinner  = document.getElementById('loginSpinner');
+  const btnText  = document.getElementById('loginBtnText');
 
-  const email    = document.getElementById("email").value.trim()
-  const password = document.getElementById("password").value
+  if (errEl) errEl.textContent = '';
 
   if (!email || !password) {
-    errEl.textContent = "Preencha email e senha."
-    return
+    if (errEl) errEl.textContent = 'Preencha email e senha.';
+    else alert('Preencha email e senha.');
+    return;
   }
 
-  btn.disabled        = true
-  spinner.classList.remove("hidden")
-  btnText.textContent = "Entrandoâ€¦"
-  errEl.textContent   = ""
+  if (btn)     btn.disabled        = true;
+  if (spinner) spinner.classList.remove('hidden');
+  if (btnText) btnText.textContent = 'Entrando...';
 
   try {
-    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password })
+    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
 
-    if (error) throw error
-    if (!data?.session) throw new Error("SessÃ£o nÃ£o iniciada")
+    if (error) {
+      const msg = error.message || '';
+      if (errEl) {
+        if (msg.includes('Invalid login credentials') || msg.includes('invalid_credentials')) {
+          errEl.textContent = 'Email ou senha incorretos.';
+        } else if (msg.includes('Email not confirmed')) {
+          errEl.textContent = 'Confirme seu email antes de entrar.';
+        } else {
+          errEl.textContent = 'Erro: ' + msg;
+        }
+      } else {
+        alert('Erro no login: ' + msg);
+      }
+      document.querySelector('#password').value = '';
+      return;
+    }
 
-    // onAuthStateChange (SIGNED_IN) vai mostrar o dashboard e carregar os dados
-    // NÃ£o precisamos fazer isso aqui para evitar chamada dupla
+    if (!data?.session) {
+      if (errEl) errEl.textContent = 'Sessao nao iniciada. Tente novamente.';
+      return;
+    }
+
+    // Login OK — onAuthStateChange cuida do dashboard
+    // Fallback manual caso nao dispare
+    document.getElementById('loginScreen')?.classList.add('hidden');
+    document.getElementById('dashboardScreen')?.classList.remove('hidden');
+    if (!window._adminDataLoaded) {
+      window._adminDataLoaded = true;
+      await carregarTudo();
+    }
 
   } catch (err) {
-    const msg = err?.message || ""
-    if (msg.includes("Invalid login credentials") || msg.includes("invalid_credentials")) {
-      errEl.textContent = "Email ou senha incorretos."
-    } else if (msg.includes("Email not confirmed")) {
-      errEl.textContent = "Confirme seu email antes de entrar."
-    } else if (msg.includes("Too many requests")) {
-      errEl.textContent = "Muitas tentativas. Aguarde alguns minutos."
-    } else {
-      errEl.textContent = "Erro ao entrar. Verifique sua conexÃ£o."
-    }
-    document.getElementById("password").value = ""
+    const msg = err?.message || 'Erro desconhecido';
+    if (errEl) errEl.textContent = 'Erro critico: ' + msg;
+    else alert('Erro critico: ' + msg);
   } finally {
-    btn.disabled        = false
-    spinner.classList.add("hidden")
-    btnText.textContent = "Entrar"
+    if (btn)     btn.disabled        = false;
+    if (spinner) spinner.classList.add('hidden');
+    if (btnText) btnText.textContent = 'Entrar';
   }
 }
+
+window.loginAdmin = loginAdmin;
 
 async function logoutAdmin() {
   window._adminDataLoaded = false
