@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Produto — RESPEITA</title>
+  <meta name="description" content="Conheça os detalhes, medidas e variações do produto. Escolha cor, tamanho e adicione ao carrinho." />
+
+  <!-- FONT -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/style.css?v=2">
+  <link rel="stylesheet" href="css/product.css?v=1">
+
+  <!-- Import Map -->
+  <script type="importmap">
+  {
+    "imports": {
+      "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2"
+    }
+  }
+  </script>
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.png">
+</head>
+
+<body class="grain">
+  <!-- Overlay dedicado do carrinho -->
+  <div class="cart-overlay" id="cartOverlay"></div>
+
+  <!-- Overlay genérico -->
+  <div class="overlay" id="overlay"></div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast">Produto adicionado ao carrinho</div>
+
+  <!-- ==================== CONTEÚDO PRINCIPAL ==================== -->
+  <div class="page-content">
+
+    <!-- BREADCRUMB -->
+    <div class="product-breadcrumb" id="productBreadcrumb">
+      <div class="container">
+        <a href="index.html">Início</a>
+        <span class="bc-sep">›</span>
+        <a href="index.html#drop">Produtos</a>
+        <span class="bc-sep">›</span>
+        <span id="bcProductName">Produto</span>
+      </div>
+    </div>
+
+    <!-- MAIN PRODUCT SECTION -->
+    <main class="product-main" id="productMain">
+      <div class="container">
+
+        <!-- ESTADO DE CARREGAMENTO -->
+        <div class="product-loading" id="productLoading">
+          <div class="product-skeleton-gallery">
+            <div class="skeleton" style="height:600px;border-radius:28px;"></div>
+            <div style="display:flex;flex-direction:column;gap:12px;margin-top:14px;">
+              <div class="skeleton" style="height:88px;border-radius:16px;flex:1;"></div>
+              <div class="skeleton" style="height:88px;border-radius:16px;flex:1;"></div>
+              <div class="skeleton" style="height:88px;border-radius:16px;flex:1;"></div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:16px;padding-top:8px;">
+            <div class="skeleton" style="height:32px;width:120px;border-radius:99px;"></div>
+            <div class="skeleton" style="height:56px;width:80%;border-radius:16px;"></div>
+            <div class="skeleton" style="height:48px;width:50%;border-radius:16px;"></div>
+            <div class="skeleton" style="height:120px;border-radius:16px;"></div>
+            <div class="skeleton" style="height:64px;border-radius:24px;margin-top:8px;"></div>
+          </div>
+        </div>
+
+        <!-- PRODUTO RENDERIZADO -->
+        <div class="product-layout" id="productLayout" style="display:none;">
+
+          <!-- GALERIA -->
+          <div class="product-gallery" id="productGallery">
+            <div class="gallery-main" id="galleryMain">
+              <img id="galleryMainImg" src="" alt="Produto" />
+              <button class="gallery-zoom-btn" id="galleryZoomBtn" aria-label="Ampliar imagem" type="button">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/><path d="M11 8v6M8 11h6"/></svg>
+              </button>
+            </div>
+
+            <div class="gallery-thumbs" id="galleryThumbs"></div>
+          </div>
+
+          <!-- COLUNA DE INFORMAÇÕES -->
+          <div class="product-info" id="productInfo">
+
+            <!-- Kicker / categoria -->
+            <div class="product-kicker" id="productKicker">Coleção RESPEITA</div>
+
+            <!-- Nome -->
+            <h1 class="product-page-name" id="productPageName">—</h1>
+
+            <!-- Preço -->
+            <div class="product-price-block">
+              <div class="product-page-price" id="productPagePrice">—</div>
+              <div class="product-price-badge">Pronto envio</div>
+            </div>
+
+            <!-- Descrição curta -->
+            <p class="product-short-desc" id="productShortDesc"></p>
+
+            <!-- Divisor -->
+            <div class="product-divider"></div>
+
+            <!-- SELEÇÃO DE COR -->
+            <div class="product-option-group" id="colorGroup">
+              <div class="option-label">
+                Cor: <span class="option-selected" id="colorSelected">Selecione</span>
+              </div>
+              <div class="color-swatches" id="colorSwatches"></div>
+            </div>
+
+            <!-- SELEÇÃO DE TAMANHO -->
+            <div class="product-option-group" id="sizeGroup">
+              <div class="option-label">
+                Tamanho: <span class="option-selected" id="sizeSelected">Selecione</span>
+              </div>
+              <div class="size-grid" id="sizeGrid"></div>
+            </div>
+
+            <!-- QUANTIDADE -->
+            <div class="product-qty-row">
+              <div class="option-label">Quantidade</div>
+              <div class="product-qty-ctrl">
+                <button class="qty-page-btn" id="qtyDec" type="button" aria-label="Diminuir">−</button>
+                <span class="qty-page-num" id="qtyDisplay">1</span>
+                <button class="qty-page-btn" id="qtyInc" type="button" aria-label="Aumentar">+</button>
+              </div>
+            </div>
+
+            <!-- CTAs -->
+            <div class="product-ctas">
+              <button class="product-btn-add" id="btnAddToCart" type="button">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                Adicionar ao carrinho
+              </button>
+              <button class="product-btn-buy" id="btnBuyNow" type="button">
+                Comprar agora
+              </button>
+            </div>
+
+            <!-- GARANTIAS -->
+            <div class="product-guarantees">
+              <div class="guarantee-item">
+                <span class="guarantee-icon">🔒</span>
+                <span>Pagamento seguro</span>
+              </div>
+              <div class="guarantee-item">
+                <span class="guarantee-icon">🚚</span>
+                <span>Envio rápido</span>
+              </div>
+              <div class="guarantee-item">
+                <span class="guarantee-icon">↩️</span>
+                <span>Troca sem burocracia</span>
+              </div>
+            </div>
+
+            <!-- Divisor -->
+            <div class="product-divider"></div>
+
+            <!-- DESCRIÇÃO COMPLETA / TABS -->
+            <div class="product-tabs">
+              <div class="product-tabs-nav">
+                <button class="ptab active" data-tab="desc" type="button">Descrição</button>
+                <button class="ptab" data-tab="medidas" type="button">Medidas</button>
+                <button class="ptab" data-tab="cuidados" type="button">Cuidados</button>
+              </div>
+
+              <div class="ptab-content active" id="tab-desc">
+                <p id="productFullDesc">—</p>
+              </div>
+
+              <div class="ptab-content" id="tab-medidas">
+                <div class="size-table-wrap">
+                  <table class="size-table">
+                    <thead>
+                      <tr><th>Tamanho</th><th>Busto</th><th>Cintura</th><th>Quadril</th><th>Comprimento</th></tr>
+                    </thead>
+                    <tbody>
+                      <tr><td>PP</td><td>84 cm</td><td>64 cm</td><td>88 cm</td><td>68 cm</td></tr>
+                      <tr><td>P</td><td>88 cm</td><td>68 cm</td><td>92 cm</td><td>70 cm</td></tr>
+                      <tr><td>M</td><td>92 cm</td><td>72 cm</td><td>96 cm</td><td>72 cm</td></tr>
+                      <tr><td>G</td><td>96 cm</td><td>76 cm</td><td>100 cm</td><td>74 cm</td></tr>
+                      <tr><td>GG</td><td>100 cm</td><td>80 cm</td><td>104 cm</td><td>76 cm</td></tr>
+                      <tr><td>XGG</td><td>108 cm</td><td>88 cm</td><td>112 cm</td><td>78 cm</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+                <p class="size-tip">💡 Em dúvida? Escolha um tamanho acima para mais conforto.</p>
+              </div>
+
+              <div class="ptab-content" id="tab-cuidados">
+                <ul class="care-list">
+                  <li>🌊 Lavar à mão ou máquina em ciclo delicado</li>
+                  <li>🌡️ Temperatura máxima de 30°C</li>
+                  <li>❌ Não usar alvejante</li>
+                  <li>🌬️ Secar à sombra, sem torcer</li>
+                  <li>🧺 Não usar secadora</li>
+                  <li>♻️ Composição: 100% algodão penteado premium</li>
+                </ul>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ESTADO DE ERRO -->
+        <div class="product-error" id="productError" style="display:none;">
+          <div class="error-icon">😕</div>
+          <h2>Produto não encontrado</h2>
+          <p>O produto que você procura não existe ou foi removido.</p>
+          <a href="index.html#drop" class="btn-dark" style="display:inline-flex;align-items:center;gap:8px;margin-top:24px;padding:0 28px;min-height:54px;border-radius:99px;text-decoration:none;">
+            ← Ver todos os produtos
+          </a>
+        </div>
+
+      </div>
+    </main>
+
+    <!-- ZOOM MODAL -->
+    <div class="gallery-zoom-modal" id="galleryZoomModal">
+      <div class="zoom-backdrop" id="zoomBackdrop"></div>
+      <div class="zoom-content">
+        <button class="zoom-close" id="zoomClose" type="button">✕</button>
+        <img id="zoomImg" src="" alt="Zoom" />
+      </div>
+    </div>
+
+    <!-- PRODUTOS RELACIONADOS -->
+    <section class="related-section" id="relatedSection" style="display:none;">
+      <div class="container">
+        <div class="related-header">
+          <div class="section-kicker">Você também pode gostar</div>
+          <h2>Produtos relacionados</h2>
+        </div>
+        <div class="related-grid" id="relatedGrid"></div>
+      </div>
+    </section>
+
+    <!-- FOOTER simples -->
+    <footer class="product-footer">
+      <div class="container">
+        <div class="product-footer-inner">
+          <a href="index.html" class="product-footer-brand">← Voltar para a loja</a>
+          <span>© 2026 RESPEITA. Todos os direitos reservados.</span>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- CARRINHO LATERAL -->
+  <aside class="cart-drawer" id="cartDrawer" aria-label="Carrinho lateral">
+    <div class="cart-header">
+      <div class="cart-header-top">
+        <h3>Seu carrinho</h3>
+        <button class="icon-btn" id="closeCart" aria-label="Fechar carrinho" type="button">✕</button>
+      </div>
+      <p>Selecione peças, altere quantidades e acompanhe o total em tempo real.</p>
+    </div>
+
+    <div class="cart-items" id="cartItems"></div>
+
+    <div class="cart-footer">
+      <div class="summary-row">
+        <span>Subtotal</span>
+        <strong id="subtotal">R$ 0</strong>
+      </div>
+
+      <div class="summary-row">
+        <span>Entrega</span>
+        <strong id="shipping">Grátis</strong>
+      </div>
+
+      <div class="summary-row total">
+        <span>Total</span>
+        <strong id="total">R$ 0</strong>
+      </div>
+
+      <div class="cart-actions">
+        <button class="btn-dark" type="button" onclick="startCheckout()">
+          Finalizar compra
+        </button>
+
+        <button class="btn btn-secondary" id="continueBtn" type="button"
+          style="color:#111; border-color: rgba(17,17,17,.1); background: rgba(17,17,17,.04);">
+          Continuar comprando
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MODAL LOGIN / CADASTRO -->
+  <div id="authModal" class="auth-modal">
+    <div class="auth-box" id="authBox">
+      <button class="auth-close" id="closeModal" type="button">&times;</button>
+
+      <div class="auth-tabs">
+        <button id="btnLogin" class="auth-tab active" type="button">Entrar</button>
+        <button id="btnRegister" class="auth-tab" type="button">Criar conta</button>
+      </div>
+
+      <div id="loginBox" class="auth-form active">
+        <h3>Entrar na sua conta</h3>
+        <input id="loginEmail" type="email" name="email" placeholder="Seu email" autocomplete="email" />
+        <input id="loginPassword" type="password" name="password" placeholder="Senha" autocomplete="current-password" />
+        <button class="btn-dark" type="button" onclick="login()">Entrar</button>
+      </div>
+
+      <div id="registerBox" class="auth-form">
+        <h3>Criar conta</h3>
+        <input id="registerName" type="text" name="name" placeholder="Nome completo" autocomplete="name" />
+        <input id="registerEmail" type="email" name="email" placeholder="Email" autocomplete="email" />
+        <input id="registerPassword" type="password" name="password" placeholder="Senha" autocomplete="new-password" />
+        <input id="registerPhone" type="tel" name="phone" placeholder="Telefone (WhatsApp)" autocomplete="tel" />
+        <input id="registerZip" type="text" name="zip" placeholder="CEP" autocomplete="postal-code" />
+        <input id="registerStreet" type="text" name="street" placeholder="Rua" autocomplete="address-line1" />
+        <input id="registerNumber" type="text" name="number" placeholder="Número" />
+        <input id="registerComplement" type="text" name="complement" placeholder="Complemento" />
+        <input id="registerNeighborhood" type="text" name="neighborhood" placeholder="Bairro" />
+        <input id="registerCity" type="text" name="city" placeholder="Cidade" autocomplete="address-level2" />
+        <input id="registerState" type="text" name="state" placeholder="Estado" autocomplete="address-level1" />
+        <input id="registerCpf" type="text" name="cpf" placeholder="CPF" />
+        <input id="registerReference" type="text" name="reference" placeholder="Referência" />
+        <button class="btn-dark" type="button" onclick="register()">Criar conta</button>
+        <button class="btn-ghost" type="button" onclick="loginWithGoogle()">Entrar com Google</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de checkout -->
+  <div id="checkoutModal" class="auth-modal">
+    <div class="auth-box" id="checkoutBox">
+      <div id="orderInfo"></div>
+      <button class="auth-close" id="closeCheckoutModal" type="button">&times;</button>
+      <div class="checkout-progress">
+        <div class="progress-bar">
+          <div class="progress-fill" id="checkoutProgress"></div>
+        </div>
+        <div class="progress-steps">
+          <span class="step active">Dados</span>
+          <span class="step">Endereço</span>
+          <span class="step">Revisão</span>
+        </div>
+      </div>
+      <div class="checkout-header">
+        <h3 id="checkoutStepTitle">Dados do cliente</h3>
+        <p>Preencha os dados para finalizar sua compra com segurança.</p>
+      </div>
+      <div id="checkoutStepContent"></div>
+      <div class="checkout-actions">
+        <button id="checkoutPrevBtn" type="button">Voltar</button>
+        <button id="checkoutNextBtn" type="button">Continuar</button>
+        <button id="checkoutConfirmBtn" type="button" style="display:none;">Ir para pagamento</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="./js/header.js"></script>
+  <script type="module" src="./js/product-page.js"></script>
+</body>
+
+</html>

@@ -116,10 +116,13 @@ export function renderProducts() {
       return `
         <div class="product-slide">
           <article class="product-card">
-            <div class="product-media">
-              <img src="${img1}" alt="${getProductName(p)}" class="product-img main" />
-              <img src="${img2}" alt="${getProductName(p)}" class="product-img hover" />
-            </div>
+            <a href="produto.html?id=${p.id}" class="product-media-link" aria-label="Ver ${getProductName(p)}">
+              <div class="product-media">
+                <img src="${img1}" alt="${getProductName(p)}" class="product-img main" loading="lazy" />
+                <img src="${img2}" alt="${getProductName(p)}" class="product-img hover" loading="lazy" />
+                <div class="product-badge-new">Novo</div>
+              </div>
+            </a>
 
             <div class="product-body">
               <div class="product-topline">
@@ -135,9 +138,9 @@ export function renderProducts() {
               </div>
 
               <div class="product-actions">
-                <button class="btn-dark add-to-cart" data-id="${p.id}">
-                  Comprar
-                </button>
+                <a href="produto.html?id=${p.id}" class="btn-dark go-to-product" data-id="${p.id}">
+                  Ver produto
+                </a>
               </div>
             </div>
           </article>

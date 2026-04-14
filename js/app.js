@@ -8,7 +8,17 @@
  */
 
 import { getSessionUser, checkUser, loadUserUI, login, register, logout, loginWithGoogle, goProfile, goOrders, initAuthUI, syncProfileFromMetadata } from "./auth.js";
-import { cartState, renderCart, initCartUI, removeFromCart, openCart } from "./cart.js";
+import {
+  cartState,
+  renderCart,
+  initCartUI,
+  removeFromCart,
+  openCart,
+  closeCart,
+  increaseCartItemQuantity,
+  decreaseCartItemQuantity,
+  calculateCartTotals,
+} from "./cart.js";
 import { products, loadProducts, renderProducts, initFilters, scrollCarousel, renderFeaturedProduct, getImages, getProductName } from "./products.js";
 import { addToCart } from "./cart.js";
 import { openCheckoutFlow, initCheckoutFlow } from "./checkout.js";
@@ -26,6 +36,8 @@ window.goProfile = goProfile;
 window.goOrders = goOrders;
 window.saveProfile = saveProfile;
 window.switchTab = switchTab;
+window.scrollCarousel = scrollCarousel;
+
 window.startCheckout = () => {
   if (!cartState.cart.length) {
     showToast("Carrinho vazio");
@@ -33,10 +45,22 @@ window.startCheckout = () => {
   }
   openCheckoutFlow();
 };
-window.scrollCarousel = scrollCarousel;
 
-// removeFromCart é chamado dinamicamente em innerHTML do carrinho
-window.__removeFromCart = removeFromCart;
+// Funções do carrinho expostas globalmente
+window.__removeFromCart = (variantKey) => {
+  removeFromCart(decodeURIComponent(variantKey));
+};
+window.__cartIncQty = (variantKey) => {
+  increaseCartItemQuantity(decodeURIComponent(variantKey));
+};
+window.__cartDecQty = (variantKey) => {
+  decreaseCartItemQuantity(decodeURIComponent(variantKey));
+};
+
+// Navegar para página de produto
+window.goToProduct = (id) => {
+  window.location.href = `produto.html?id=${id}`;
+};
 
 // =====================
 // INICIALIZAÇÃO DO HEADER
@@ -234,7 +258,15 @@ function initNewsletter() {
 // =====================
 
 function initProductEvents() {
-  // Botão "Comprar" na grade de produtos
+  // Botão "Ver produto" / "Comprar" na grade — navega para a página do produto
+  document.addEventListener("click", (e) => {
+    const btn = e.target.closest(".go-to-product");
+    if (!btn) return;
+    const id = btn.dataset.id;
+    if (id) window.location.href = `produto.html?id=${id}`;
+  });
+
+  // Botão "Comprar" rápido (adicionar direto sem variações)
   document.addEventListener("click", (e) => {
     const btn = e.target.closest(".add-to-cart");
     if (!btn) return;
@@ -251,7 +283,7 @@ function initProductEvents() {
   document.addEventListener("click", (e) => {
     if (e.target.classList.contains("featured-buy")) {
       const id = e.target.dataset.id;
-      addToCart(id, products);
+      if (id) window.location.href = `produto.html?id=${id}`;
     }
   });
 }
@@ -275,7 +307,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   initProductEvents();
 
   // Só carrega produtos na página principal
-  if (!window.location.pathname.includes("profile.html")) {
+  if (!window.location.pathname.includes("profile.html") && !window.location.pathname.includes("produto.html")) {
     showSkeleton();
     loadProducts();
   }
@@ -295,7 +327,7 @@ window.addEventListener("load", async () => {
     if (user) {
       await checkUser(user);
       await loadUserUI(user);
-      // Sincroniza perfil do banco com o user_metadata (cobre caso de primeiro login após confirmação de email)
+      // Sincroniza perfil do banco com o user_metadata
       await syncProfileFromMetadata(user);
       initUserDropdown();
     }
@@ -309,5 +341,6 @@ window.addEventListener("load", async () => {
 // =====================
 
 if (window.location.pathname.includes("sucesso.html")) {
+  localStorage.removeItem("tl_cart_v2");
   localStorage.removeItem("tl_cart_v1");
 }
