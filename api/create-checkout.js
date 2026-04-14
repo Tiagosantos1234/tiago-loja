@@ -86,12 +86,26 @@ async function resolveCartItems(supabase, cart) {
   }
 
   const productIds = Array.from(quantityById.keys());
+
+  // IMPORTANTE: usar select("*") em vez de colunas especificas.
+  // Se o banco usar "nome" em vez de "name" (ou "preco" em vez de "price"),
+  // o PostgREST retorna erro 400/500 para qualquer coluna inexistente.
+  // Os helpers getDbProductName() e getDbProductPrice() ja resolvem ambos os formatos.
   const { data: products, error } = await supabase
     .from("products")
-    .select("id, name, nome, price, preco, image_url")
+    .select("*")
     .in("id", productIds);
 
-  if (error) return { error: "Erro ao validar produtos", status: 500, details: error.message };
+  if (error) {
+    console.error("[create-checkout] Erro ao buscar produtos:", {
+      message: error.message,
+      code: error.code,
+      details: error.details,
+      hint: error.hint,
+      productIds,
+    });
+    return { error: "Erro ao validar produtos", status: 500, details: error.message };
+  }
 
   const productMap = new Map((products || []).map((p) => [String(p.id), p]));
   const resolvedItems = [];
