@@ -386,14 +386,14 @@
 <!-- ===========================
      SCRIPT PRINCIPAL
 =========================== -->
-<script type="module">
+<script>
 // ============================================================
 // CONFIGURAÇÃO SUPABASE
+// Usa o SDK já carregado via CDN no <head> (window.supabase)
+// NÃO usar type="module" — todas as funções precisam ser globais
+// para funcionar com onclick="..." no HTML.
 // ============================================================
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
-
-// 'sb' — nome usado em todo este script
-const sb = createClient(
+const sb = window.supabase.createClient(
   'https://hnjmiyargbabymoshihaalu.supabase.co',
   'sb_publishable_RrPDyew7vfhihy3WvrNr6w_zZJ3kLql'
 )
@@ -483,40 +483,59 @@ async function loginAdmin() {
   const btnText = document.getElementById("loginBtnText")
   const errEl   = document.getElementById("loginError")
 
-  btn.disabled      = true
-  spinner.classList.remove("hidden")
-  btnText.textContent = "Entrando…"
-  errEl.textContent = ""
-
   const email    = document.getElementById("email").value.trim()
   const password = document.getElementById("password").value
 
-  const { error } = await sb.auth.signInWithPassword({ email, password })
-
-  btn.disabled      = false
-  spinner.classList.add("hidden")
-  btnText.textContent = "Entrar"
-
-  if (error) {
-    errEl.textContent = "Credenciais inválidas. Verifique e tente novamente."
-    document.getElementById("password").value = ""
+  if (!email || !password) {
+    errEl.textContent = "Preencha email e senha."
     return
   }
 
-  document.getElementById("loginScreen").classList.add("hidden")
-  document.getElementById("dashboardScreen").classList.remove("hidden")
-  await carregarTudo()
+  btn.disabled        = true
+  spinner.classList.remove("hidden")
+  btnText.textContent = "Entrando…"
+  errEl.textContent   = ""
+
+  try {
+    const { data, error } = await sb.auth.signInWithPassword({ email, password })
+
+    if (error) throw error
+    if (!data?.session) throw new Error("Sessão não iniciada")
+
+    // onAuthStateChange (SIGNED_IN) vai mostrar o dashboard e carregar os dados
+    // Não precisamos fazer isso aqui para evitar chamada dupla
+
+  } catch (err) {
+    const msg = err?.message || ""
+    if (msg.includes("Invalid login credentials") || msg.includes("invalid_credentials")) {
+      errEl.textContent = "Email ou senha incorretos."
+    } else if (msg.includes("Email not confirmed")) {
+      errEl.textContent = "Confirme seu email antes de entrar."
+    } else if (msg.includes("Too many requests")) {
+      errEl.textContent = "Muitas tentativas. Aguarde alguns minutos."
+    } else {
+      errEl.textContent = "Erro ao entrar. Verifique sua conexão."
+    }
+    document.getElementById("password").value = ""
+  } finally {
+    btn.disabled        = false
+    spinner.classList.add("hidden")
+    btnText.textContent = "Entrar"
+  }
 }
 
 async function logoutAdmin() {
+  window._adminDataLoaded = false
   await sb.auth.signOut()
-  document.getElementById("dashboardScreen").classList.add("hidden")
-  document.getElementById("loginScreen").classList.remove("hidden")
+  // onAuthStateChange (SIGNED_OUT) cuida de esconder o dashboard
 }
 
 async function verificarSessao() {
+  // onAuthStateChange com INITIAL_SESSION já cobre este caso
+  // Mantemos aqui como fallback de segurança
   const { data } = await sb.auth.getSession()
-  if (data?.session) {
+  if (data?.session && !window._adminDataLoaded) {
+    window._adminDataLoaded = true
     document.getElementById("loginScreen").classList.add("hidden")
     document.getElementById("dashboardScreen").classList.remove("hidden")
     await carregarTudo()
@@ -1180,15 +1199,20 @@ document.addEventListener("keydown", e => {
 initTheme()
 showSection("dashboard")
 
-// Responde a mudanças de auth automaticamente (persiste após reload)
+// Responde a mudanças de auth (persiste após reload da página)
 sb.auth.onAuthStateChange(async (event, session) => {
-  if (event === "SIGNED_IN" && session) {
-    document.getElementById("loginScreen").classList.add("hidden")
-    document.getElementById("dashboardScreen").classList.remove("hidden")
-    await carregarTudo()
-  } else if (event === "SIGNED_OUT") {
-    document.getElementById("dashboardScreen").classList.add("hidden")
-    document.getElementById("loginScreen").classList.remove("hidden")
+  if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session) {
+    document.getElementById('loginScreen').classList.add('hidden')
+    document.getElementById('dashboardScreen').classList.remove('hidden')
+    // só carrega se ainda não carregou
+    if (!window._adminDataLoaded) {
+      window._adminDataLoaded = true
+      await carregarTudo()
+    }
+  } else if (event === 'SIGNED_OUT') {
+    window._adminDataLoaded = false
+    document.getElementById('dashboardScreen').classList.add('hidden')
+    document.getElementById('loginScreen').classList.remove('hidden')
   }
 })
 
