@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>RESPEITA — Admin</title>
-  <meta name="description" content="Painel administrativo RESPEITA — pedidos, produtos e métricas em tempo real." />
+  <title>RESPEITA â€” Admin</title>
+  <meta name="description" content="Painel administrativo RESPEITA â€” pedidos, produtos e mÃ©tricas em tempo real." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
@@ -32,7 +32,7 @@
     </div>
     <div class="field-group">
       <label class="field-label" for="password">Senha</label>
-      <input id="password" class="field-input" type="password" placeholder="••••••••" autocomplete="current-password" />
+      <input id="password" class="field-input" type="password" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" autocomplete="current-password" />
     </div>
 
     <button id="loginBtn" class="login-btn" onclick="loginAdmin()">
@@ -81,7 +81,7 @@
         </div>
         <a href="/" class="sidebar-link">
           <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
-          Voltar à loja
+          Voltar Ã  loja
         </a>
         <button class="sidebar-link danger" onclick="logoutAdmin()">
           <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
@@ -102,7 +102,7 @@
         <div class="topbar-right">
           <div class="search-wrap hidden" id="searchWrap">
             <svg class="search-icon" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-            <input id="searchInput" class="search-input" placeholder="Nome, e-mail ou referência…" />
+            <input id="searchInput" class="search-input" placeholder="Nome, e-mail ou referÃªnciaâ€¦" />
           </div>
           <button id="themeBtn" class="icon-btn" onclick="toggleTheme()" title="Alternar tema">
             <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
@@ -112,11 +112,11 @@
       </header>
 
       <!-- =========================================
-           SEÇÃO: DASHBOARD
+           SEÃ‡ÃƒO: DASHBOARD
       ========================================= -->
       <section id="sectionDashboard">
 
-        <!-- MÉTRICAS -->
+        <!-- MÃ‰TRICAS -->
         <div class="metrics-grid">
           <div class="metric-card" data-color="blue">
             <div class="metric-icon">
@@ -124,7 +124,7 @@
             </div>
             <div class="metric-info">
               <span class="metric-label">Total de pedidos</span>
-              <strong class="metric-value" id="count">—</strong>
+              <strong class="metric-value" id="count">â€”</strong>
             </div>
             <div class="metric-change up" id="metricTodayCount">hoje</div>
           </div>
@@ -135,7 +135,7 @@
             </div>
             <div class="metric-info">
               <span class="metric-label">Faturamento</span>
-              <strong class="metric-value" id="totalRevenue">—</strong>
+              <strong class="metric-value" id="totalRevenue">â€”</strong>
             </div>
             <div class="metric-change up" id="metricRevSub">pagos</div>
           </div>
@@ -146,7 +146,7 @@
             </div>
             <div class="metric-info">
               <span class="metric-label">Pendentes</span>
-              <strong class="metric-value" id="pendingCount">—</strong>
+              <strong class="metric-value" id="pendingCount">â€”</strong>
             </div>
             <div class="metric-change neutral">aguardando</div>
           </div>
@@ -157,9 +157,9 @@
             </div>
             <div class="metric-info">
               <span class="metric-label">Enviados</span>
-              <strong class="metric-value" id="shippedCount">—</strong>
+              <strong class="metric-value" id="shippedCount">â€”</strong>
             </div>
-            <div class="metric-change up">em trânsito</div>
+            <div class="metric-change up">em trÃ¢nsito</div>
           </div>
 
           <div class="metric-card" data-color="cyan">
@@ -168,19 +168,19 @@
             </div>
             <div class="metric-info">
               <span class="metric-label">Leads</span>
-              <strong class="metric-value" id="leadsCount">—</strong>
+              <strong class="metric-value" id="leadsCount">â€”</strong>
             </div>
             <div class="metric-change up" id="leadsHoje">hoje</div>
           </div>
         </div>
 
-        <!-- GRÁFICOS -->
+        <!-- GRÃFICOS -->
         <div class="charts-grid">
           <div class="chart-card">
             <div class="card-header">
               <div>
                 <h3 class="card-title">Vendas por dia</h3>
-                <p class="card-sub">Receita acumulada no período.</p>
+                <p class="card-sub">Receita acumulada no perÃ­odo.</p>
               </div>
               <div class="period-pill">30 dias</div>
             </div>
@@ -193,7 +193,7 @@
             <div class="chart-card compact">
               <div class="card-header">
                 <div>
-                  <h3 class="card-title">Distribuição</h3>
+                  <h3 class="card-title">DistribuiÃ§Ã£o</h3>
                   <p class="card-sub">Status dos pedidos.</p>
                 </div>
               </div>
@@ -219,7 +219,7 @@
           <div class="goal-header">
             <div>
               <h3 class="card-title">Meta mensal</h3>
-              <p class="card-sub">Progresso em relação ao objetivo de R$ <span id="goalTarget">10.000</span>.</p>
+              <p class="card-sub">Progresso em relaÃ§Ã£o ao objetivo de R$ <span id="goalTarget">10.000</span>.</p>
             </div>
             <div class="goal-values">
               <strong id="goalCurrent" class="goal-current">R$ 0</strong>
@@ -229,14 +229,14 @@
             <div id="goalBar" class="goal-bar-fill"></div>
           </div>
           <div class="goal-footer">
-            <span id="goalPct" class="goal-pct">0% concluído</span>
+            <span id="goalPct" class="goal-pct">0% concluÃ­do</span>
           </div>
         </div>
 
       </section>
 
       <!-- =========================================
-           SEÇÃO: PEDIDOS
+           SEÃ‡ÃƒO: PEDIDOS
       ========================================= -->
       <section id="sectionPedidos" class="hidden">
         <div class="section-toolbar">
@@ -266,19 +266,19 @@
             <span>Total</span>
             <span>Pagamento</span>
             <span>Envio</span>
-            <span>Ações</span>
+            <span>AÃ§Ãµes</span>
           </div>
           <div id="orders" class="table-body">
             <div class="table-loading">
               <span class="spinner"></span>
-              Carregando pedidos…
+              Carregando pedidosâ€¦
             </div>
           </div>
         </div>
       </section>
 
       <!-- =========================================
-           SEÇÃO: PRODUTOS
+           SEÃ‡ÃƒO: PRODUTOS
       ========================================= -->
       <section id="sectionProdutos" class="hidden">
         <div class="section-toolbar">
@@ -293,14 +293,14 @@
         <div class="products-table">
           <div class="table-header products-header">
             <span>Produto</span>
-            <span>Preço</span>
+            <span>PreÃ§o</span>
             <span>Estoque</span>
-            <span>Ações</span>
+            <span>AÃ§Ãµes</span>
           </div>
           <div id="productsList" class="table-body">
             <div class="table-loading">
               <span class="spinner"></span>
-              Carregando produtos…
+              Carregando produtosâ€¦
             </div>
           </div>
         </div>
@@ -351,7 +351,7 @@
         </div>
         <div class="form-row-2">
           <div class="field-group">
-            <label class="field-label">Preço (R$)</label>
+            <label class="field-label">PreÃ§o (R$)</label>
             <input id="produtoPreco" class="field-input" type="number" min="0" step="0.01" placeholder="0,00" />
           </div>
           <div class="field-group">
@@ -388,12 +388,12 @@
 =========================== -->
 <script>
 // ============================================================
-// CONFIGURAÇÃO SUPABASE
-// Usa o SDK já carregado via CDN no <head> (window.supabase)
-// NÃO usar type="module" — todas as funções precisam ser globais
+// CONFIGURAÃ‡ÃƒO SUPABASE
+// Usa o SDK jÃ¡ carregado via CDN no <head> (window.supabase)
+// NÃƒO usar type="module" â€” todas as funÃ§Ãµes precisam ser globais
 // para funcionar com onclick="..." no HTML.
 // ============================================================
-const sb = window.supabase.createClient(
+const supabaseClient = window.supabase.createClient(
   'https://hnjmiyargbabymoshihaalu.supabase.co',
   'sb_publishable_RrPDyew7vfhihy3WvrNr6w_zZJ3kLql'
 )
@@ -427,7 +427,7 @@ function toggleTheme() {
 }
 
 // ============================================================
-// NAVEGAÇÃO
+// NAVEGAÃ‡ÃƒO
 // ============================================================
 function showSection(s) {
   const map = { dashboard: "sectionDashboard", pedidos: "sectionPedidos", produtos: "sectionProdutos" }
@@ -449,8 +449,8 @@ function toast(msg, type = "success") {
   const el   = document.getElementById("toast")
   const icon = document.getElementById("toastIcon")
   const text = document.getElementById("toastText")
-  const icons = { success: "✓", error: "✕", info: "ℹ" }
-  icon.textContent = icons[type] || "ℹ"
+  const icons = { success: "âœ“", error: "âœ•", info: "â„¹" }
+  icon.textContent = icons[type] || "â„¹"
   text.textContent = msg
   el.className     = `toast ${type} visible`
   clearTimeout(window._toastT)
@@ -493,17 +493,17 @@ async function loginAdmin() {
 
   btn.disabled        = true
   spinner.classList.remove("hidden")
-  btnText.textContent = "Entrando…"
+  btnText.textContent = "Entrandoâ€¦"
   errEl.textContent   = ""
 
   try {
-    const { data, error } = await sb.auth.signInWithPassword({ email, password })
+    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password })
 
     if (error) throw error
-    if (!data?.session) throw new Error("Sessão não iniciada")
+    if (!data?.session) throw new Error("SessÃ£o nÃ£o iniciada")
 
     // onAuthStateChange (SIGNED_IN) vai mostrar o dashboard e carregar os dados
-    // Não precisamos fazer isso aqui para evitar chamada dupla
+    // NÃ£o precisamos fazer isso aqui para evitar chamada dupla
 
   } catch (err) {
     const msg = err?.message || ""
@@ -514,7 +514,7 @@ async function loginAdmin() {
     } else if (msg.includes("Too many requests")) {
       errEl.textContent = "Muitas tentativas. Aguarde alguns minutos."
     } else {
-      errEl.textContent = "Erro ao entrar. Verifique sua conexão."
+      errEl.textContent = "Erro ao entrar. Verifique sua conexÃ£o."
     }
     document.getElementById("password").value = ""
   } finally {
@@ -526,14 +526,14 @@ async function loginAdmin() {
 
 async function logoutAdmin() {
   window._adminDataLoaded = false
-  await sb.auth.signOut()
+  await supabaseClient.auth.signOut()
   // onAuthStateChange (SIGNED_OUT) cuida de esconder o dashboard
 }
 
 async function verificarSessao() {
-  // onAuthStateChange com INITIAL_SESSION já cobre este caso
-  // Mantemos aqui como fallback de segurança
-  const { data } = await sb.auth.getSession()
+  // onAuthStateChange com INITIAL_SESSION jÃ¡ cobre este caso
+  // Mantemos aqui como fallback de seguranÃ§a
+  const { data } = await supabaseClient.auth.getSession()
   if (data?.session && !window._adminDataLoaded) {
     window._adminDataLoaded = true
     document.getElementById("loginScreen").classList.add("hidden")
@@ -557,27 +557,27 @@ async function carregarTudo() {
 }
 
 async function carregarPedidos() {
-  const { data, error } = await sb.from("orders").select("*").order("created_at", { ascending: false })
+  const { data, error } = await supabaseClient.from("orders").select("*").order("created_at", { ascending: false })
   if (error) console.error("[orders]", error)
   pedidos = data || []
 }
 
 async function carregarItensPedidos() {
-  const { data, error } = await sb.from("order_items").select("*")
+  const { data, error } = await supabaseClient.from("order_items").select("*")
   if (error) console.error("[order_items]", error)
   itensPedidos = data || []
 }
 
 async function carregarProdutos() {
-  const { data, error } = await sb.from("products").select("*").order("created_at", { ascending: false })
+  const { data, error } = await supabaseClient.from("products").select("*").order("created_at", { ascending: false })
   if (error) console.error("[products]", error)
   produtos = data || []
 }
 
 async function carregarLeads() {
-  const { data, error } = await sb.from("leads").select("id, created_at")
+  const { data, error } = await supabaseClient.from("leads").select("id, created_at")
   if (error) {
-    // Ignora graciosamente — tabela pode ainda não existir
+    // Ignora graciosamente â€” tabela pode ainda nÃ£o existir
     console.warn("[leads]", error.message)
     leads = []
     return
@@ -593,7 +593,7 @@ const PAG_CLASS = { paid: "badge-green", approved: "badge-green", pending: "badg
 const ENV_LABEL = { created: "Criado", preparing: "Preparando", shipped: "Enviado", delivered: "Entregue" }
 const ENV_CLASS = { created: "badge-slate", preparing: "badge-amber", shipped: "badge-blue", delivered: "badge-green" }
 
-const labelPag  = s => PAG_LABEL[s] || "—"
+const labelPag  = s => PAG_LABEL[s] || "â€”"
 const classPag  = s => PAG_CLASS[s] || "badge-slate"
 const labelEnv  = s => ENV_LABEL[s] || "Criado"
 const classEnv  = s => ENV_CLASS[s] || "badge-slate"
@@ -620,7 +620,7 @@ function getPedidosFiltrados() {
 }
 
 // ============================================================
-// MÉTRICAS
+// MÃ‰TRICAS
 // ============================================================
 function renderMetrics() {
   const total   = pedidos.length
@@ -673,19 +673,19 @@ function renderPedidos() {
 
   lista.forEach(order => {
     const ship = order.shipping_status || "created"
-    const data = order.created_at ? new Date(order.created_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" }) : "—"
+    const data = order.created_at ? new Date(order.created_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" }) : "â€”"
     const hora = order.created_at ? new Date(order.created_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) : ""
 
     const row = document.createElement("div")
     row.className = "table-row"
     row.innerHTML = `
       <div class="col-ref">
-        <span class="ref-code">${order.external_reference || "—"}</span>
+        <span class="ref-code">${order.external_reference || "â€”"}</span>
         <span class="ref-date">${data} ${hora}</span>
       </div>
 
       <div class="col-client">
-        <span class="client-name">${order.customer_name || "—"}</span>
+        <span class="client-name">${order.customer_name || "â€”"}</span>
         <span class="client-email">${order.customer_email || ""}</span>
       </div>
 
@@ -726,14 +726,14 @@ function renderPedidos() {
 }
 
 // ============================================================
-// HELPER — chamada ao endpoint admin seguro (service_role no server)
+// HELPER â€” chamada ao endpoint admin seguro (service_role no server)
 // ============================================================
 async function adminUpdate(id, field, value) {
   const res = await fetch("/api/admin-update-order", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      // Token dedicado do admin — NÃO é a service_role key
+      // Token dedicado do admin â€” NÃƒO Ã© a service_role key
       // A service_role fica apenas nas env vars do servidor (Vercel)
       "x-admin-token": "RESPEITA-ADMIN-2026"
     },
@@ -752,7 +752,7 @@ async function adminUpdate(id, field, value) {
 }
 
 // ============================================================
-// AÇÕES PEDIDO
+// AÃ‡Ã•ES PEDIDO
 // ============================================================
 async function mudarStatus(id, status, btn) {
   const originalHTML = btn?.innerHTML
@@ -762,8 +762,8 @@ async function mudarStatus(id, status, btn) {
 
   if (!result.ok) {
     if (btn) { btn.disabled = false; btn.innerHTML = originalHTML || "" }
-    toast(result.error.includes("não encontrado")
-      ? "Pedido não encontrado"
+    toast(result.error.includes("nÃ£o encontrado")
+      ? "Pedido nÃ£o encontrado"
       : `Erro: ${result.error}`, "error")
     return
   }
@@ -780,8 +780,8 @@ async function atualizarEnvio(id, shipping_status) {
   const result = await adminUpdate(id, "shipping_status", shipping_status)
 
   if (!result.ok) {
-    toast(result.error.includes("não encontrado")
-      ? "Pedido não encontrado"
+    toast(result.error.includes("nÃ£o encontrado")
+      ? "Pedido nÃ£o encontrado"
       : `Erro: ${result.error}`, "error")
     return
   }
@@ -799,30 +799,30 @@ function abrirModalPedido(orderId) {
   if (!order) return
   const itens = itensPedidos.filter(i => i.order_id === orderId)
   const ship  = order.shipping_status || "created"
-  const data  = order.created_at ? new Date(order.created_at).toLocaleString("pt-BR") : "—"
+  const data  = order.created_at ? new Date(order.created_at).toLocaleString("pt-BR") : "â€”"
 
   document.getElementById("modalTitle").textContent = order.external_reference || "Pedido"
   document.getElementById("modalSub").textContent   = `Criado em ${data}`
 
   document.getElementById("modalBody").innerHTML = `
     <div class="modal-section">
-      <h4 class="modal-section-title">Informações do cliente</h4>
+      <h4 class="modal-section-title">InformaÃ§Ãµes do cliente</h4>
       <div class="info-grid">
-        <div class="info-item"><span class="info-label">Nome</span><span class="info-value">${order.customer_name || "—"}</span></div>
-        <div class="info-item"><span class="info-label">E-mail</span><span class="info-value">${order.customer_email || "—"}</span></div>
+        <div class="info-item"><span class="info-label">Nome</span><span class="info-value">${order.customer_name || "â€”"}</span></div>
+        <div class="info-item"><span class="info-label">E-mail</span><span class="info-value">${order.customer_email || "â€”"}</span></div>
         <div class="info-item"><span class="info-label">Total</span><span class="info-value bold">R$ ${Number(order.total || 0).toFixed(2)}</span></div>
         <div class="info-item"><span class="info-label">Pagamento</span><span class="badge ${classPag(order.status)}">${labelPag(order.status)}</span></div>
         <div class="info-item"><span class="info-label">Envio</span><span class="badge ${classEnv(ship)}">${labelEnv(ship)}</span></div>
-        <div class="info-item"><span class="info-label">Ref.</span><span class="info-value mono">${order.external_reference || "—"}</span></div>
+        <div class="info-item"><span class="info-label">Ref.</span><span class="info-value mono">${order.external_reference || "â€”"}</span></div>
       </div>
     </div>
 
     ${order.shipping_address ? `
     <div class="modal-section">
-      <h4 class="modal-section-title">Endereço de entrega</h4>
+      <h4 class="modal-section-title">EndereÃ§o de entrega</h4>
       <div class="address-box">
         ${[order.shipping_address?.street, order.shipping_address?.number, order.shipping_address?.complement, order.shipping_address?.neighborhood, order.shipping_address?.city, order.shipping_address?.state].filter(Boolean).join(", ")}
-        ${order.shipping_address?.zip ? ` — CEP ${order.shipping_address.zip}` : ""}
+        ${order.shipping_address?.zip ? ` â€” CEP ${order.shipping_address.zip}` : ""}
       </div>
     </div>` : ""}
 
@@ -835,7 +835,7 @@ function abrirModalPedido(orderId) {
               ${i.image_url ? `<img class="item-img" src="${i.image_url}" alt="${i.product_name}" onerror="this.style.display='none'" />` : `<div class="item-img placeholder"></div>`}
               <div class="item-info">
                 <span class="item-name">${i.product_name || "Produto"}</span>
-                <span class="item-meta">Qtd: ${i.quantity} · R$ ${Number(i.product_price || 0).toFixed(2)} cada</span>
+                <span class="item-meta">Qtd: ${i.quantity} Â· R$ ${Number(i.product_price || 0).toFixed(2)} cada</span>
               </div>
               <span class="item-subtotal">R$ ${(Number(i.product_price || 0) * Number(i.quantity || 1)).toFixed(2)}</span>
             </div>
@@ -935,7 +935,7 @@ function renderAlertaEstoque() {
   const baixos = produtos.filter(p => Number(p.stock || 0) <= 3)
   if (!baixos.length) { alerta.classList.add("hidden"); return }
   alerta.classList.remove("hidden")
-  alerta.textContent = `⚠ Estoque crítico: ${baixos.map(p => p.name).join(", ")}`
+  alerta.textContent = `âš  Estoque crÃ­tico: ${baixos.map(p => p.name).join(", ")}`
 }
 
 // Modal produto
@@ -948,7 +948,7 @@ function abrirModalProduto(id = null) {
   document.getElementById("produtoPreco").value            = produto?.price     ?? ""
   document.getElementById("produtoEstoque").value          = produto?.stock     ?? ""
   document.getElementById("produtoImagem").value           = produto?.image_url || ""
-  document.getElementById("salvarProdutoBtnText").textContent = produto ? "Salvar alterações" : "Criar produto"
+  document.getElementById("salvarProdutoBtnText").textContent = produto ? "Salvar alteraÃ§Ãµes" : "Criar produto"
 
   document.getElementById("modalProdutoOverlay").classList.remove("hidden")
   document.body.classList.add("modal-open")
@@ -975,16 +975,16 @@ async function salvarProduto() {
 
   btn.disabled = true
   spinner.classList.remove("hidden")
-  btnText.textContent = id ? "Salvando…" : "Criando…"
+  btnText.textContent = id ? "Salvandoâ€¦" : "Criandoâ€¦"
 
   const payload = { name, price: isNaN(price) ? 0 : price, stock: isNaN(stock) ? 0 : stock, image_url: img }
   const { error } = id
-    ? await sb.from("products").update(payload).eq("id", id)
-    : await sb.from("products").insert([payload])
+    ? await supabaseClient.from("products").update(payload).eq("id", id)
+    : await supabaseClient.from("products").insert([payload])
 
   btn.disabled = false
   spinner.classList.add("hidden")
-  btnText.textContent = id ? "Salvar alterações" : "Criar produto"
+  btnText.textContent = id ? "Salvar alteraÃ§Ãµes" : "Criar produto"
 
   if (error) { toast("Erro ao salvar produto", "error"); return }
   toast(id ? "Produto atualizado!" : "Produto criado!", "success")
@@ -996,15 +996,15 @@ async function salvarProduto() {
 async function excluirProduto(id, btn) {
   if (!confirm("Excluir este produto permanentemente?")) return
   if (btn) { btn.disabled = true }
-  const { error } = await sb.from("products").delete().eq("id", id)
+  const { error } = await supabaseClient.from("products").delete().eq("id", id)
   if (error) { toast("Erro ao excluir produto", "error"); if (btn) btn.disabled = false; return }
-  toast("Produto excluído", "info")
+  toast("Produto excluÃ­do", "info")
   await carregarProdutos()
   renderProdutos()
 }
 
 // ============================================================
-// GRÁFICOS
+// GRÃFICOS
 // ============================================================
 function chartColors() {
   const dark = document.body.dataset.theme !== "light"
@@ -1023,7 +1023,7 @@ function gerarGraficoVendas() {
     rawVendas[d] = (rawVendas[d] || 0) + Number(p.total || 0)
   })
 
-  // Últimos 14 dias com dados
+  // Ãšltimos 14 dias com dados
   const labels = Object.keys(rawVendas).slice(-14)
   const data   = labels.map(l => rawVendas[l])
 
@@ -1119,7 +1119,7 @@ function renderMeta() {
   const pct = Math.min((faturamento / META) * 100, 100)
   animCount(document.getElementById("goalCurrent"), faturamento, 2, "R$ ")
   document.getElementById("goalBar").style.width = pct + "%"
-  document.getElementById("goalPct").textContent  = `${pct.toFixed(1)}% concluído`
+  document.getElementById("goalPct").textContent  = `${pct.toFixed(1)}% concluÃ­do`
 }
 
 // ============================================================
@@ -1149,7 +1149,7 @@ function renderRanking() {
 // ============================================================
 // REALTIME
 // ============================================================
-sb.channel("realtime:orders")
+supabaseClient.channel("realtime:orders")
   .on("postgres_changes", { event: "*", schema: "public", table: "orders" }, async () => {
     await carregarPedidos()
     renderPedidos()
@@ -1160,21 +1160,21 @@ sb.channel("realtime:orders")
   })
   .subscribe()
 
-sb.channel("realtime:order_items")
+supabaseClient.channel("realtime:order_items")
   .on("postgres_changes", { event: "*", schema: "public", table: "order_items" }, async () => {
     await carregarItensPedidos()
     renderRanking()
   })
   .subscribe()
 
-sb.channel("realtime:products")
+supabaseClient.channel("realtime:products")
   .on("postgres_changes", { event: "*", schema: "public", table: "products" }, async () => {
     await carregarProdutos()
     renderProdutos()
   })
   .subscribe()
 
-sb.channel("realtime:leads")
+supabaseClient.channel("realtime:leads")
   .on("postgres_changes", { event: "*", schema: "public", table: "leads" }, async () => {
     await carregarLeads()
     renderMetrics()
@@ -1199,12 +1199,12 @@ document.addEventListener("keydown", e => {
 initTheme()
 showSection("dashboard")
 
-// Responde a mudanças de auth (persiste após reload da página)
-sb.auth.onAuthStateChange(async (event, session) => {
+// Responde a mudanÃ§as de auth (persiste apÃ³s reload da pÃ¡gina)
+supabaseClient.auth.onAuthStateChange(async (event, session) => {
   if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session) {
     document.getElementById('loginScreen').classList.add('hidden')
     document.getElementById('dashboardScreen').classList.remove('hidden')
-    // só carrega se ainda não carregou
+    // sÃ³ carrega se ainda nÃ£o carregou
     if (!window._adminDataLoaded) {
       window._adminDataLoaded = true
       await carregarTudo()
@@ -1220,3 +1220,4 @@ verificarSessao()
 </script>
 </body>
 </html>
+
