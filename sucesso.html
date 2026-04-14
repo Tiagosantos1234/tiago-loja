@@ -86,8 +86,9 @@
     import { createClient } from "@supabase/supabase-js";
     import { SUPABASE_URL, SUPABASE_ANON_KEY } from "./js/config.js";
 
-    // Limpa carrinho ao chegar nesta página
+    // Limpa carrinho ao chegar nesta página (v1 legado + v2 atual)
     localStorage.removeItem("tl_cart_v1");
+    localStorage.removeItem("tl_cart_v2");
 
     const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 

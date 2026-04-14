@@ -429,27 +429,15 @@ export function initAuthUI() {
 // =====================
 
 /**
- * Sincroniza o usuário logado na tabela "users" do Supabase.
+ * Sincroniza o usuário na UI — public.users nao e gerenciada aqui.
+ * O perfil do usuario e salvo em public.profiles via upsertProfileForUser.
+ * Esta funcao e mantida para compatibilidade de chamadas no app.js.
  * @param {object} user
  */
 export async function checkUser(user) {
+  // Nao gravamos em public.users (tabela nao padrao do Supabase).
+  // O perfil e sincronizado via upsertProfileForUser/syncProfileFromMetadata.
   if (!user) return;
-
-  try {
-    await supabaseClient.from("users").upsert(
-      [
-        {
-          id: user.id,
-          email: user.email,
-          name: user.user_metadata?.full_name || user.user_metadata?.name || "",
-          created_at: new Date().toISOString(),
-        },
-      ],
-      { onConflict: "id" }
-    );
-  } catch (err) {
-    // silencioso — não crítico
-  }
 }
 
 /**
