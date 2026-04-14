@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>RESPEITA â€” Admin</title>
-  <meta name="description" content="Painel administrativo RESPEITA â€” pedidos, produtos e mÃ©tricas em tempo real." />
+  <title>RESPEITA &mdash; Admin</title>
+  <meta name="description" content="Painel administrativo RESPEITA &mdash; pedidos, produtos e métricas em tempo real." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
@@ -32,7 +32,7 @@
     </div>
     <div class="field-group">
       <label class="field-label" for="password">Senha</label>
-      <input id="password" class="field-input" type="password" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" autocomplete="current-password" />
+      <input id="password" class="field-input" type="password" placeholder="••••••••" autocomplete="current-password" />
     </div>
 
     <button id="loginBtn" class="login-btn" onclick="loginAdmin()">
@@ -79,9 +79,9 @@
           <span class="realtime-dot"></span>
           Tempo real ativo
         </div>
-        <a href="/" class="sidebar-link">
+        <a href="index.html" class="sidebar-link">
           <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
-          Voltar Ã  loja
+          Voltar à loja
         </a>
         <button class="sidebar-link danger" onclick="logoutAdmin()">
           <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
@@ -102,7 +102,7 @@
         <div class="topbar-right">
           <div class="search-wrap hidden" id="searchWrap">
             <svg class="search-icon" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-            <input id="searchInput" class="search-input" placeholder="Nome, e-mail ou referÃªnciaâ€¦" />
+            <input id="searchInput" class="search-input" placeholder="Nome, e-mail ou referência..." />
           </div>
           <button id="themeBtn" class="icon-btn" onclick="toggleTheme()" title="Alternar tema">
             <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
@@ -111,12 +111,10 @@
         </div>
       </header>
 
-      <!-- =========================================
-           SEÃ‡ÃƒO: DASHBOARD
-      ========================================= -->
+      <!-- SECAO: DASHBOARD -->
       <section id="sectionDashboard">
 
-        <!-- MÃ‰TRICAS -->
+        <!-- METRICAS -->
         <div class="metrics-grid">
           <div class="metric-card" data-color="blue">
             <div class="metric-icon">
@@ -124,7 +122,7 @@
             </div>
             <div class="metric-info">
               <span class="metric-label">Total de pedidos</span>
-              <strong class="metric-value" id="count">â€”</strong>
+              <strong class="metric-value" id="count">&mdash;</strong>
             </div>
             <div class="metric-change up" id="metricTodayCount">hoje</div>
           </div>
@@ -135,7 +133,7 @@
             </div>
             <div class="metric-info">
               <span class="metric-label">Faturamento</span>
-              <strong class="metric-value" id="totalRevenue">â€”</strong>
+              <strong class="metric-value" id="totalRevenue">&mdash;</strong>
             </div>
             <div class="metric-change up" id="metricRevSub">pagos</div>
           </div>
@@ -146,7 +144,7 @@
             </div>
             <div class="metric-info">
               <span class="metric-label">Pendentes</span>
-              <strong class="metric-value" id="pendingCount">â€”</strong>
+              <strong class="metric-value" id="pendingCount">&mdash;</strong>
             </div>
             <div class="metric-change neutral">aguardando</div>
           </div>
@@ -157,9 +155,9 @@
             </div>
             <div class="metric-info">
               <span class="metric-label">Enviados</span>
-              <strong class="metric-value" id="shippedCount">â€”</strong>
+              <strong class="metric-value" id="shippedCount">&mdash;</strong>
             </div>
-            <div class="metric-change up">em trÃ¢nsito</div>
+            <div class="metric-change up">em trânsito</div>
           </div>
 
           <div class="metric-card" data-color="cyan">
@@ -168,19 +166,19 @@
             </div>
             <div class="metric-info">
               <span class="metric-label">Leads</span>
-              <strong class="metric-value" id="leadsCount">â€”</strong>
+              <strong class="metric-value" id="leadsCount">&mdash;</strong>
             </div>
             <div class="metric-change up" id="leadsHoje">hoje</div>
           </div>
         </div>
 
-        <!-- GRÃFICOS -->
+        <!-- GRAFICOS -->
         <div class="charts-grid">
           <div class="chart-card">
             <div class="card-header">
               <div>
                 <h3 class="card-title">Vendas por dia</h3>
-                <p class="card-sub">Receita acumulada no perÃ­odo.</p>
+                <p class="card-sub">Receita acumulada no período.</p>
               </div>
               <div class="period-pill">30 dias</div>
             </div>
@@ -193,7 +191,7 @@
             <div class="chart-card compact">
               <div class="card-header">
                 <div>
-                  <h3 class="card-title">DistribuiÃ§Ã£o</h3>
+                  <h3 class="card-title">Distribuição</h3>
                   <p class="card-sub">Status dos pedidos.</p>
                 </div>
               </div>
@@ -219,7 +217,7 @@
           <div class="goal-header">
             <div>
               <h3 class="card-title">Meta mensal</h3>
-              <p class="card-sub">Progresso em relaÃ§Ã£o ao objetivo de R$ <span id="goalTarget">10.000</span>.</p>
+              <p class="card-sub">Progresso em relação ao objetivo de R$ <span id="goalTarget">10.000</span>.</p>
             </div>
             <div class="goal-values">
               <strong id="goalCurrent" class="goal-current">R$ 0</strong>
@@ -229,15 +227,13 @@
             <div id="goalBar" class="goal-bar-fill"></div>
           </div>
           <div class="goal-footer">
-            <span id="goalPct" class="goal-pct">0% concluÃ­do</span>
+            <span id="goalPct" class="goal-pct">0% concluído</span>
           </div>
         </div>
 
       </section>
 
-      <!-- =========================================
-           SEÃ‡ÃƒO: PEDIDOS
-      ========================================= -->
+      <!-- SECAO: PEDIDOS -->
       <section id="sectionPedidos" class="hidden">
         <div class="section-toolbar">
           <div class="filter-row">
@@ -266,20 +262,18 @@
             <span>Total</span>
             <span>Pagamento</span>
             <span>Envio</span>
-            <span>AÃ§Ãµes</span>
+            <span>Ações</span>
           </div>
           <div id="orders" class="table-body">
             <div class="table-loading">
               <span class="spinner"></span>
-              Carregando pedidosâ€¦
+              Carregando pedidos...
             </div>
           </div>
         </div>
       </section>
 
-      <!-- =========================================
-           SEÃ‡ÃƒO: PRODUTOS
-      ========================================= -->
+      <!-- SECAO: PRODUTOS -->
       <section id="sectionProdutos" class="hidden">
         <div class="section-toolbar">
           <button class="btn-primary" onclick="abrirModalProduto()">
@@ -293,14 +287,14 @@
         <div class="products-table">
           <div class="table-header products-header">
             <span>Produto</span>
-            <span>PreÃ§o</span>
+            <span>Preço</span>
             <span>Estoque</span>
-            <span>AÃ§Ãµes</span>
+            <span>Ações</span>
           </div>
           <div id="productsList" class="table-body">
             <div class="table-loading">
               <span class="spinner"></span>
-              Carregando produtosâ€¦
+              Carregando produtos...
             </div>
           </div>
         </div>
@@ -351,7 +345,7 @@
         </div>
         <div class="form-row-2">
           <div class="field-group">
-            <label class="field-label">PreÃ§o (R$)</label>
+            <label class="field-label">Preço (R$)</label>
             <input id="produtoPreco" class="field-input" type="number" min="0" step="0.01" placeholder="0,00" />
           </div>
           <div class="field-group">
@@ -375,9 +369,7 @@
   </div>
 </div>
 
-<!-- ===========================
-     TOAST
-=========================== -->
+<!-- TOAST -->
 <div id="toast" class="toast">
   <span id="toastIcon"></span>
   <span id="toastText"></span>
@@ -385,93 +377,91 @@
 
 <!-- ===========================
      SCRIPT PRINCIPAL
+     Sem type="module" — todas as funcoes precisam ser globais
+     para funcionar com onclick="..." no HTML.
 =========================== -->
 <script>
 // ============================================================
-// CONFIGURAÃ‡ÃƒO SUPABASE
-// Usa o SDK jÃ¡ carregado via CDN no <head> (window.supabase)
-// NÃƒO usar type="module" â€” todas as funÃ§Ãµes precisam ser globais
-// para funcionar com onclick="..." no HTML.
+// SUPABASE — usa SDK carregado via CDN no <head> (window.supabase)
 // ============================================================
-const supabaseClient = window.supabase.createClient(
-  'https://nmosbabyarqnmihihalu.supabase.co',
-  'sb_publishable_RrPDyew7vfhihy3WvrNr6w_zZJ3kLql'
-)
+const SUPABASE_URL      = 'https://nmosbabyarqnmihihalu.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_RrPDyew7vfhihy3WvrNr6w_zZJ3kLql';
+const supabaseClient    = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // ============================================================
 // ESTADO GLOBAL
 // ============================================================
-let pedidos      = []
-let itensPedidos = []
-let produtos     = []
-let leads        = []
-let chartVendas  = null
-let chartStatus  = null
-const META       = 10000
+let pedidos      = [];
+let itensPedidos = [];
+let produtos     = [];
+let leads        = [];
+let chartVendas  = null;
+let chartStatus  = null;
+const META       = 10000;
 
 // ============================================================
 // TEMA
 // ============================================================
 function setTheme(t) {
-  document.body.dataset.theme = t
-  localStorage.setItem("admin-theme", t)
-  const btn = document.getElementById("themeBtn")
-  if (!btn) return
-  btn.querySelector("svg").style.opacity = t === "dark" ? "1" : "0.6"
+  document.body.dataset.theme = t;
+  localStorage.setItem('admin-theme', t);
+  const btn = document.getElementById('themeBtn');
+  if (!btn) return;
+  btn.querySelector('svg').style.opacity = t === 'dark' ? '1' : '0.6';
 }
-function initTheme() { setTheme(localStorage.getItem("admin-theme") || "dark") }
+function initTheme() { setTheme(localStorage.getItem('admin-theme') || 'dark'); }
 function toggleTheme() {
-  const t = document.body.dataset.theme === "dark" ? "light" : "dark"
-  setTheme(t)
-  setTimeout(() => { gerarGraficoVendas(); gerarGraficoStatus() }, 50)
+  const t = document.body.dataset.theme === 'dark' ? 'light' : 'dark';
+  setTheme(t);
+  setTimeout(() => { gerarGraficoVendas(); gerarGraficoStatus(); }, 50);
 }
 
 // ============================================================
-// NAVEGAÃ‡ÃƒO
+// NAVEGACAO
 // ============================================================
 function showSection(s) {
-  const map = { dashboard: "sectionDashboard", pedidos: "sectionPedidos", produtos: "sectionProdutos" }
-  const titles = { dashboard: "Dashboard", pedidos: "Pedidos", produtos: "Produtos" }
+  const map    = { dashboard: 'sectionDashboard', pedidos: 'sectionPedidos', produtos: 'sectionProdutos' };
+  const titles = { dashboard: 'Dashboard', pedidos: 'Pedidos', produtos: 'Produtos' };
   Object.entries(map).forEach(([k, id]) => {
-    document.getElementById(id)?.classList.toggle("hidden", k !== s)
-  })
-  document.querySelectorAll(".nav-item").forEach(el => el.classList.remove("active"))
-  const navId = "nav" + s.charAt(0).toUpperCase() + s.slice(1)
-  document.getElementById(navId)?.classList.add("active")
-  document.getElementById("pageTitle").textContent = titles[s]
-  document.getElementById("searchWrap")?.classList.toggle("hidden", s === "dashboard")
+    document.getElementById(id)?.classList.toggle('hidden', k !== s);
+  });
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  const navId = 'nav' + s.charAt(0).toUpperCase() + s.slice(1);
+  document.getElementById(navId)?.classList.add('active');
+  document.getElementById('pageTitle').textContent = titles[s];
+  document.getElementById('searchWrap')?.classList.toggle('hidden', s === 'dashboard');
 }
 
 // ============================================================
 // TOAST
 // ============================================================
-function toast(msg, type = "success") {
-  const el   = document.getElementById("toast")
-  const icon = document.getElementById("toastIcon")
-  const text = document.getElementById("toastText")
-  const icons = { success: "âœ“", error: "âœ•", info: "â„¹" }
-  icon.textContent = icons[type] || "â„¹"
-  text.textContent = msg
-  el.className     = `toast ${type} visible`
-  clearTimeout(window._toastT)
-  window._toastT = setTimeout(() => { el.classList.remove("visible") }, 3200)
+function toast(msg, type = 'success') {
+  const el   = document.getElementById('toast');
+  const icon = document.getElementById('toastIcon');
+  const text = document.getElementById('toastText');
+  const icons = { success: '✓', error: '✕', info: 'ℹ' };
+  icon.textContent = icons[type] || 'ℹ';
+  text.textContent = msg;
+  el.className     = `toast ${type} visible`;
+  clearTimeout(window._toastT);
+  window._toastT = setTimeout(() => { el.classList.remove('visible'); }, 3200);
 }
 
 // ============================================================
 // CONTADOR ANIMADO
 // ============================================================
-function animCount(el, to, decimals = 0, prefix = "") {
-  if (!el) return
-  const from = parseFloat(el.dataset.val || "0")
-  el.dataset.val = to
-  const dur = 650, t0 = performance.now()
+function animCount(el, to, decimals = 0, prefix = '') {
+  if (!el) return;
+  const from = parseFloat(el.dataset.val || '0');
+  el.dataset.val = to;
+  const dur = 650, t0 = performance.now();
   const run = (now) => {
-    const p = Math.min((now - t0) / dur, 1)
-    const ease = 1 - Math.pow(1 - p, 3)
-    el.textContent = prefix + (from + (to - from) * ease).toFixed(decimals)
-    if (p < 1) requestAnimationFrame(run)
-  }
-  requestAnimationFrame(run)
+    const p = Math.min((now - t0) / dur, 1);
+    const ease = 1 - Math.pow(1 - p, 3);
+    el.textContent = prefix + (from + (to - from) * ease).toFixed(decimals);
+    if (p < 1) requestAnimationFrame(run);
+  };
+  requestAnimationFrame(run);
 }
 
 // ============================================================
@@ -489,7 +479,6 @@ async function loginAdmin() {
 
   if (!email || !password) {
     if (errEl) errEl.textContent = 'Preencha email e senha.';
-    else alert('Preencha email e senha.');
     return;
   }
 
@@ -507,11 +496,11 @@ async function loginAdmin() {
           errEl.textContent = 'Email ou senha incorretos.';
         } else if (msg.includes('Email not confirmed')) {
           errEl.textContent = 'Confirme seu email antes de entrar.';
+        } else if (msg.includes('Too many requests')) {
+          errEl.textContent = 'Muitas tentativas. Aguarde alguns minutos.';
         } else {
           errEl.textContent = 'Erro: ' + msg;
         }
-      } else {
-        alert('Erro no login: ' + msg);
       }
       document.querySelector('#password').value = '';
       return;
@@ -522,8 +511,8 @@ async function loginAdmin() {
       return;
     }
 
-    // Login OK — onAuthStateChange cuida do dashboard
-    // Fallback manual caso nao dispare
+    // Login OK — onAuthStateChange vai mostrar o dashboard
+    // Fallback manual caso nao dispare imediatamente
     document.getElementById('loginScreen')?.classList.add('hidden');
     document.getElementById('dashboardScreen')?.classList.remove('hidden');
     if (!window._adminDataLoaded) {
@@ -534,31 +523,35 @@ async function loginAdmin() {
   } catch (err) {
     const msg = err?.message || 'Erro desconhecido';
     if (errEl) errEl.textContent = 'Erro critico: ' + msg;
-    else alert('Erro critico: ' + msg);
   } finally {
     if (btn)     btn.disabled        = false;
     if (spinner) spinner.classList.add('hidden');
     if (btnText) btnText.textContent = 'Entrar';
   }
 }
-
 window.loginAdmin = loginAdmin;
 
 async function logoutAdmin() {
-  window._adminDataLoaded = false
-  await supabaseClient.auth.signOut()
-  // onAuthStateChange (SIGNED_OUT) cuida de esconder o dashboard
+  window._adminDataLoaded = false;
+  try {
+    await supabaseClient.auth.signOut();
+  } catch (_) {}
+  // Redireciona para a pagina inicial — admin vira login de novo
+  window.location.href = 'admin.html';
 }
+window.logoutAdmin = logoutAdmin;
 
 async function verificarSessao() {
-  // onAuthStateChange com INITIAL_SESSION jÃ¡ cobre este caso
-  // Mantemos aqui como fallback de seguranÃ§a
-  const { data } = await supabaseClient.auth.getSession()
-  if (data?.session && !window._adminDataLoaded) {
-    window._adminDataLoaded = true
-    document.getElementById("loginScreen").classList.add("hidden")
-    document.getElementById("dashboardScreen").classList.remove("hidden")
-    await carregarTudo()
+  try {
+    const { data } = await supabaseClient.auth.getSession();
+    if (data?.session && !window._adminDataLoaded) {
+      window._adminDataLoaded = true;
+      document.getElementById('loginScreen').classList.add('hidden');
+      document.getElementById('dashboardScreen').classList.remove('hidden');
+      await carregarTudo();
+    }
+  } catch (err) {
+    console.warn('[verificarSessao]', err);
   }
 }
 
@@ -566,111 +559,110 @@ async function verificarSessao() {
 // CARREGAR DADOS
 // ============================================================
 async function carregarTudo() {
-  await Promise.all([carregarPedidos(), carregarItensPedidos(), carregarProdutos(), carregarLeads()])
-  renderMetrics()
-  renderPedidos()
-  renderRanking()
-  renderProdutos()
-  renderMeta()
-  gerarGraficoVendas()
-  gerarGraficoStatus()
+  await Promise.all([carregarPedidos(), carregarItensPedidos(), carregarProdutos(), carregarLeads()]);
+  renderMetrics();
+  renderPedidos();
+  renderRanking();
+  renderProdutos();
+  renderMeta();
+  gerarGraficoVendas();
+  gerarGraficoStatus();
 }
 
 async function carregarPedidos() {
-  const { data, error } = await supabaseClient.from("orders").select("*").order("created_at", { ascending: false })
-  if (error) console.error("[orders]", error)
-  pedidos = data || []
+  const { data, error } = await supabaseClient.from('orders').select('*').order('created_at', { ascending: false });
+  if (error) console.error('[orders]', error.message);
+  pedidos = data || [];
 }
 
 async function carregarItensPedidos() {
-  const { data, error } = await supabaseClient.from("order_items").select("*")
-  if (error) console.error("[order_items]", error)
-  itensPedidos = data || []
+  const { data, error } = await supabaseClient.from('order_items').select('*');
+  if (error) console.error('[order_items]', error.message);
+  itensPedidos = data || [];
 }
 
 async function carregarProdutos() {
-  const { data, error } = await supabaseClient.from("products").select("*").order("created_at", { ascending: false })
-  if (error) console.error("[products]", error)
-  produtos = data || []
+  const { data, error } = await supabaseClient.from('products').select('*').order('created_at', { ascending: false });
+  if (error) console.error('[products]', error.message);
+  produtos = data || [];
 }
 
 async function carregarLeads() {
-  const { data, error } = await supabaseClient.from("leads").select("id, created_at")
+  const { data, error } = await supabaseClient.from('leads').select('id, created_at');
   if (error) {
-    // Ignora graciosamente â€” tabela pode ainda nÃ£o existir
-    console.warn("[leads]", error.message)
-    leads = []
-    return
+    console.warn('[leads]', error.message); // tabela pode nao existir ainda
+    leads = [];
+    return;
   }
-  leads = data || []
+  leads = data || [];
 }
 
 // ============================================================
 // HELPERS STATUS
 // ============================================================
-const PAG_LABEL = { paid: "Pago", approved: "Aprovado", pending: "Pendente", cancelled: "Cancelado", rejected: "Cancelado" }
-const PAG_CLASS = { paid: "badge-green", approved: "badge-green", pending: "badge-amber", cancelled: "badge-red", rejected: "badge-red" }
-const ENV_LABEL = { created: "Criado", preparing: "Preparando", shipped: "Enviado", delivered: "Entregue" }
-const ENV_CLASS = { created: "badge-slate", preparing: "badge-amber", shipped: "badge-blue", delivered: "badge-green" }
+const PAG_LABEL = { paid: 'Pago', approved: 'Aprovado', pending: 'Pendente', cancelled: 'Cancelado', rejected: 'Cancelado' };
+const PAG_CLASS = { paid: 'badge-green', approved: 'badge-green', pending: 'badge-amber', cancelled: 'badge-red', rejected: 'badge-red' };
+const ENV_LABEL = { created: 'Criado', preparing: 'Preparando', shipped: 'Enviado', delivered: 'Entregue' };
+const ENV_CLASS = { created: 'badge-slate', preparing: 'badge-amber', shipped: 'badge-blue', delivered: 'badge-green' };
 
-const labelPag  = s => PAG_LABEL[s] || "â€”"
-const classPag  = s => PAG_CLASS[s] || "badge-slate"
-const labelEnv  = s => ENV_LABEL[s] || "Criado"
-const classEnv  = s => ENV_CLASS[s] || "badge-slate"
+const labelPag = s => PAG_LABEL[s] || '—';
+const classPag = s => PAG_CLASS[s] || 'badge-slate';
+const labelEnv = s => ENV_LABEL[s] || 'Criado';
+const classEnv = s => ENV_CLASS[s] || 'badge-slate';
 
-function isPaid(s) { return s === "paid" || s === "approved" }
+function isPaid(s) { return s === 'paid' || s === 'approved'; }
 
 // ============================================================
 // FILTROS
 // ============================================================
 function getPedidosFiltrados() {
-  const fSt = document.getElementById("filterStatus")?.value  || "all"
-  const fSh = document.getElementById("filterShipping")?.value || "all"
-  const q   = (document.getElementById("searchInput")?.value  || "").trim().toLowerCase()
+  const fSt = document.getElementById('filterStatus')?.value  || 'all';
+  const fSh = document.getElementById('filterShipping')?.value || 'all';
+  const q   = (document.getElementById('searchInput')?.value  || '').trim().toLowerCase();
 
   return pedidos.filter(p => {
-    const okSt = fSt === "all" || p.status === fSt
-    const okSh = fSh === "all" || (p.shipping_status || "created") === fSh
+    const okSt = fSt === 'all' || p.status === fSt;
+    const okSh = fSh === 'all' || (p.shipping_status || 'created') === fSh;
     const okQ  = !q ||
-      String(p.external_reference || "").toLowerCase().includes(q) ||
-      String(p.customer_name      || "").toLowerCase().includes(q) ||
-      String(p.customer_email     || "").toLowerCase().includes(q)
-    return okSt && okSh && okQ
-  })
+      String(p.external_reference || '').toLowerCase().includes(q) ||
+      String(p.customer_name      || '').toLowerCase().includes(q) ||
+      String(p.customer_email     || '').toLowerCase().includes(q);
+    return okSt && okSh && okQ;
+  });
 }
 
 // ============================================================
-// MÃ‰TRICAS
+// METRICAS
 // ============================================================
 function renderMetrics() {
-  const total   = pedidos.length
-  const revenue = pedidos.filter(p => isPaid(p.status)).reduce((s, p) => s + Number(p.total || 0), 0)
-  const pending = pedidos.filter(p => p.status === "pending").length
-  const shipped = pedidos.filter(p => p.shipping_status === "shipped" || p.shipping_status === "delivered").length
+  const total   = pedidos.length;
+  const revenue = pedidos.filter(p => isPaid(p.status)).reduce((s, p) => s + Number(p.total || 0), 0);
+  const pending = pedidos.filter(p => p.status === 'pending').length;
+  const shipped = pedidos.filter(p => p.shipping_status === 'shipped' || p.shipping_status === 'delivered').length;
 
-  const today = new Date().toDateString()
-  const todayN = pedidos.filter(p => p.created_at && new Date(p.created_at).toDateString() === today).length
-  const leadsTotal = leads.length
-  const leadsHoje  = leads.filter(l => l.created_at && new Date(l.created_at).toDateString() === today).length
+  const today      = new Date().toDateString();
+  const todayN     = pedidos.filter(p => p.created_at && new Date(p.created_at).toDateString() === today).length;
+  const leadsTotal = leads.length;
+  const leadsHoje  = leads.filter(l => l.created_at && new Date(l.created_at).toDateString() === today).length;
 
-  animCount(document.getElementById("count"),        total)
-  animCount(document.getElementById("totalRevenue"), revenue, 2, "R$ ")
-  animCount(document.getElementById("pendingCount"), pending)
-  animCount(document.getElementById("shippedCount"), shipped)
-  animCount(document.getElementById("leadsCount"),   leadsTotal)
+  animCount(document.getElementById('count'),        total);
+  animCount(document.getElementById('totalRevenue'), revenue, 2, 'R$ ');
+  animCount(document.getElementById('pendingCount'), pending);
+  animCount(document.getElementById('shippedCount'), shipped);
+  animCount(document.getElementById('leadsCount'),   leadsTotal);
 
-  const metricToday = document.getElementById("metricTodayCount")
-  const metricRev   = document.getElementById("metricRevSub")
-  const leadsHojeEl = document.getElementById("leadsHoje")
+  const metricToday = document.getElementById('metricTodayCount');
+  const metricRev   = document.getElementById('metricRevSub');
+  const leadsHojeEl = document.getElementById('leadsHoje');
 
-  if (metricToday) metricToday.textContent = `+${todayN} hoje`
-  if (metricRev)   metricRev.textContent   = `${pedidos.filter(p => isPaid(p.status)).length} pagos`
-  if (leadsHojeEl) leadsHojeEl.textContent = `+${leadsHoje} hoje`
+  if (metricToday) metricToday.textContent = `+${todayN} hoje`;
+  if (metricRev)   metricRev.textContent   = `${pedidos.filter(p => isPaid(p.status)).length} pagos`;
+  if (leadsHojeEl) leadsHojeEl.textContent = `+${leadsHoje} hoje`;
 
-  const badge = document.getElementById("pedidosBadge")
+  const badge = document.getElementById('pedidosBadge');
   if (badge) {
-    badge.textContent = pending
-    badge.classList.toggle("hidden", pending === 0)
+    badge.textContent = pending;
+    badge.classList.toggle('hidden', pending === 0);
   }
 }
 
@@ -678,35 +670,35 @@ function renderMetrics() {
 // RENDER PEDIDOS
 // ============================================================
 function renderPedidos() {
-  renderMetrics()
-  const lista = getPedidosFiltrados()
-  const body  = document.getElementById("orders")
-  body.innerHTML = ""
+  renderMetrics();
+  const lista = getPedidosFiltrados();
+  const body  = document.getElementById('orders');
+  body.innerHTML = '';
 
   if (!lista.length) {
     body.innerHTML = `<div class="empty-state">
       <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" opacity=".3"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
       <p>Nenhum pedido encontrado</p>
-    </div>`
-    return
+    </div>`;
+    return;
   }
 
   lista.forEach(order => {
-    const ship = order.shipping_status || "created"
-    const data = order.created_at ? new Date(order.created_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" }) : "â€”"
-    const hora = order.created_at ? new Date(order.created_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) : ""
+    const ship = order.shipping_status || 'created';
+    const data = order.created_at ? new Date(order.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
+    const hora = order.created_at ? new Date(order.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '';
 
-    const row = document.createElement("div")
-    row.className = "table-row"
+    const row = document.createElement('div');
+    row.className = 'table-row';
     row.innerHTML = `
       <div class="col-ref">
-        <span class="ref-code">${order.external_reference || "â€”"}</span>
+        <span class="ref-code">${order.external_reference || '—'}</span>
         <span class="ref-date">${data} ${hora}</span>
       </div>
 
       <div class="col-client">
-        <span class="client-name">${order.customer_name || "â€”"}</span>
-        <span class="client-email">${order.customer_email || ""}</span>
+        <span class="client-name">${order.customer_name || '—'}</span>
+        <span class="client-email">${order.customer_email || ''}</span>
       </div>
 
       <div class="col-total">
@@ -720,10 +712,10 @@ function renderPedidos() {
       <div class="col-ship">
         <span class="badge ${classEnv(ship)}">${labelEnv(ship)}</span>
         <select class="ship-select" onchange="atualizarEnvio('${order.id}', this.value)">
-          <option value="created"   ${ship==="created"   ? "selected" : ""}>Criado</option>
-          <option value="preparing" ${ship==="preparing" ? "selected" : ""}>Preparando</option>
-          <option value="shipped"   ${ship==="shipped"   ? "selected" : ""}>Enviado</option>
-          <option value="delivered" ${ship==="delivered" ? "selected" : ""}>Entregue</option>
+          <option value="created"   ${ship==='created'   ? 'selected' : ''}>Criado</option>
+          <option value="preparing" ${ship==='preparing' ? 'selected' : ''}>Preparando</option>
+          <option value="shipped"   ${ship==='shipped'   ? 'selected' : ''}>Enviado</option>
+          <option value="delivered" ${ship==='delivered' ? 'selected' : ''}>Entregue</option>
         </select>
       </div>
 
@@ -734,117 +726,109 @@ function renderPedidos() {
         ${!isPaid(order.status) ? `
         <button class="action-btn success" onclick="mudarStatus('${order.id}','paid',this)" title="Marcar como pago">
           <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-        </button>` : ""}
-        ${order.status !== "cancelled" && order.status !== "rejected" ? `
+        </button>` : ''}
+        ${order.status !== 'cancelled' && order.status !== 'rejected' ? `
         <button class="action-btn danger" onclick="mudarStatus('${order.id}','cancelled',this)" title="Cancelar pedido">
           <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
-        </button>` : ""}
+        </button>` : ''}
       </div>
-    `
-    document.getElementById("orders").appendChild(row)
-  })
+    `;
+    document.getElementById('orders').appendChild(row);
+  });
 }
 
 // ============================================================
-// HELPER â€” chamada ao endpoint admin seguro (service_role no server)
+// HELPER — endpoint admin seguro (service_role no servidor)
 // ============================================================
 async function adminUpdate(id, field, value) {
-  const res = await fetch("/api/admin-update-order", {
-    method: "POST",
+  const res = await fetch('/api/admin-update-order', {
+    method: 'POST',
     headers: {
-      "Content-Type": "application/json",
-      // Token dedicado do admin â€” NÃƒO Ã© a service_role key
-      // A service_role fica apenas nas env vars do servidor (Vercel)
-      "x-admin-token": "RESPEITA-ADMIN-2026"
+      'Content-Type': 'application/json',
+      'x-admin-token': 'RESPEITA-ADMIN-2026'
     },
     body: JSON.stringify({ id, field, value })
-  })
+  });
 
-  const json = await res.json().catch(() => ({}))
+  const json = await res.json().catch(() => ({}));
 
   if (!res.ok) {
-    const msg = json?.error || `HTTP ${res.status}`
-    console.error("[adminUpdate] Erro:", { status: res.status, error: msg, id, field, value })
-    return { ok: false, error: msg }
+    const msg = json?.error || `HTTP ${res.status}`;
+    console.error('[adminUpdate]', { status: res.status, error: msg });
+    return { ok: false, error: msg };
   }
 
-  return { ok: true, order: json.order }
+  return { ok: true, order: json.order };
 }
 
 // ============================================================
-// AÃ‡Ã•ES PEDIDO
+// ACOES PEDIDO
 // ============================================================
 async function mudarStatus(id, status, btn) {
-  const originalHTML = btn?.innerHTML
-  if (btn) { btn.disabled = true; btn.innerHTML = `<span class="spinner sm"></span>` }
+  const originalHTML = btn?.innerHTML;
+  if (btn) { btn.disabled = true; btn.innerHTML = `<span class="spinner sm"></span>`; }
 
-  const result = await adminUpdate(id, "status", status)
+  const result = await adminUpdate(id, 'status', status);
 
   if (!result.ok) {
-    if (btn) { btn.disabled = false; btn.innerHTML = originalHTML || "" }
-    toast(result.error.includes("nÃ£o encontrado")
-      ? "Pedido nÃ£o encontrado"
-      : `Erro: ${result.error}`, "error")
-    return
+    if (btn) { btn.disabled = false; btn.innerHTML = originalHTML || ''; }
+    toast(result.error.includes('nao encontrado') ? 'Pedido nao encontrado' : `Erro: ${result.error}`, 'error');
+    return;
   }
 
-  toast(`Pedido ${status === "paid" ? "aprovado" : "cancelado"}!`, status === "paid" ? "success" : "info")
-  await carregarPedidos()
-  renderPedidos()
-  renderMeta()
-  gerarGraficoVendas()
-  gerarGraficoStatus()
+  toast(`Pedido ${status === 'paid' ? 'aprovado' : 'cancelado'}!`, status === 'paid' ? 'success' : 'info');
+  await carregarPedidos();
+  renderPedidos();
+  renderMeta();
+  gerarGraficoVendas();
+  gerarGraficoStatus();
 }
 
 async function atualizarEnvio(id, shipping_status) {
-  const result = await adminUpdate(id, "shipping_status", shipping_status)
-
+  const result = await adminUpdate(id, 'shipping_status', shipping_status);
   if (!result.ok) {
-    toast(result.error.includes("nÃ£o encontrado")
-      ? "Pedido nÃ£o encontrado"
-      : `Erro: ${result.error}`, "error")
-    return
+    toast(`Erro: ${result.error}`, 'error');
+    return;
   }
-
-  toast(`Envio: ${labelEnv(shipping_status)}`, "success")
-  await carregarPedidos()
-  renderPedidos()
+  toast(`Envio: ${labelEnv(shipping_status)}`, 'success');
+  await carregarPedidos();
+  renderPedidos();
 }
 
 // ============================================================
 // MODAL DETALHES PEDIDO
 // ============================================================
 function abrirModalPedido(orderId) {
-  const order = pedidos.find(p => p.id === orderId)
-  if (!order) return
-  const itens = itensPedidos.filter(i => i.order_id === orderId)
-  const ship  = order.shipping_status || "created"
-  const data  = order.created_at ? new Date(order.created_at).toLocaleString("pt-BR") : "â€”"
+  const order = pedidos.find(p => p.id === orderId);
+  if (!order) return;
+  const itens = itensPedidos.filter(i => i.order_id === orderId);
+  const ship  = order.shipping_status || 'created';
+  const data  = order.created_at ? new Date(order.created_at).toLocaleString('pt-BR') : '—';
 
-  document.getElementById("modalTitle").textContent = order.external_reference || "Pedido"
-  document.getElementById("modalSub").textContent   = `Criado em ${data}`
+  document.getElementById('modalTitle').textContent = order.external_reference || 'Pedido';
+  document.getElementById('modalSub').textContent   = `Criado em ${data}`;
 
-  document.getElementById("modalBody").innerHTML = `
+  document.getElementById('modalBody').innerHTML = `
     <div class="modal-section">
-      <h4 class="modal-section-title">InformaÃ§Ãµes do cliente</h4>
+      <h4 class="modal-section-title">Informacoes do cliente</h4>
       <div class="info-grid">
-        <div class="info-item"><span class="info-label">Nome</span><span class="info-value">${order.customer_name || "â€”"}</span></div>
-        <div class="info-item"><span class="info-label">E-mail</span><span class="info-value">${order.customer_email || "â€”"}</span></div>
+        <div class="info-item"><span class="info-label">Nome</span><span class="info-value">${order.customer_name || '—'}</span></div>
+        <div class="info-item"><span class="info-label">E-mail</span><span class="info-value">${order.customer_email || '—'}</span></div>
         <div class="info-item"><span class="info-label">Total</span><span class="info-value bold">R$ ${Number(order.total || 0).toFixed(2)}</span></div>
         <div class="info-item"><span class="info-label">Pagamento</span><span class="badge ${classPag(order.status)}">${labelPag(order.status)}</span></div>
         <div class="info-item"><span class="info-label">Envio</span><span class="badge ${classEnv(ship)}">${labelEnv(ship)}</span></div>
-        <div class="info-item"><span class="info-label">Ref.</span><span class="info-value mono">${order.external_reference || "â€”"}</span></div>
+        <div class="info-item"><span class="info-label">Ref.</span><span class="info-value mono">${order.external_reference || '—'}</span></div>
       </div>
     </div>
 
     ${order.shipping_address ? `
     <div class="modal-section">
-      <h4 class="modal-section-title">EndereÃ§o de entrega</h4>
+      <h4 class="modal-section-title">Endereco de entrega</h4>
       <div class="address-box">
-        ${[order.shipping_address?.street, order.shipping_address?.number, order.shipping_address?.complement, order.shipping_address?.neighborhood, order.shipping_address?.city, order.shipping_address?.state].filter(Boolean).join(", ")}
-        ${order.shipping_address?.zip ? ` â€” CEP ${order.shipping_address.zip}` : ""}
+        ${[order.shipping_address?.street, order.shipping_address?.number, order.shipping_address?.complement, order.shipping_address?.neighborhood, order.shipping_address?.city, order.shipping_address?.state].filter(Boolean).join(', ')}
+        ${order.shipping_address?.zip ? ` — CEP ${order.shipping_address.zip}` : ''}
       </div>
-    </div>` : ""}
+    </div>` : ''}
 
     <div class="modal-section">
       <h4 class="modal-section-title">Itens do pedido</h4>
@@ -854,12 +838,12 @@ function abrirModalPedido(orderId) {
             <div class="item-row">
               ${i.image_url ? `<img class="item-img" src="${i.image_url}" alt="${i.product_name}" onerror="this.style.display='none'" />` : `<div class="item-img placeholder"></div>`}
               <div class="item-info">
-                <span class="item-name">${i.product_name || "Produto"}</span>
-                <span class="item-meta">Qtd: ${i.quantity} Â· R$ ${Number(i.product_price || 0).toFixed(2)} cada</span>
+                <span class="item-name">${i.product_name || 'Produto'}</span>
+                <span class="item-meta">Qtd: ${i.quantity} · R$ ${Number(i.product_price || 0).toFixed(2)} cada</span>
               </div>
               <span class="item-subtotal">R$ ${(Number(i.product_price || 0) * Number(i.quantity || 1)).toFixed(2)}</span>
             </div>
-          `).join("")}
+          `).join('')}
         </div>
         <div class="items-total">
           <span>Total</span>
@@ -871,70 +855,70 @@ function abrirModalPedido(orderId) {
     <div class="modal-section">
       <h4 class="modal-section-title">Atualizar status do envio</h4>
       <div class="ship-actions">
-        ${["created","preparing","shipped","delivered"].map(s => `
-          <button class="ship-btn ${ship === s ? "active" : ""}" onclick="atualizarEnvioModal('${order.id}','${s}',this)">
+        ${['created','preparing','shipped','delivered'].map(s => `
+          <button class="ship-btn ${ship === s ? 'active' : ''}" onclick="atualizarEnvioModal('${order.id}','${s}',this)">
             ${labelEnv(s)}
           </button>
-        `).join("")}
+        `).join('')}
       </div>
     </div>
-  `
+  `;
 
-  document.getElementById("modalOverlay").classList.remove("hidden")
-  document.body.classList.add("modal-open")
+  document.getElementById('modalOverlay').classList.remove('hidden');
+  document.body.classList.add('modal-open');
 }
 
 async function atualizarEnvioModal(id, shipping_status, btn) {
-  document.querySelectorAll(".ship-btn").forEach(b => b.classList.remove("active"))
-  btn.classList.add("active")
-  btn.disabled = true
+  document.querySelectorAll('.ship-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  btn.disabled = true;
 
-  const result = await adminUpdate(id, "shipping_status", shipping_status)
+  const result = await adminUpdate(id, 'shipping_status', shipping_status);
 
-  btn.disabled = false
+  btn.disabled = false;
   if (!result.ok) {
-    btn.classList.remove("active")
-    toast(`Erro: ${result.error}`, "error")
-    return
+    btn.classList.remove('active');
+    toast(`Erro: ${result.error}`, 'error');
+    return;
   }
 
-  toast(`Envio: ${labelEnv(shipping_status)}`, "success")
-  await carregarPedidos()
-  renderPedidos()
+  toast(`Envio: ${labelEnv(shipping_status)}`, 'success');
+  await carregarPedidos();
+  renderPedidos();
 }
 
 function fecharModal() {
-  document.getElementById("modalOverlay").classList.add("hidden")
-  document.body.classList.remove("modal-open")
+  document.getElementById('modalOverlay').classList.add('hidden');
+  document.body.classList.remove('modal-open');
 }
 
 // ============================================================
 // PRODUTOS
 // ============================================================
 function renderProdutos() {
-  const container = document.getElementById("productsList")
-  renderAlertaEstoque()
+  const container = document.getElementById('productsList');
+  renderAlertaEstoque();
 
   if (!produtos.length) {
     container.innerHTML = `<div class="empty-state">
       <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" opacity=".3"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
       <p>Nenhum produto cadastrado</p>
-    </div>`
-    return
+    </div>`;
+    return;
   }
 
   container.innerHTML = produtos.map(p => `
     <div class="table-row">
       <div class="col-product">
-        <img class="product-thumb" src="${p.image_url || ""}" alt="${p.name || ""}" onerror="this.style.visibility='hidden'" />
+        <img class="product-thumb" src="${p.image_url || ''}" alt="${p.name || ''}" onerror="this.style.visibility='hidden'" />
         <div>
-          <span class="product-name">${p.name || "Sem nome"}</span>
-          <span class="product-meta">${p.image_url ? "Com imagem" : "Sem imagem"}</span>
+          <span class="product-name">${p.name || 'Sem nome'}</span>
+          <span class="product-meta">${p.image_url ? 'Com imagem' : 'Sem imagem'}</span>
         </div>
       </div>
       <div class="col-price">R$ ${Number(p.price || 0).toFixed(2)}</div>
       <div class="col-stock">
-        <span class="badge ${Number(p.stock||0) <= 3 ? "badge-red" : "badge-green"}">
+        <span class="badge ${Number(p.stock||0) <= 3 ? 'badge-red' : 'badge-green'}">
           ${p.stock || 0} unid.
         </span>
       </div>
@@ -947,121 +931,119 @@ function renderProdutos() {
         </button>
       </div>
     </div>
-  `).join("")
+  `).join('');
 }
 
 function renderAlertaEstoque() {
-  const alerta = document.getElementById("lowStockAlert")
-  const baixos = produtos.filter(p => Number(p.stock || 0) <= 3)
-  if (!baixos.length) { alerta.classList.add("hidden"); return }
-  alerta.classList.remove("hidden")
-  alerta.textContent = `âš  Estoque crÃ­tico: ${baixos.map(p => p.name).join(", ")}`
+  const alerta = document.getElementById('lowStockAlert');
+  const baixos = produtos.filter(p => Number(p.stock || 0) <= 3);
+  if (!baixos.length) { alerta.classList.add('hidden'); return; }
+  alerta.classList.remove('hidden');
+  alerta.textContent = `⚠ Estoque critico: ${baixos.map(p => p.name).join(', ')}`;
 }
 
-// Modal produto
 function abrirModalProduto(id = null) {
-  const produto = id ? produtos.find(p => p.id === id) : null
+  const produto = id ? produtos.find(p => p.id === id) : null;
 
-  document.getElementById("modalProdutoTitle").textContent = produto ? "Editar produto" : "Novo produto"
-  document.getElementById("produtoEditId").value           = id || ""
-  document.getElementById("produtoNome").value             = produto?.name      || ""
-  document.getElementById("produtoPreco").value            = produto?.price     ?? ""
-  document.getElementById("produtoEstoque").value          = produto?.stock     ?? ""
-  document.getElementById("produtoImagem").value           = produto?.image_url || ""
-  document.getElementById("salvarProdutoBtnText").textContent = produto ? "Salvar alteraÃ§Ãµes" : "Criar produto"
+  document.getElementById('modalProdutoTitle').textContent        = produto ? 'Editar produto' : 'Novo produto';
+  document.getElementById('produtoEditId').value                  = id || '';
+  document.getElementById('produtoNome').value                    = produto?.name      || '';
+  document.getElementById('produtoPreco').value                   = produto?.price     ?? '';
+  document.getElementById('produtoEstoque').value                 = produto?.stock     ?? '';
+  document.getElementById('produtoImagem').value                  = produto?.image_url || '';
+  document.getElementById('salvarProdutoBtnText').textContent     = produto ? 'Salvar alteracoes' : 'Criar produto';
 
-  document.getElementById("modalProdutoOverlay").classList.remove("hidden")
-  document.body.classList.add("modal-open")
-  setTimeout(() => document.getElementById("produtoNome").focus(), 100)
+  document.getElementById('modalProdutoOverlay').classList.remove('hidden');
+  document.body.classList.add('modal-open');
+  setTimeout(() => document.getElementById('produtoNome').focus(), 100);
 }
 
 function fecharModalProduto() {
-  document.getElementById("modalProdutoOverlay").classList.add("hidden")
-  document.body.classList.remove("modal-open")
+  document.getElementById('modalProdutoOverlay').classList.add('hidden');
+  document.body.classList.remove('modal-open');
 }
 
 async function salvarProduto() {
-  const btn     = document.getElementById("salvarProdutoBtn")
-  const spinner = document.getElementById("salvarProdutoSpinner")
-  const btnText = document.getElementById("salvarProdutoBtnText")
+  const btn     = document.getElementById('salvarProdutoBtn');
+  const spinner = document.getElementById('salvarProdutoSpinner');
+  const btnText = document.getElementById('salvarProdutoBtnText');
 
-  const id      = document.getElementById("produtoEditId").value
-  const name    = document.getElementById("produtoNome").value.trim()
-  const price   = Number(document.getElementById("produtoPreco").value)
-  const stock   = Number(document.getElementById("produtoEstoque").value)
-  const img     = document.getElementById("produtoImagem").value.trim()
+  const id    = document.getElementById('produtoEditId').value;
+  const name  = document.getElementById('produtoNome').value.trim();
+  const price = Number(document.getElementById('produtoPreco').value);
+  const stock = Number(document.getElementById('produtoEstoque').value);
+  const img   = document.getElementById('produtoImagem').value.trim();
 
-  if (!name) { toast("Digite o nome do produto", "error"); document.getElementById("produtoNome").focus(); return }
+  if (!name) { toast('Digite o nome do produto', 'error'); document.getElementById('produtoNome').focus(); return; }
 
-  btn.disabled = true
-  spinner.classList.remove("hidden")
-  btnText.textContent = id ? "Salvandoâ€¦" : "Criandoâ€¦"
+  btn.disabled = true;
+  spinner.classList.remove('hidden');
+  btnText.textContent = id ? 'Salvando...' : 'Criando...';
 
-  const payload = { name, price: isNaN(price) ? 0 : price, stock: isNaN(stock) ? 0 : stock, image_url: img }
+  const payload = { name, price: isNaN(price) ? 0 : price, stock: isNaN(stock) ? 0 : stock, image_url: img };
   const { error } = id
-    ? await supabaseClient.from("products").update(payload).eq("id", id)
-    : await supabaseClient.from("products").insert([payload])
+    ? await supabaseClient.from('products').update(payload).eq('id', id)
+    : await supabaseClient.from('products').insert([payload]);
 
-  btn.disabled = false
-  spinner.classList.add("hidden")
-  btnText.textContent = id ? "Salvar alteraÃ§Ãµes" : "Criar produto"
+  btn.disabled = false;
+  spinner.classList.add('hidden');
+  btnText.textContent = id ? 'Salvar alteracoes' : 'Criar produto';
 
-  if (error) { toast("Erro ao salvar produto", "error"); return }
-  toast(id ? "Produto atualizado!" : "Produto criado!", "success")
-  fecharModalProduto()
-  await carregarProdutos()
-  renderProdutos()
+  if (error) { toast('Erro ao salvar produto', 'error'); return; }
+  toast(id ? 'Produto atualizado!' : 'Produto criado!', 'success');
+  fecharModalProduto();
+  await carregarProdutos();
+  renderProdutos();
 }
 
 async function excluirProduto(id, btn) {
-  if (!confirm("Excluir este produto permanentemente?")) return
-  if (btn) { btn.disabled = true }
-  const { error } = await supabaseClient.from("products").delete().eq("id", id)
-  if (error) { toast("Erro ao excluir produto", "error"); if (btn) btn.disabled = false; return }
-  toast("Produto excluÃ­do", "info")
-  await carregarProdutos()
-  renderProdutos()
+  if (!confirm('Excluir este produto permanentemente?')) return;
+  if (btn) { btn.disabled = true; }
+  const { error } = await supabaseClient.from('products').delete().eq('id', id);
+  if (error) { toast('Erro ao excluir produto', 'error'); if (btn) btn.disabled = false; return; }
+  toast('Produto excluido', 'info');
+  await carregarProdutos();
+  renderProdutos();
 }
 
 // ============================================================
-// GRÃFICOS
+// GRAFICOS
 // ============================================================
 function chartColors() {
-  const dark = document.body.dataset.theme !== "light"
+  const dark = document.body.dataset.theme !== 'light';
   return {
-    text:    dark ? "#d1dff5" : "#0f1728",
-    muted:   dark ? "#5a7aa8" : "#8898aa",
-    grid:    dark ? "rgba(255,255,255,.04)" : "rgba(0,0,0,.05)",
-  }
+    text:  dark ? '#d1dff5' : '#0f1728',
+    muted: dark ? '#5a7aa8' : '#8898aa',
+    grid:  dark ? 'rgba(255,255,255,.04)' : 'rgba(0,0,0,.05)',
+  };
 }
 
 function gerarGraficoVendas() {
-  const rawVendas = {}
+  const rawVendas = {};
   pedidos.forEach(p => {
-    if (!p.created_at) return
-    const d = new Date(p.created_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })
-    rawVendas[d] = (rawVendas[d] || 0) + Number(p.total || 0)
-  })
+    if (!p.created_at) return;
+    const d = new Date(p.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+    rawVendas[d] = (rawVendas[d] || 0) + Number(p.total || 0);
+  });
 
-  // Ãšltimos 14 dias com dados
-  const labels = Object.keys(rawVendas).slice(-14)
-  const data   = labels.map(l => rawVendas[l])
+  const labels = Object.keys(rawVendas).slice(-14);
+  const data   = labels.map(l => rawVendas[l]);
 
-  if (chartVendas) chartVendas.destroy()
-  const { text, muted, grid } = chartColors()
+  if (chartVendas) chartVendas.destroy();
+  const { text, muted, grid } = chartColors();
 
-  chartVendas = new Chart(document.getElementById("graficoVendas"), {
-    type: "bar",
+  chartVendas = new Chart(document.getElementById('graficoVendas'), {
+    type: 'bar',
     data: {
       labels,
       datasets: [{
-        label: "Vendas (R$)",
+        label: 'Vendas (R$)',
         data,
         backgroundColor: ctx => {
-          const g = ctx.chart.ctx.createLinearGradient(0, 0, 0, 280)
-          g.addColorStop(0, "rgba(99,102,241,.85)")
-          g.addColorStop(1, "rgba(99,102,241,.15)")
-          return g
+          const g = ctx.chart.ctx.createLinearGradient(0, 0, 0, 280);
+          g.addColorStop(0, 'rgba(99,102,241,.85)');
+          g.addColorStop(1, 'rgba(99,102,241,.15)');
+          return g;
         },
         borderRadius: 8,
         borderSkipped: false,
@@ -1071,43 +1053,43 @@ function gerarGraficoVendas() {
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      interaction: { intersect: false, mode: "index" },
+      interaction: { intersect: false, mode: 'index' },
       plugins: {
         legend: { display: false },
         tooltip: {
-          backgroundColor: "rgba(7,16,31,.95)",
-          borderColor: "rgba(255,255,255,.08)",
+          backgroundColor: 'rgba(7,16,31,.95)',
+          borderColor: 'rgba(255,255,255,.08)',
           borderWidth: 1,
           padding: 12,
-          titleColor: "#fff",
+          titleColor: '#fff',
           bodyColor: muted,
           callbacks: { label: ctx => ` R$ ${ctx.parsed.y.toFixed(2)}` }
         }
       },
       scales: {
         x: { ticks: { color: muted, font: { size: 11 } }, grid: { color: grid }, border: { display: false } },
-        y: { ticks: { color: muted, font: { size: 11 }, callback: v => "R$ " + v }, grid: { color: grid }, border: { display: false } }
+        y: { ticks: { color: muted, font: { size: 11 }, callback: v => 'R$ ' + v }, grid: { color: grid }, border: { display: false } }
       }
     }
-  })
+  });
 }
 
 function gerarGraficoStatus() {
-  const pagos     = pedidos.filter(p => isPaid(p.status)).length
-  const pendentes = pedidos.filter(p => p.status === "pending").length
-  const cancelados= pedidos.filter(p => p.status === "cancelled" || p.status === "rejected").length
-  const total     = pagos + pendentes + cancelados || 1
+  const pagos      = pedidos.filter(p => isPaid(p.status)).length;
+  const pendentes  = pedidos.filter(p => p.status === 'pending').length;
+  const cancelados = pedidos.filter(p => p.status === 'cancelled' || p.status === 'rejected').length;
+  const total      = pagos + pendentes + cancelados || 1;
 
-  if (chartStatus) chartStatus.destroy()
-  const { text } = chartColors()
+  if (chartStatus) chartStatus.destroy();
+  const { text } = chartColors();
 
-  chartStatus = new Chart(document.getElementById("graficoStatus"), {
-    type: "doughnut",
+  chartStatus = new Chart(document.getElementById('graficoStatus'), {
+    type: 'doughnut',
     data: {
-      labels: ["Pagos", "Pendentes", "Cancelados"],
+      labels: ['Pagos', 'Pendentes', 'Cancelados'],
       datasets: [{
         data: [pagos, pendentes, cancelados],
-        backgroundColor: ["#22c55e", "#f59e0b", "#ef4444"],
+        backgroundColor: ['#22c55e', '#f59e0b', '#ef4444'],
         borderWidth: 0,
         hoverOffset: 6,
       }]
@@ -1115,42 +1097,42 @@ function gerarGraficoStatus() {
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      cutout: "72%",
+      cutout: '72%',
       plugins: {
         legend: {
-          position: "bottom",
-          labels: { color: text, font: { size: 12 }, padding: 16, pointStyle: "circle", usePointStyle: true }
+          position: 'bottom',
+          labels: { color: text, font: { size: 12 }, padding: 16, pointStyle: 'circle', usePointStyle: true }
         },
         tooltip: {
-          backgroundColor: "rgba(7,16,31,.95)",
+          backgroundColor: 'rgba(7,16,31,.95)',
           padding: 10,
           callbacks: { label: ctx => ` ${ctx.label}: ${ctx.parsed} (${Math.round(ctx.parsed/total*100)}%)` }
         }
       }
     }
-  })
+  });
 }
 
 // ============================================================
 // META
 // ============================================================
 function renderMeta() {
-  const faturamento = pedidos.filter(p => isPaid(p.status)).reduce((s, p) => s + Number(p.total || 0), 0)
-  const pct = Math.min((faturamento / META) * 100, 100)
-  animCount(document.getElementById("goalCurrent"), faturamento, 2, "R$ ")
-  document.getElementById("goalBar").style.width = pct + "%"
-  document.getElementById("goalPct").textContent  = `${pct.toFixed(1)}% concluÃ­do`
+  const faturamento = pedidos.filter(p => isPaid(p.status)).reduce((s, p) => s + Number(p.total || 0), 0);
+  const pct = Math.min((faturamento / META) * 100, 100);
+  animCount(document.getElementById('goalCurrent'), faturamento, 2, 'R$ ');
+  document.getElementById('goalBar').style.width    = pct + '%';
+  document.getElementById('goalPct').textContent    = `${pct.toFixed(1)}% concluido`;
 }
 
 // ============================================================
 // RANKING
 // ============================================================
 function renderRanking() {
-  const r = {}
-  itensPedidos.forEach(i => { const n = i.product_name || "Produto"; r[n] = (r[n] || 0) + Number(i.quantity || 0) })
-  const top = Object.entries(r).sort((a, b) => b[1] - a[1]).slice(0, 5)
-  const el  = document.getElementById("rankingProdutos")
-  const max = top[0]?.[1] || 1
+  const r = {};
+  itensPedidos.forEach(i => { const n = i.product_name || 'Produto'; r[n] = (r[n] || 0) + Number(i.quantity || 0); });
+  const top = Object.entries(r).sort((a, b) => b[1] - a[1]).slice(0, 5);
+  const el  = document.getElementById('rankingProdutos');
+  const max = top[0]?.[1] || 1;
 
   el.innerHTML = !top.length
     ? `<div class="empty-msg">Sem dados ainda.</div>`
@@ -1163,81 +1145,79 @@ function renderRanking() {
           </div>
           <span class="rank-qty">${qtd}</span>
         </div>
-      `).join("")
+      `).join('');
 }
 
 // ============================================================
 // REALTIME
 // ============================================================
-supabaseClient.channel("realtime:orders")
-  .on("postgres_changes", { event: "*", schema: "public", table: "orders" }, async () => {
-    await carregarPedidos()
-    renderPedidos()
-    renderMetrics()
-    renderMeta()
-    gerarGraficoVendas()
-    gerarGraficoStatus()
+supabaseClient.channel('realtime:orders')
+  .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, async () => {
+    await carregarPedidos();
+    renderPedidos();
+    renderMetrics();
+    renderMeta();
+    gerarGraficoVendas();
+    gerarGraficoStatus();
   })
-  .subscribe()
+  .subscribe();
 
-supabaseClient.channel("realtime:order_items")
-  .on("postgres_changes", { event: "*", schema: "public", table: "order_items" }, async () => {
-    await carregarItensPedidos()
-    renderRanking()
+supabaseClient.channel('realtime:order_items')
+  .on('postgres_changes', { event: '*', schema: 'public', table: 'order_items' }, async () => {
+    await carregarItensPedidos();
+    renderRanking();
   })
-  .subscribe()
+  .subscribe();
 
-supabaseClient.channel("realtime:products")
-  .on("postgres_changes", { event: "*", schema: "public", table: "products" }, async () => {
-    await carregarProdutos()
-    renderProdutos()
+supabaseClient.channel('realtime:products')
+  .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, async () => {
+    await carregarProdutos();
+    renderProdutos();
   })
-  .subscribe()
+  .subscribe();
 
-supabaseClient.channel("realtime:leads")
-  .on("postgres_changes", { event: "*", schema: "public", table: "leads" }, async () => {
-    await carregarLeads()
-    renderMetrics()
+supabaseClient.channel('realtime:leads')
+  .on('postgres_changes', { event: '*', schema: 'public', table: 'leads' }, async () => {
+    await carregarLeads();
+    renderMetrics();
   })
-  .subscribe()
+  .subscribe();
 
 // ============================================================
 // EVENTOS
 // ============================================================
-document.getElementById("searchInput").addEventListener("input", renderPedidos)
-document.getElementById("password").addEventListener("keydown", e => { if (e.key === "Enter") loginAdmin() })
-document.addEventListener("keydown", e => {
-  if (e.key === "Escape") {
-    fecharModal()
-    fecharModalProduto()
+document.getElementById('searchInput').addEventListener('input', renderPedidos);
+document.getElementById('password').addEventListener('keydown', e => { if (e.key === 'Enter') loginAdmin(); });
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    fecharModal();
+    fecharModalProduto();
   }
-})
+});
 
 // ============================================================
 // INIT
 // ============================================================
-initTheme()
-showSection("dashboard")
+initTheme();
+showSection('dashboard');
 
-// Responde a mudanÃ§as de auth (persiste apÃ³s reload da pÃ¡gina)
+// Detecta mudancas de autenticacao automaticamente (persiste apos reload)
 supabaseClient.auth.onAuthStateChange(async (event, session) => {
   if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session) {
-    document.getElementById('loginScreen').classList.add('hidden')
-    document.getElementById('dashboardScreen').classList.remove('hidden')
-    // sÃ³ carrega se ainda nÃ£o carregou
+    document.getElementById('loginScreen').classList.add('hidden');
+    document.getElementById('dashboardScreen').classList.remove('hidden');
     if (!window._adminDataLoaded) {
-      window._adminDataLoaded = true
-      await carregarTudo()
+      window._adminDataLoaded = true;
+      await carregarTudo();
     }
   } else if (event === 'SIGNED_OUT') {
-    window._adminDataLoaded = false
-    document.getElementById('dashboardScreen').classList.add('hidden')
-    document.getElementById('loginScreen').classList.remove('hidden')
+    window._adminDataLoaded = false;
+    document.getElementById('dashboardScreen').classList.add('hidden');
+    document.getElementById('loginScreen').classList.remove('hidden');
   }
-})
+});
 
-verificarSessao()
+verificarSessao();
 </script>
 </body>
 </html>
-
