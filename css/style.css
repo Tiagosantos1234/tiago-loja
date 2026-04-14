@@ -6416,6 +6416,7 @@ body.app .topbar {
     0 18px 48px rgba(0, 0, 0, 0.07) !important;
 }
 
+
 body.app .topbar.scrolled {
   background: rgba(255, 255, 255, 0.32) !important;
   backdrop-filter: blur(28px) saturate(185%) !important;
@@ -6423,4 +6424,189 @@ body.app .topbar.scrolled {
   border-bottom: none !important;
   box-shadow:
     0 20px 54px rgba(0, 0, 0, 0.09) !important;
+}
+
+/* =============================================================
+   MOBILE — CARDS DE PRODUTO (PREMIUM RESPONSIVE)
+   Corrige: botão flutuando, sobreposição, layout quebrado
+   ============================================================= */
+
+/* ── Carousel: slide fluido em telas pequenas ── */
+@media (max-width: 600px) {
+  .products-carousel {
+    overflow-x: auto;
+    padding-left: 16px;
+    padding-right: 16px;
+    scroll-padding-left: 16px;
+  }
+
+  .products-grid {
+    gap: 14px;
+  }
+
+  .product-slide {
+    min-width: 240px;
+    max-width: 260px;
+    flex: 0 0 260px;
+  }
+}
+
+/* ── Card interno: estrutura flex coluna, SEM sobreposição ── */
+@media (max-width: 600px) {
+  .product-card {
+    border-radius: 18px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Garante que o corpo ocupa o espaço restante */
+  .product-body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: 12px 14px 14px;
+  }
+
+  /* Descrição: 2 linhas máximo para economizar espaço */
+  .product-desc {
+    font-size: 12px;
+    -webkit-line-clamp: 2;
+    margin-bottom: 10px;
+  }
+
+  /* Título: permite quebra de linha no mobile */
+  .product-title {
+    font-size: 15px;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: unset;
+    line-height: 1.2;
+    margin-bottom: 4px;
+  }
+
+  /* BOTTOM ROW: vira coluna — preço em cima, botão embaixo */
+  .product-bottom-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    margin-top: auto; /* empurra para baixo do card */
+    padding-top: 10px;
+  }
+
+  /* Preço */
+  .product-price-col {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+
+  .product-price-value {
+    font-size: 20px;
+  }
+
+  .product-envio {
+    margin-top: 0;
+    font-size: 10px;
+  }
+
+  /* BOTÃO: largura total, pill elegante, sem sobreposição */
+  .product-btn-primary {
+    width: 100%;
+    justify-content: center;
+    height: 44px;
+    font-size: 13px;
+    padding: 0 20px;
+    flex-shrink: 0;
+    /* Remove qualquer position herdado */
+    position: static !important;
+    transform: none;
+  }
+
+  /* Remove área de ação separada (compatibilidade legado) */
+  .product-card-actions {
+    display: block;
+    width: 100%;
+  }
+
+  /* Badge: tamanho ajustado para mobile */
+  .product-card-badges {
+    top: 10px;
+    left: 10px;
+  }
+
+  .pcb-badge {
+    font-size: 9px;
+    padding: 4px 8px;
+  }
+}
+
+/* ── Hero card mobile ── */
+@media (max-width: 600px) {
+  .hero-card {
+    padding: 18px;
+    border-radius: 20px;
+  }
+
+  .hero-card-image {
+    height: 240px;
+    border-radius: 16px;
+  }
+
+  .hero-card h3 {
+    font-size: 18px;
+  }
+
+  .hero-card-price {
+    font-size: 22px;
+  }
+
+  .hero-card-cta-pill {
+    margin-top: 12px;
+    padding: 10px 16px;
+    font-size: 12px;
+  }
+}
+
+/* ── Grid de produtos na página catálogo (produtos.html) ── */
+@media (max-width: 600px) {
+  /* Grid 2 colunas compactas */
+  .catalog-grid,
+  .products-list-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+    padding: 0 12px !important;
+  }
+
+  /* Garante que cards no catálogo também ficam organizados */
+  .catalog-grid .product-card,
+  .products-list-grid .product-card {
+    border-radius: 16px;
+  }
+
+  .catalog-grid .product-bottom-row,
+  .products-list-grid .product-bottom-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .catalog-grid .product-btn-primary,
+  .products-list-grid .product-btn-primary {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* ── Telas muito pequenas (< 360px): 1 coluna ── */
+@media (max-width: 360px) {
+  .product-slide {
+    min-width: 220px;
+    max-width: 220px;
+    flex: 0 0 220px;
+  }
+
+  .catalog-grid,
+  .products-list-grid {
+    grid-template-columns: 1fr !important;
+  }
 }
