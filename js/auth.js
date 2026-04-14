@@ -27,29 +27,40 @@ async function clearBrokenSession(shouldReload = false) {
  */
 export async function getSessionUser(options = {}) {
   const { context = "auth", tryRefresh = true, reloadOnFailure = false } = options;
+  console.log(`[auth] getSessionUser — contexto: ${context}`);
 
   try {
     let { data, error } = await supabaseClient.auth.getSession();
     let session = data?.session || null;
 
+    if (error) {
+      console.warn(`[auth][${context}] getSession erro:`, error.message);
+    }
+
     if (error || !session) {
       if (tryRefresh) {
+        console.log(`[auth][${context}] sem sessão, tentando refreshSession...`);
         const refresh = await supabaseClient.auth.refreshSession();
 
         if (refresh.error || !refresh.data?.session) {
           const msg = refresh.error?.message || error?.message || "Sessão indisponível";
+          console.warn(`[auth][${context}] refreshSession falhou:`, msg);
           if (/refresh token/i.test(msg)) await clearBrokenSession(reloadOnFailure);
           return null;
         }
 
         session = refresh.data.session;
+        console.log(`[auth][${context}] refreshSession OK — user:`, session.user?.email);
       } else {
+        console.log(`[auth][${context}] sem sessão ativa (tryRefresh=false)`);
         return null;
       }
     }
 
+    console.log(`[auth][${context}] sessão OK — user:`, session?.user?.email);
     return session?.user || null;
   } catch (err) {
+    console.error(`[auth][${context}] exceção:`, err?.message || err);
     if (/refresh token/i.test(String(err?.message || err))) {
       await clearBrokenSession(reloadOnFailure);
     }
@@ -244,6 +255,8 @@ export async function login() {
   const email = normalizeAuthEmail(getScopedInputValue(loginBox, 'input[type="email"]'));
   const password = getScopedInputValue(loginBox, 'input[type="password"]');
 
+  console.log('[auth] login iniciado — email:', email);
+
   if (!email || !password) {
     showToast("Preencha email e senha");
     return;
@@ -254,8 +267,13 @@ export async function login() {
 
     const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
 
-    if (error) throw error;
+    if (error) {
+      console.error('[auth] login erro:', error.message, error.status);
+      throw error;
+    }
     if (!data?.session || !data?.user) throw new Error("Sessão não iniciada");
+
+    console.log('[auth] login OK — user:', data.user.email, '| id:', data.user.id);
 
     // Garante que o perfil existe no banco (para quem confirmou email depois do cadastro)
     await syncProfileFromMetadata(data.user);
@@ -265,6 +283,7 @@ export async function login() {
     showToast("Login realizado com sucesso");
     window.location.reload();
   } catch (err) {
+    console.error('[auth] login exceção:', err?.message || err);
     showToast(getAuthMessage(err, "login"));
   } finally {
     resetButtonBusy(loginBtn);
@@ -364,8 +383,15 @@ export async function loginWithGoogle() {
  * Faz logout do usuário.
  */
 export async function logout() {
-  await supabaseClient.auth.signOut();
-  location.reload();
+  console.log('[auth] logout iniciado');
+  try {
+    await supabaseClient.auth.signOut();
+    console.log('[auth] logout OK — sessão encerrada');
+  } catch (err) {
+    console.warn('[auth] erro ao fazer signOut:', err?.message || err);
+  }
+  // Redireciona para a raiz (mostra tela de login via modal)
+  window.location.href = '/';
 }
 
 // =====================

@@ -133,12 +133,11 @@ export function getScopedInputValue(scope, selector) {
 }
 
 /**
- * Retorna a data/hora em texto para debug.
+ * Loga payload de debug — visível nos DevTools mesmo em produção.
+ * Usa console.debug que não aparece no console padrão mas pode ser filtrado.
  * @param {string} label
  * @param {unknown} payload
  */
 export function debugLog(label, payload) {
-  if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
-    console.debug(`[DEBUG] ${label}`, payload);
-  }
+  console.debug(`[DEBUG] ${label}`, payload);
 }

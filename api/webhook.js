@@ -65,11 +65,25 @@ function validateMercadoPagoSignature(req) {
   const paymentId = cleanString(getPaymentId(req)).toLowerCase();
   const requestId = cleanString(requestIdHeader);
 
-  if (!ts || !v1 || !paymentId || !requestId) {
+  // x-request-id é necessário para gerar o manifest, mas notificações IPN antigas do MP
+  // não o enviam. Nesse caso, retornamos "missing_request_id" e o handler
+  // trata como modo degradado (sem bloquear), pois o pagamento é re-validado via API.
+  if (!ts || !v1) {
     return {
       ok: false,
-      reason: "missing_signature_parts",
-      details: { has_ts: Boolean(ts), has_v1: Boolean(v1), has_payment_id: Boolean(paymentId), has_request_id: Boolean(requestId) },
+      reason: "missing_signature_header",
+      details: { has_x_signature: Boolean(signatureHeader) },
+    };
+  }
+
+  if (!requestId) {
+    return { ok: false, reason: "missing_request_id" };
+  }
+
+  if (!paymentId) {
+    return {
+      ok: false,
+      reason: "missing_payment_id_for_signature",
     };
   }
 
@@ -125,23 +139,40 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Método não permitido" });
   }
 
+  console.log('[webhook] Recebido:', {
+    method: req.method,
+    type: req.body?.type || req.body?.topic,
+    payment_id: req.body?.data?.id || req.query?.["data.id"],
+    has_signature: Boolean(req.headers?.["x-signature"]),
+    has_request_id: Boolean(req.headers?.["x-request-id"]),
+  });
+
   try {
     if (!process.env.SUPABASE_URL || !process.env.SUPABASE_KEY) {
+      console.error('[webhook] SUPABASE_URL ou SUPABASE_KEY não configurados');
       return res.status(500).json({ error: "Supabase não configurado" });
     }
 
     const mpToken = cleanString(process.env.MP_TOKEN);
-    if (!mpToken) return res.status(500).json({ error: "MP_TOKEN não configurado" });
+    if (!mpToken) {
+      console.error('[webhook] MP_TOKEN não configurado');
+      return res.status(500).json({ error: "MP_TOKEN não configurado" });
+    }
 
     const signatureValidation = validateMercadoPagoSignature(req);
+    console.log('[webhook] Validação de assinatura:', signatureValidation.reason);
+
     if (!signatureValidation.ok) {
-      // Se o motivo for "missing_webhook_secret", o secret nao foi configurado na Vercel.
-      // Neste caso, continuamos sem bloquear (modo degradado) pois o pagamento ainda e
-      // verificado diretamente na API do MP. Registrar o aviso para acoes corretivas.
-      if (signatureValidation.reason === "missing_webhook_secret") {
-        console.warn("[webhook] MP_WEBHOOK_SECRET nao configurado — validando pagamento diretamente na API do MP");
+      const degradedReasons = [
+        "missing_webhook_secret",
+        "missing_request_id",       // notificações IPN antigas (sem x-request-id)
+        "missing_signature_header",  // ambiente de teste sem headers
+      ];
+
+      if (degradedReasons.includes(signatureValidation.reason)) {
+        console.warn(`[webhook] Modo degradado (${signatureValidation.reason}) — validando pagamento via API do MP`);
       } else {
-        console.error("WEBHOOK ASSINATURA INVALIDA:", signatureValidation);
+        console.error('[webhook] Assinatura inválida:', signatureValidation);
         return res.status(401).json({
           error: "Assinatura do webhook invalida",
           reason: signatureValidation.reason,
@@ -153,18 +184,29 @@ export default async function handler(req, res) {
     const paymentId = getPaymentId(req);
     const notificationType = getNotificationType(req);
 
+    console.log('[webhook] paymentId:', paymentId, '| tipo:', notificationType);
+
     if (!paymentId) {
+      console.log('[webhook] Ignorado: sem payment_id');
       return res.status(200).json({ ok: true, ignored: "missing_payment_id" });
     }
 
     if (notificationType && notificationType !== "payment") {
+      console.log('[webhook] Ignorado: tipo não suportado:', notificationType);
       return res.status(200).json({ ok: true, ignored: "unsupported_type" });
     }
 
+    console.log('[webhook] Consultando pagamento', paymentId, 'na API do MP...');
     const payment = await fetchPayment(paymentId);
     const external_reference = cleanString(payment.external_reference);
+    console.log('[webhook] Pagamento recuperado:', {
+      id: payment.id,
+      status: payment.status,
+      external_reference,
+    });
 
     if (!external_reference) {
+      console.log('[webhook] Ignorado: sem external_reference no pagamento');
       return res.status(200).json({ ok: true, ignored: "missing_external_reference" });
     }
 
@@ -174,16 +216,24 @@ export default async function handler(req, res) {
       .eq("external_reference", external_reference)
       .maybeSingle();
 
-    if (orderError || !order) {
-      console.error("ERRO AO LOCALIZAR PEDIDO:", orderError);
+    if (orderError) {
+      console.error('[webhook] Erro ao localizar pedido no banco:', orderError.message, orderError.code);
       return res.status(200).json({ ok: true, ignored: "order_not_found" });
     }
+
+    if (!order) {
+      console.warn('[webhook] Pedido não encontrado para external_reference:', external_reference);
+      return res.status(200).json({ ok: true, ignored: "order_not_found" });
+    }
+
+    console.log('[webhook] Pedido encontrado:', { id: order.id, status_atual: order.status });
 
     const paymentStatus = cleanString(payment.status, "pending");
     const isNowApproved = paymentStatus === "approved";
     let stockDecremented = false;
 
     if (isNowApproved) {
+      console.log('[webhook] Pagamento aprovado! Atualizando pedido', order.id);
       const { data: approvalTransition, error: approvalError } = await supabase
         .from("orders")
         .update({ status: paymentStatus, mp_payment_id: payment.id })
@@ -192,16 +242,18 @@ export default async function handler(req, res) {
         .select("id");
 
       if (approvalError) {
-        console.error("ERRO UPDATE APPROVAL:", approvalError);
+        console.error('[webhook] Erro ao atualizar pedido (approved):', approvalError.message);
         return res.status(500).json({ error: "Erro ao atualizar pedido" });
       }
 
       if (approvalTransition?.length) {
+        console.log('[webhook] Status atualizado para approved. Decrementando estoque...');
         try {
           await decrementOrderStockOnce(supabase, order.id);
           stockDecremented = true;
+          console.log('[webhook] Estoque decrementado com sucesso');
         } catch (stockError) {
-          console.error("ERRO ESTOQUE:", stockError);
+          console.error('[webhook] Erro ao decrementar estoque:', stockError.message);
           return res.status(500).json({ error: "Erro ao decrementar estoque" });
         }
       } else if (order.mp_payment_id !== payment.id) {
@@ -211,22 +263,26 @@ export default async function handler(req, res) {
           .eq("id", order.id);
 
         if (syncErr) {
-          console.error("ERRO SYNC APPROVED:", syncErr);
+          console.error('[webhook] Erro ao sincronizar approved:', syncErr.message);
           return res.status(500).json({ error: "Erro ao sincronizar pedido" });
         }
       }
     } else if (order.status !== "approved") {
+      console.log('[webhook] Atualizando status:', order.status, '->', paymentStatus);
       const { error: updateError } = await supabase
         .from("orders")
         .update({ status: paymentStatus, mp_payment_id: payment.id })
         .eq("id", order.id);
 
       if (updateError) {
-        console.error("ERRO UPDATE:", updateError);
+        console.error('[webhook] Erro ao atualizar status:', updateError.message);
         return res.status(500).json({ error: "Erro ao atualizar pedido" });
       }
+    } else {
+      console.log('[webhook] Pedido já aprovado — sem alterações');
     }
 
+    console.log('[webhook] Concluído:', { external_reference, status: paymentStatus, stockDecremented });
     return res.status(200).json({
       ok: true,
       external_reference,
@@ -234,7 +290,7 @@ export default async function handler(req, res) {
       stock_decremented: stockDecremented,
     });
   } catch (err) {
-    console.error("ERRO WEBHOOK:", err);
+    console.error('[webhook] ERRO GERAL:', err?.message || err);
     return res.status(500).json({ error: "Erro webhook" });
   }
 }

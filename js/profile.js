@@ -12,12 +12,16 @@ import { getSessionUser, getProfileDataFromMetadata } from "./auth.js";
  * Redireciona para a loja se não estiver autenticado.
  */
 export async function loadProfilePage() {
+  console.log('[profile] Carregando página de perfil...');
   const user = await getSessionUser({ context: "load-profile", reloadOnFailure: true });
 
   if (!user) {
+    console.warn('[profile] Usuário não autenticado, redirecionando...');
     window.location.href = "/";
     return;
   }
+
+  console.log('[profile] Usuário:', user.email);
 
   // Dados básicos do usuário
   const userName = document.getElementById("userName");
@@ -33,7 +37,9 @@ export async function loadProfilePage() {
     .maybeSingle();
 
   if (profileError) {
-    console.error("Erro ao carregar perfil:", profileError);
+    console.error('[profile] Erro ao carregar perfil do banco:', profileError.message, profileError.code);
+  } else {
+    console.log('[profile] Perfil carregado:', profile ? 'encontrado' : 'não existe ainda');
   }
 
   const metadataProfile = getProfileDataFromMetadata(user);
@@ -102,15 +108,26 @@ export async function saveProfile() {
  * @param {object} user
  */
 async function loadMyOrders(user) {
+  console.log('[profile] Carregando pedidos para:', user.email);
   try {
-    const { data: orders } = await supabaseClient
+    const { data: orders, error } = await supabaseClient
       .from("orders")
       .select("*")
-      .eq("customer_email", user.email);
+      .eq("customer_email", user.email)
+      .order("created_at", { ascending: false });
 
+    if (error) {
+      console.error('[profile] Erro ao buscar pedidos:', error.message, error.code);
+      // Se for erro de RLS, o SQL fix_rls_and_schema.sql corrige
+      renderOrders([]);
+      return;
+    }
+
+    console.log('[profile] Pedidos encontrados:', orders?.length || 0);
     renderOrders(sortByCreatedAtDesc(orders || []));
   } catch (err) {
-    console.warn("Erro ao carregar pedidos:", err);
+    console.warn('[profile] Exceção ao carregar pedidos:', err?.message || err);
+    renderOrders([]);
   }
 }
 

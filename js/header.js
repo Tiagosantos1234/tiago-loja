@@ -73,9 +73,9 @@ function getStoreHeaderMarkup() {
               </button>
 
               <div id="userDropdown" class="dropdown app-dropdown">
-                <button type="button" onclick="goProfile()"><span>&#128100;</span> Perfil</button>
-                <button type="button" onclick="goOrders()"><span>&#128230;</span> Pedidos</button>
-                <button type="button" onclick="logout()"><span>&#128682;</span> Sair</button>
+                <button type="button" id="btnGoProfile"><span>&#128100;</span> Perfil</button>
+                <button type="button" id="btnGoOrders"><span>&#128230;</span> Pedidos</button>
+                <button type="button" id="btnLogout"><span>&#128682;</span> Sair</button>
               </div>
             </div>
           </div>
@@ -123,9 +123,9 @@ function getAppHeaderMarkup() {
               <span id="userNameHeader"></span>
 
               <div id="userDropdown" class="dropdown">
-                <button onclick="goProfile()"><span>&#128100;</span> Perfil</button>
-                <button onclick="goOrders()"><span>&#128230;</span> Pedidos</button>
-                <button onclick="logout()"><span>&#128682;</span> Sair</button>
+                <button id="btnGoProfile"><span>&#128100;</span> Perfil</button>
+                <button id="btnGoOrders"><span>&#128230;</span> Pedidos</button>
+                <button id="btnLogoutApp"><span>&#128682;</span> Sair</button>
               </div>
             </div>
           </div>
@@ -136,33 +136,57 @@ function getAppHeaderMarkup() {
     <div class="mobile-menu" id="mobileMenu">
       <div class="mobile-menu-content">
         <a href="${logo}" class="mobile-back">&#8592; Voltar para loja</a>
-        <button onclick="switchTab('profile')">&#128100; Perfil</button>
-        <button onclick="switchTab('address')">&#128205; Endereço</button>
-        <button onclick="switchTab('orders')">&#128230; Pedidos</button>
-        <button onclick="logout()">&#128682; Sair</button>
+        <button id="btnMobileProfile">&#128100; Perfil</button>
+        <button id="btnMobileAddress">&#128205; Endereço</button>
+        <button id="btnMobileOrders">&#128230; Pedidos</button>
+        <button id="btnMobileLogout">&#128682; Sair</button>
       </div>
     </div>
   `;
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  if (document.getElementById("topbar") || document.getElementById("mobileMenu")) {
+document.addEventListener('DOMContentLoaded', () => {
+  if (document.getElementById('topbar') || document.getElementById('mobileMenu')) {
     return;
   }
 
-  if (document.body.classList.contains("app")) {
-    document.body.insertAdjacentHTML("afterbegin", getAppHeaderMarkup());
+  if (document.body.classList.contains('app')) {
+    document.body.insertAdjacentHTML('afterbegin', getAppHeaderMarkup());
+    // Vincula botões do app header usando event listeners (sem depender de window.fn timing)
+    setTimeout(() => {
+      document.getElementById('btnGoProfile')  ?.addEventListener('click', () => typeof window.goProfile  === 'function' && window.goProfile());
+      document.getElementById('btnGoOrders')   ?.addEventListener('click', () => typeof window.goOrders   === 'function' && window.goOrders());
+      document.getElementById('btnLogoutApp')  ?.addEventListener('click', () => typeof window.logout      === 'function' && window.logout());
+      document.getElementById('btnMobileProfile')?.addEventListener('click', () => typeof window.switchTab === 'function' && window.switchTab('profile'));
+      document.getElementById('btnMobileAddress') ?.addEventListener('click', () => typeof window.switchTab === 'function' && window.switchTab('address'));
+      document.getElementById('btnMobileOrders')  ?.addEventListener('click', () => typeof window.switchTab === 'function' && window.switchTab('orders'));
+      document.getElementById('btnMobileLogout')  ?.addEventListener('click', () => typeof window.logout    === 'function' && window.logout());
+    }, 0);
     return;
   }
 
-  const cartOverlay = document.getElementById("cartOverlay");
-  const overlay = document.getElementById("overlay");
+  const cartOverlay = document.getElementById('cartOverlay');
+  const overlay = document.getElementById('overlay');
   const anchor = cartOverlay || overlay;
 
   if (anchor) {
-    anchor.insertAdjacentHTML("afterend", getStoreHeaderMarkup());
-    return;
+    anchor.insertAdjacentHTML('afterend', getStoreHeaderMarkup());
+  } else {
+    document.body.insertAdjacentHTML('afterbegin', getStoreHeaderMarkup());
   }
 
-  document.body.insertAdjacentHTML("afterbegin", getStoreHeaderMarkup());
+  // Vincula botões do store header via event listener (robustez: fallback se onclick= falhar)
+  setTimeout(() => {
+    const ids = {
+      btnGoProfile: 'goProfile',
+      btnGoOrders:  'goOrders',
+      btnLogout:    'logout',
+    };
+    Object.entries(ids).forEach(([id, fn]) => {
+      document.getElementById(id)?.addEventListener('click', () => {
+        if (typeof window[fn] === 'function') window[fn]();
+        else console.warn('[header] função não encontrada:', fn);
+      });
+    });
+  }, 0);
 });

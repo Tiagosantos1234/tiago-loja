@@ -191,19 +191,31 @@ export default async function handler(req, res) {
     const customer = body.customer || {};
     const shipping = body.shipping || {};
 
+    console.log('[create-checkout] Iniciado:', {
+      itens: cart.length,
+      customer_email: customer?.email || '(sem email)',
+    });
+
     if (!cart.length) return res.status(400).json({ error: "Carrinho vazio" });
 
     if (!process.env.SUPABASE_URL || !process.env.SUPABASE_KEY) {
+      console.error('[create-checkout] SUPABASE_URL ou SUPABASE_KEY não configurados');
       return res.status(500).json({ error: "Supabase não configurado" });
     }
 
     const mpToken = cleanString(process.env.MP_TOKEN);
-    if (!mpToken) return res.status(500).json({ error: "MP_TOKEN não configurado" });
+    if (!mpToken) {
+      console.error('[create-checkout] MP_TOKEN não configurado');
+      return res.status(500).json({ error: "MP_TOKEN não configurado" });
+    }
+
+    console.log('[create-checkout] MP_TOKEN presente, primeiros 20 chars:', mpToken.slice(0, 20) + '...');
 
     const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
     const resolvedCart = await resolveCartItems(supabase, cart);
 
     if (resolvedCart.error) {
+      console.error('[create-checkout] Erro ao resolver carrinho:', resolvedCart.error);
       return res.status(resolvedCart.status || 400).json({
         error: resolvedCart.error,
         details: resolvedCart.details,
@@ -211,9 +223,13 @@ export default async function handler(req, res) {
     }
 
     const { resolvedItems, total } = resolvedCart;
+    console.log('[create-checkout] Carrinho resolvido:', { total, produtos: resolvedItems.length });
+
     const external_reference = "PED-" + Date.now();
     const orderPayload = buildOrderPayload({ external_reference, total, customer, shipping });
     const { order, fallbackError } = await insertOrderWithFallback(supabase, orderPayload);
+
+    console.log('[create-checkout] Pedido criado no banco:', { id: order.id, external_reference });
 
     if (fallbackError) {
       // Log completo para diagnóstico — geralmente indica que a coluna shipping_address
@@ -238,12 +254,17 @@ export default async function handler(req, res) {
     const { error: itemsError } = await supabase.from("order_items").insert(itemsToInsert);
 
     if (itemsError) {
+      console.error('[create-checkout] Erro ao inserir itens:', itemsError.message);
       await cleanupOrder(supabase, order.id);
       return res.status(500).json({ error: "Erro ao salvar itens", details: itemsError.message });
     }
 
+    console.log('[create-checkout] Itens inseridos:', itemsToInsert.length);
+
     const appBaseUrl = buildAppBaseUrl(req);
     const isLocal = !appBaseUrl;
+
+    console.log('[create-checkout] appBaseUrl:', appBaseUrl, '| isLocal:', isLocal);
 
     const mpPreference = {
       items: resolvedItems.map((item) => ({
@@ -272,6 +293,12 @@ export default async function handler(req, res) {
           }),
     };
 
+    console.log('[create-checkout] Enviando preferência ao MP...', {
+      itens: mpPreference.items.length,
+      payer_email: mpPreference.payer.email,
+      notification_url: mpPreference.notification_url || '(sem notification_url — localhost)',
+    });
+
     const mpResponse = await fetch("https://api.mercadopago.com/checkout/preferences", {
       method: "POST",
       headers: {
@@ -281,8 +308,11 @@ export default async function handler(req, res) {
       body: JSON.stringify(mpPreference),
     });
 
+    console.log('[create-checkout] Resposta MP:', mpResponse.status, mpResponse.statusText);
+
     if (!mpResponse.ok) {
       const errorText = await mpResponse.text();
+      console.error('[create-checkout] Erro MP:', errorText);
       await cleanupOrder(supabase, order.id);
       return res.status(500).json({ error: "Erro Mercado Pago", details: errorText });
     }
@@ -290,13 +320,15 @@ export default async function handler(req, res) {
     const mpData = await mpResponse.json();
 
     if (!mpData.init_point) {
+      console.error('[create-checkout] init_point ausente na resposta do MP:', mpData);
       await cleanupOrder(supabase, order.id);
       return res.status(500).json({ error: "Mercado Pago não retornou link", details: mpData });
     }
 
+    console.log('[create-checkout] Sucesso! init_point:', mpData.init_point);
     return res.status(200).json({ init_point: mpData.init_point });
   } catch (err) {
-    console.error("ERRO GERAL:", err);
+    console.error('[create-checkout] ERRO GERAL:', err?.message || err);
     return res.status(500).json({ error: "Erro interno", details: err.message });
   }
 }

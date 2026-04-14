@@ -374,6 +374,10 @@ export async function confirmCheckout() {
       shipping: checkoutData.shipping,
     };
 
+    console.log('[checkout] Iniciando POST /api/create-checkout', {
+      itens: requestBody.cart.length,
+      customer: requestBody.customer.email,
+    });
     debugLog("CHECKOUT REQUEST", requestBody);
 
     const res = await fetch("/api/create-checkout", {
@@ -382,18 +386,26 @@ export async function confirmCheckout() {
       body: JSON.stringify(requestBody),
     });
 
+    console.log('[checkout] Resposta HTTP:', res.status, res.statusText);
+
     if (!res.ok) {
       const text = await res.text();
+      console.error('[checkout] Erro na API:', text);
       throw new Error(text || "Erro na API de checkout");
     }
 
     const data = await res.json();
+    console.log('[checkout] Dados recebidos da API:', data);
 
-    if (!data.init_point) throw new Error("Pagamento não gerado");
+    if (!data.init_point) {
+      console.error('[checkout] init_point ausente na resposta:', data);
+      throw new Error("Pagamento não gerado");
+    }
 
+    console.log('[checkout] Redirecionando para Mercado Pago:', data.init_point);
     window.location.href = data.init_point;
   } catch (err) {
-    console.error("Erro checkout:", err);
+    console.error("[checkout] Erro no confirmCheckout:", err?.message || err);
     showToast("Erro ao iniciar pagamento");
   } finally {
     btn.classList.remove("loading");
