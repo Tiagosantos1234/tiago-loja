@@ -57,19 +57,26 @@ function buildOrderPayload({ external_reference, total, customer, shipping }) {
     complement:   cleanString(shipping?.complement),
   };
 
+  // BASE: apenas colunas garantidas em qualquer versao da tabela orders.
+  // Nao inclui customer_phone nem shipping_address — colunas opcionais.
+  // Este e o ultimo fallback e DEVE funcionar mesmo em tabelas minimas.
   const base = {
     external_reference,
     customer_name:  customerName,
     customer_email: customerEmail || null,
-    customer_phone: customerPhone || null,
     total,
     status: "pending",
   };
 
-  return {
-    base,
-    extended: { ...base, shipping_address: shippingPayload },
+  // EXTENDED: adiciona customer_phone e shipping_address (colunas opcionais).
+  // Tenta primeiro — se as colunas nao existirem, o fallback para base e usado.
+  const extended = {
+    ...base,
+    customer_phone:   customerPhone || null,
+    shipping_address: shippingPayload,
   };
+
+  return { base, extended };
 }
 
 async function resolveCartItems(supabase, cart) {
@@ -131,23 +138,46 @@ async function resolveCartItems(supabase, cart) {
 }
 
 async function insertOrderWithFallback(supabase, orderPayload) {
+  // Tentativa 1: payload completo (customer_phone + shipping_address)
   const { data: extendedOrder, error: extendedError } = await supabase
     .from("orders")
     .insert([orderPayload.extended])
     .select()
     .single();
 
-  if (!extendedError && extendedOrder) return { order: extendedOrder, mode: "extended" };
+  if (!extendedError && extendedOrder) {
+    console.log("[orders] Insert OK (extended) — id:", extendedOrder.id);
+    return { order: extendedOrder, mode: "extended" };
+  }
 
+  console.warn("[orders] Extended insert falhou, tentando base:", {
+    message: extendedError?.message,
+    code:    extendedError?.code,
+    details: extendedError?.details,
+    hint:    extendedError?.hint,
+  });
+
+  // Tentativa 2: payload minimo (somente colunas garantidas)
   const { data: baseOrder, error: baseError } = await supabase
     .from("orders")
     .insert([orderPayload.base])
     .select()
     .single();
 
-  if (baseError || !baseOrder) throw baseError || new Error("Erro ao salvar pedido");
+  if (!baseError && baseOrder) {
+    console.warn("[orders] Insert OK (base fallback) — id:", baseOrder.id, "| campo perdido:", extendedError?.message);
+    return { order: baseOrder, mode: "base", fallbackError: extendedError };
+  }
 
-  return { order: baseOrder, mode: "base", fallbackError: extendedError };
+  // Ambos falharam — loga erros e lança exceção
+  console.error("[orders] INSERT FALHOU em ambos os payloads:", {
+    extendedError: { message: extendedError?.message, code: extendedError?.code },
+    baseError:     { message: baseError?.message, code: baseError?.code },
+    extended_keys: Object.keys(orderPayload.extended),
+    base_keys:     Object.keys(orderPayload.base),
+  });
+
+  throw baseError || extendedError || new Error("Erro ao salvar pedido");
 }
 
 export default async function handler(req, res) {
