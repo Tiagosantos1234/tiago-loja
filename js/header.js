@@ -1,4 +1,16 @@
+/**
+ * header.js — Injeta o header em qualquer página do site.
+ * Logo sempre aponta para index.html (correto em subpáginas).
+ */
+
+function getLogoHref() {
+  // Sempre aponta para a raiz, independente da página atual
+  const depth = window.location.pathname.split("/").filter(Boolean).length;
+  return depth > 0 ? "index.html" : "/";
+}
+
 function getStoreHeaderMarkup() {
+  const logo = getLogoHref();
   return `
     <div class="mobile-menu" id="mobileMenu">
       <div class="mobile-menu-backdrop" id="mobileMenuBackdrop"></div>
@@ -8,11 +20,11 @@ function getStoreHeaderMarkup() {
           <button class="close-menu" id="closeMenu" type="button">&times;</button>
         </div>
         <nav class="mobile-nav">
-          <a href="#drop">Drop</a>
-          <a href="#editorial">Editorial</a>
-          <a href="#story">Manifesto</a>
-          <a href="#benefits">Benef&iacute;cios</a>
-          <a href="#newsletter">Drop List</a>
+          <a href="index.html#drop">Drop</a>
+          <a href="index.html#editorial">Editorial</a>
+          <a href="index.html#story">Manifesto</a>
+          <a href="produtos.html">Todos os produtos</a>
+          <a href="index.html#newsletter">Drop List</a>
         </nav>
       </div>
     </div>
@@ -20,21 +32,21 @@ function getStoreHeaderMarkup() {
     <header class="topbar" id="topbar">
       <div class="container topbar-inner">
         <nav class="nav-left" aria-label="Menu principal">
-          <a href="#drop" class="nav-link">Drop</a>
-          <a href="#editorial" class="nav-link">Editorial</a>
-          <a href="#story" class="nav-link">Manifesto</a>
+          <a href="index.html#drop" class="nav-link">Drop</a>
+          <a href="index.html#editorial" class="nav-link">Editorial</a>
+          <a href="produtos.html" class="nav-link">Coleção</a>
         </nav>
 
-        <a href="#home" class="brand-mark" aria-label="Voltar ao in&iacute;cio">
-          <img src="logo.png" alt="Tiago Lobo Store" />
+        <a href="${logo}" class="brand-mark" aria-label="Voltar ao início">
+          <img src="logo.png" alt="RESPEITA" />
         </a>
 
         <div class="nav-right">
-          <a href="#benefits" class="nav-link nav-mobile">Benef&iacute;cios</a>
-          <a href="#newsletter" class="nav-link">Drop List</a>
+          <a href="produtos.html" class="nav-link nav-mobile">Coleção</a>
+          <a href="index.html#newsletter" class="nav-link">Drop List</a>
 
           <div class="header-actions">
-            <button class="icon-btn" id="loginToggle" aria-label="&Aacute;rea do cliente">
+            <button class="icon-btn" id="loginToggle" aria-label="Área do cliente">
               <span>&#128100;</span>
             </button>
 
@@ -52,9 +64,9 @@ function getStoreHeaderMarkup() {
           <div id="userContainer">
             <div id="userArea" class="user-area app-user" style="display:none;">
               <button id="userTrigger" class="user-trigger" type="button">
-                <img id="userAvatar" class="user-avatar" alt="Avatar do usu&aacute;rio" />
+                <img id="userAvatar" class="user-avatar" alt="Avatar do usuário" />
                 <div class="user-meta">
-                  <strong id="userNameHeader">Usu&aacute;rio</strong>
+                  <strong id="userNameHeader">Usuário</strong>
                   <small id="userEmailHeader"></small>
                 </div>
                 <span class="user-chevron">&#9662;</span>
@@ -74,26 +86,23 @@ function getStoreHeaderMarkup() {
 }
 
 function getAppHeaderMarkup() {
+  const logo = getLogoHref();
   return `
     <header class="topbar" id="topbar">
-      <a href="/" class="back-store-btn">Voltar para loja</a>
+      <a href="${logo}" class="back-store-btn">← Loja</a>
       <div class="container topbar-inner">
         <nav class="nav-left" aria-label="Menu principal">
-          <a href="#drop" class="nav-link">Drop</a>
-          <a href="#editorial" class="nav-link">Editorial</a>
-          <a href="#story" class="nav-link">Manifesto</a>
+          <a href="index.html#drop" class="nav-link">Drop</a>
+          <a href="produtos.html" class="nav-link">Coleção</a>
         </nav>
 
-        <a href="#home" class="brand-mark" aria-label="Voltar ao in&iacute;cio">
-          <img src="logo.png" alt="Tiago Lobo Store" />
+        <a href="${logo}" class="brand-mark" aria-label="Voltar ao início">
+          <img src="logo.png" alt="RESPEITA" />
         </a>
 
         <div class="nav-right">
-          <a href="#benefits" class="nav-link nav-mobile">Benef&iacute;cios</a>
-          <a href="#newsletter" class="nav-link">Drop List</a>
-
           <div class="header-actions">
-            <button class="icon-btn" id="loginToggle" aria-label="&Aacute;rea do cliente">
+            <button class="icon-btn" id="loginToggle" aria-label="Área do cliente">
               <span>&#128100;</span>
             </button>
 
@@ -110,7 +119,7 @@ function getAppHeaderMarkup() {
 
           <div id="userContainer">
             <div id="userArea" class="user-area" style="display:none;">
-              <img id="userAvatar" alt="Avatar do usu&aacute;rio" />
+              <img id="userAvatar" alt="Avatar do usuário" />
               <span id="userNameHeader"></span>
 
               <div id="userDropdown" class="dropdown">
@@ -126,9 +135,9 @@ function getAppHeaderMarkup() {
 
     <div class="mobile-menu" id="mobileMenu">
       <div class="mobile-menu-content">
-        <a href="/" class="mobile-back">&larr; Voltar para loja</a>
+        <a href="${logo}" class="mobile-back">&#8592; Voltar para loja</a>
         <button onclick="switchTab('profile')">&#128100; Perfil</button>
-        <button onclick="switchTab('address')">&#128205; Endere&ccedil;o</button>
+        <button onclick="switchTab('address')">&#128205; Endereço</button>
         <button onclick="switchTab('orders')">&#128230; Pedidos</button>
         <button onclick="logout()">&#128682; Sair</button>
       </div>
@@ -146,10 +155,12 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
+  const cartOverlay = document.getElementById("cartOverlay");
   const overlay = document.getElementById("overlay");
+  const anchor = cartOverlay || overlay;
 
-  if (overlay) {
-    overlay.insertAdjacentHTML("afterend", getStoreHeaderMarkup());
+  if (anchor) {
+    anchor.insertAdjacentHTML("afterend", getStoreHeaderMarkup());
     return;
   }
 

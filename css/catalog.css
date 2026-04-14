@@ -1,0 +1,390 @@
+/* ===========================================
+   catalog.css — Página de listagem RESPEITA
+   Inspiração: Nike / ASOS / Reserva premium
+   =========================================== */
+
+/* =====================
+   HERO DO CATÁLOGO
+   ===================== */
+.catalog-hero {
+  padding-top: calc(var(--header-h) + 40px);
+  padding-bottom: 40px;
+  border-bottom: 1px solid var(--line);
+}
+
+.catalog-hero-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.catalog-hero-copy .section-kicker {
+  margin-bottom: 10px;
+}
+
+.catalog-hero-copy h1 {
+  font-size: clamp(28px, 4vw, 52px);
+  line-height: .95;
+  letter-spacing: -.04em;
+  max-width: 18ch;
+  margin-bottom: 10px;
+}
+
+.catalog-hero-copy p {
+  font-size: 15px;
+  color: var(--muted);
+}
+
+.catalog-hero-meta {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.catalog-count {
+  display: block;
+  font-size: 56px;
+  font-weight: 800;
+  letter-spacing: -.06em;
+  line-height: 1;
+  color: #111;
+}
+
+.catalog-count-label {
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+
+/* =====================
+   LAYOUT PRINCIPAL
+   ===================== */
+.catalog-main {
+  padding: 40px 0 80px;
+}
+
+.catalog-layout {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 48px;
+  align-items: start;
+}
+
+/* =====================
+   SIDEBAR
+   ===================== */
+.catalog-sidebar {
+  position: sticky;
+  top: calc(var(--header-h) + 20px);
+}
+
+.sidebar-inner {
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  overflow: hidden;
+}
+
+.sidebar-mobile-toggle {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  background: white;
+  border-bottom: 1px solid var(--line);
+  user-select: none;
+}
+
+.sidebar-toggle-icon {
+  transition: transform .25s var(--ease);
+  flex-shrink: 0;
+}
+
+.sidebar-filters {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.filter-group-title {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+
+.filter-options {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.filter-opt {
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: none;
+  background: transparent;
+  text-align: left;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all .2s;
+}
+
+.filter-opt:hover {
+  background: rgba(17,17,17,.04);
+  color: #111;
+}
+
+.filter-opt.active {
+  background: #111;
+  color: #fff;
+  font-weight: 700;
+}
+
+.filter-size-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.filter-size-btn {
+  padding: 8px 4px;
+  border-radius: 10px;
+  border: 1.5px solid rgba(17,17,17,.12);
+  background: transparent;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all .2s;
+  text-align: center;
+}
+
+.filter-size-btn:hover {
+  border-color: #111;
+  color: #111;
+}
+
+.filter-size-btn.active {
+  background: #111;
+  color: #fff;
+  border-color: #111;
+}
+
+.filter-clear-btn {
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1.5px solid rgba(17,17,17,.14);
+  background: transparent;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all .2s;
+  text-align: center;
+  margin-top: 4px;
+}
+
+.filter-clear-btn:hover {
+  border-color: #111;
+  color: #111;
+  background: rgba(17,17,17,.02);
+}
+
+/* =====================
+   BARRA DE CONTROLE
+   ===================== */
+.catalog-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.catalog-result-label {
+  font-size: 14px;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.catalog-bar-right {
+  display: flex;
+  gap: 6px;
+}
+
+.view-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  border: 1.5px solid rgba(17,17,17,.12);
+  background: transparent;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+  transition: all .2s;
+}
+
+.view-btn:hover {
+  border-color: #111;
+  color: #111;
+}
+
+.view-btn.active {
+  background: #111;
+  color: #fff;
+  border-color: #111;
+}
+
+/* =====================
+   GRID DO CATÁLOGO
+   ===================== */
+.catalog-grid {
+  display: grid;
+  gap: 20px;
+}
+
+.catalog-grid--grid {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.catalog-grid--list {
+  grid-template-columns: 1fr;
+}
+
+/* Modo lista: card horizontal */
+.catalog-grid--list .product-card {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  border-radius: 20px;
+}
+
+.catalog-grid--list .product-media {
+  aspect-ratio: 1 / 1.1;
+  height: 200px;
+}
+
+.catalog-grid--list .product-card .product-media-link,
+.catalog-grid--list .product-card a.product-card-link {
+  display: block;
+}
+
+/* =====================
+   SKELETONS
+   ===================== */
+.catalog-skeleton {
+  height: 380px;
+  border-radius: 24px;
+  background: linear-gradient(90deg, #eee 0%, #ddd 50%, #eee 100%);
+  background-size: 400px 100%;
+  animation: shimmer 1.4s infinite linear;
+}
+
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+/* =====================
+   ESTADO VAZIO
+   ===================== */
+.catalog-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 80px 20px;
+}
+
+.catalog-empty h3 {
+  font-size: 24px;
+  letter-spacing: -.03em;
+  margin-bottom: 10px;
+}
+
+.catalog-empty p {
+  color: var(--muted);
+  margin-bottom: 24px;
+}
+
+/* =====================
+   RESPONSIVO
+   ===================== */
+@media (max-width: 1100px) {
+  .catalog-grid--grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .catalog-layout {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .catalog-sidebar {
+    position: static;
+    margin-bottom: 24px;
+  }
+
+  .sidebar-inner {
+    border-radius: 16px;
+  }
+
+  .sidebar-mobile-toggle {
+    display: flex;
+  }
+
+  .sidebar-filters {
+    display: none;
+    border-top: 1px solid var(--line);
+  }
+
+  .sidebar-filters.open {
+    display: flex;
+  }
+
+  .catalog-grid--grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+
+  .catalog-hero-meta {
+    display: none;
+  }
+}
+
+@media (max-width: 540px) {
+  .catalog-grid--grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .catalog-grid--list .product-card {
+    grid-template-columns: 1fr;
+  }
+
+  .catalog-grid--list .product-media {
+    height: auto;
+    aspect-ratio: 4 / 4;
+  }
+
+  .catalog-hero-copy h1 {
+    font-size: 26px;
+  }
+}

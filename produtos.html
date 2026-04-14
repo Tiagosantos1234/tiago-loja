@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Todos os Produtos — RESPEITA</title>
+  <meta name="description" content="Explore toda a coleção RESPEITA. Camisetas, moletons, acessórios e peças premium com identidade streetwear." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/style.css?v=3">
+  <link rel="stylesheet" href="css/catalog.css?v=1">
+
+  <script type="importmap">
+  {
+    "imports": {
+      "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2"
+    }
+  }
+  </script>
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.png">
+</head>
+
+<body class="grain">
+  <div class="cart-overlay" id="cartOverlay"></div>
+  <div class="overlay" id="overlay"></div>
+  <div class="toast" id="toast"></div>
+
+  <div class="page-content">
+
+    <!-- HERO DA LISTAGEM -->
+    <section class="catalog-hero">
+      <div class="container">
+        <div class="catalog-hero-inner">
+          <div class="catalog-hero-copy">
+            <div class="section-kicker">Drop 01 · 2026</div>
+            <h1>Escolha peças que combinam com o seu estilo.</h1>
+            <p>Streetwear premium, identidade autoral e pronto envio.</p>
+          </div>
+          <div class="catalog-hero-meta">
+            <span id="productCount" class="catalog-count">—</span>
+            <span class="catalog-count-label">peças disponíveis</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <main class="catalog-main">
+      <div class="container">
+        <div class="catalog-layout">
+
+          <!-- SIDEBAR DE FILTROS -->
+          <aside class="catalog-sidebar" id="catalogSidebar">
+            <div class="sidebar-inner">
+
+              <!-- Toggle mobile -->
+              <div class="sidebar-mobile-toggle" id="sidebarToggle">
+                <span>Filtros</span>
+                <svg class="sidebar-toggle-icon" id="sidebarToggleIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+              </div>
+
+              <div class="sidebar-filters" id="sidebarFilters">
+
+                <!-- Categoria -->
+                <div class="filter-group">
+                  <div class="filter-group-title">Categoria</div>
+                  <div class="filter-options" id="filterCategory">
+                    <button class="filter-opt active" data-filter="category" data-value="all">Todos</button>
+                    <button class="filter-opt" data-filter="category" data-value="camisetas">Camisetas</button>
+                    <button class="filter-opt" data-filter="category" data-value="moletons">Moletons</button>
+                    <button class="filter-opt" data-filter="category" data-value="acessorios">Acessórios</button>
+                    <button class="filter-opt" data-filter="category" data-value="calcas">Calças</button>
+                  </div>
+                </div>
+
+                <!-- Tamanho -->
+                <div class="filter-group">
+                  <div class="filter-group-title">Tamanho</div>
+                  <div class="filter-size-grid" id="filterSize">
+                    <button class="filter-size-btn active" data-value="all">Todos</button>
+                    <button class="filter-size-btn" data-value="PP">PP</button>
+                    <button class="filter-size-btn" data-value="P">P</button>
+                    <button class="filter-size-btn" data-value="M">M</button>
+                    <button class="filter-size-btn" data-value="G">G</button>
+                    <button class="filter-size-btn" data-value="GG">GG</button>
+                    <button class="filter-size-btn" data-value="XGG">XGG</button>
+                  </div>
+                </div>
+
+                <!-- Ordenação -->
+                <div class="filter-group">
+                  <div class="filter-group-title">Ordenar por</div>
+                  <div class="filter-options" id="filterSort">
+                    <button class="filter-opt active" data-sort="default">Destaque</button>
+                    <button class="filter-opt" data-sort="price-asc">Menor preço</button>
+                    <button class="filter-opt" data-sort="price-desc">Maior preço</button>
+                    <button class="filter-opt" data-sort="name-az">A–Z</button>
+                  </div>
+                </div>
+
+                <!-- Limpar filtros -->
+                <button class="filter-clear-btn" id="clearFilters">Limpar filtros</button>
+
+              </div>
+            </div>
+          </aside>
+
+          <!-- ÁREA DE PRODUTOS -->
+          <div class="catalog-content">
+
+            <!-- BARRA DE CONTROLE -->
+            <div class="catalog-bar">
+              <div class="catalog-bar-left">
+                <span class="catalog-result-label" id="catalogResultLabel">Carregando...</span>
+              </div>
+              <div class="catalog-bar-right">
+                <button class="view-btn active" id="viewGrid" aria-label="Grade" title="Grade">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+                </button>
+                <button class="view-btn" id="viewList" aria-label="Lista" title="Lista">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- GRID DE PRODUTOS -->
+            <div class="catalog-grid" id="catalogGrid">
+              <!-- Skeletons -->
+              <div class="catalog-skeleton"></div>
+              <div class="catalog-skeleton"></div>
+              <div class="catalog-skeleton"></div>
+              <div class="catalog-skeleton"></div>
+              <div class="catalog-skeleton"></div>
+              <div class="catalog-skeleton"></div>
+            </div>
+
+            <!-- ESTADO VAZIO -->
+            <div class="catalog-empty" id="catalogEmpty" style="display:none;">
+              <div style="font-size:48px;margin-bottom:16px;">🔍</div>
+              <h3>Nenhum produto encontrado</h3>
+              <p>Tente remover alguns filtros para ver mais resultados.</p>
+              <button class="filter-clear-btn" onclick="document.getElementById('clearFilters').click()">Limpar filtros</button>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- FOOTER SIMPLES -->
+    <footer class="product-footer">
+      <div class="container">
+        <div class="product-footer-inner">
+          <a href="index.html" class="product-footer-brand">← Voltar para início</a>
+          <span>© 2026 RESPEITA. Todos os direitos reservados.</span>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- CARRINHO LATERAL -->
+  <aside class="cart-drawer" id="cartDrawer" aria-label="Carrinho lateral">
+    <div class="cart-header">
+      <div class="cart-header-top">
+        <h3>Seu carrinho</h3>
+        <button class="icon-btn" id="closeCart" aria-label="Fechar carrinho" type="button">✕</button>
+      </div>
+      <p>Selecione peças, altere quantidades e acompanhe o total.</p>
+    </div>
+    <div class="cart-items" id="cartItems"></div>
+    <div class="cart-footer">
+      <div class="summary-row"><span>Subtotal</span><strong id="subtotal">R$ 0</strong></div>
+      <div class="summary-row"><span>Entrega</span><strong id="shipping">Grátis</strong></div>
+      <div class="summary-row total"><span>Total</span><strong id="total">R$ 0</strong></div>
+      <div class="cart-actions">
+        <button class="btn-dark" type="button" onclick="startCheckout()">Finalizar compra</button>
+        <button class="btn btn-secondary" id="continueBtn" type="button" style="color:#111;border-color:rgba(17,17,17,.1);background:rgba(17,17,17,.04);">Continuar comprando</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MODAL AUTH -->
+  <div id="authModal" class="auth-modal">
+    <div class="auth-box" id="authBox">
+      <button class="auth-close" id="closeModal" type="button">&times;</button>
+      <div class="auth-tabs">
+        <button id="btnLogin" class="auth-tab active" type="button">Entrar</button>
+        <button id="btnRegister" class="auth-tab" type="button">Criar conta</button>
+      </div>
+      <div id="loginBox" class="auth-form active">
+        <h3>Entrar na sua conta</h3>
+        <input id="loginEmail" type="email" placeholder="Seu email" autocomplete="email" />
+        <input id="loginPassword" type="password" placeholder="Senha" autocomplete="current-password" />
+        <button class="btn-dark" type="button" onclick="login()">Entrar</button>
+      </div>
+      <div id="registerBox" class="auth-form">
+        <h3>Criar conta</h3>
+        <input id="registerName" type="text" placeholder="Nome completo" />
+        <input id="registerEmail" type="email" placeholder="Email" />
+        <input id="registerPassword" type="password" placeholder="Senha" />
+        <button class="btn-dark" type="button" onclick="register()">Criar conta</button>
+        <button class="btn-ghost" type="button" onclick="loginWithGoogle()">Entrar com Google</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHECKOUT MODAL -->
+  <div id="checkoutModal" class="auth-modal">
+    <div class="auth-box" id="checkoutBox">
+      <div id="orderInfo"></div>
+      <button class="auth-close" id="closeCheckoutModal" type="button">&times;</button>
+      <div class="checkout-progress">
+        <div class="progress-bar"><div class="progress-fill" id="checkoutProgress"></div></div>
+        <div class="progress-steps">
+          <span class="step active">Dados</span>
+          <span class="step">Endereço</span>
+          <span class="step">Revisão</span>
+        </div>
+      </div>
+      <div class="checkout-header">
+        <h3 id="checkoutStepTitle">Dados do cliente</h3>
+        <p>Preencha os dados para finalizar sua compra com segurança.</p>
+      </div>
+      <div id="checkoutStepContent"></div>
+      <div class="checkout-actions">
+        <button id="checkoutPrevBtn" type="button">Voltar</button>
+        <button id="checkoutNextBtn" type="button">Continuar</button>
+        <button id="checkoutConfirmBtn" type="button" style="display:none;">Ir para pagamento</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="./js/header.js"></script>
+  <script type="module" src="./js/catalog-page.js"></script>
+</body>
+</html>
