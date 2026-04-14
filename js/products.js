@@ -195,31 +195,30 @@ export function renderFeaturedProduct() {
   const url = `produto.html?id=${product.id}`;
 
   el.innerHTML = `
-  <div class="hero-card-top">
-    <small>Destaque</small>
-    <div class="hero-card-price">${formatPrice(getProductPrice(product))}</div>
-  </div>
+  <a href="${url}" class="hero-card-link" aria-label="Ver ${getProductName(product)}">
+    <div class="hero-card-top">
+      <small>Destaque</small>
+      <div class="hero-card-price">${formatPrice(getProductPrice(product))}</div>
+    </div>
 
-  <a href="${url}" class="hero-card-image-link">
     <div class="hero-card-image">
       <img src="${img}" alt="${getProductName(product)}" />
     </div>
-  </a>
 
-  <h3>${getProductName(product)}</h3>
-  <p>${getProductDescription(product)}</p>
+    <h3>${getProductName(product)}</h3>
+    <p>${getProductDescription(product)}</p>
 
-  <div class="hero-mini-tags">
-    <span>Premium</span>
-    <span>Drop</span>
-    <span>Street</span>
-  </div>
+    <div class="hero-mini-tags">
+      <span>Premium</span>
+      <span>Drop</span>
+      <span>Street</span>
+    </div>
 
-  <div class="hero-card-actions">
-    <a href="${url}" class="btn-dark featured-buy" data-id="${product.id}">
+    <div class="hero-card-cta-pill">
       Ver produto
-    </a>
-  </div>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+    </div>
+  </a>
 `;
 }
 

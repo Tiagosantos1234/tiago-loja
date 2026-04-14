@@ -386,13 +386,14 @@
 <!-- ===========================
      SCRIPT PRINCIPAL
 =========================== -->
-<script>
+<script type="module">
 // ============================================================
 // CONFIGURAÇÃO SUPABASE
 // ============================================================
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
-const supabase = createClient(
+// 'sb' — nome usado em todo este script
+const sb = createClient(
   'https://hnjmiyargbabymoshihaalu.supabase.co',
   'sb_publishable_RrPDyew7vfhihy3WvrNr6w_zZJ3kLql'
 )
@@ -1178,6 +1179,19 @@ document.addEventListener("keydown", e => {
 // ============================================================
 initTheme()
 showSection("dashboard")
+
+// Responde a mudanças de auth automaticamente (persiste após reload)
+sb.auth.onAuthStateChange(async (event, session) => {
+  if (event === "SIGNED_IN" && session) {
+    document.getElementById("loginScreen").classList.add("hidden")
+    document.getElementById("dashboardScreen").classList.remove("hidden")
+    await carregarTudo()
+  } else if (event === "SIGNED_OUT") {
+    document.getElementById("dashboardScreen").classList.add("hidden")
+    document.getElementById("loginScreen").classList.remove("hidden")
+  }
+})
+
 verificarSessao()
 </script>
 </body>
