@@ -950,9 +950,9 @@ function renderProdutos() {
   container.innerHTML = produtos.map(p => `
     <div class="table-row">
       <div class="col-product">
-        <img class="product-thumb" src="${p.image_url || ''}" alt="${p.name || ''}" onerror="this.style.visibility='hidden'" />
+        <img class="product-thumb" src="${p.image_url || ''}" alt="${p.nome || ''}" onerror="this.style.visibility='hidden'" />
         <div>
-          <span class="product-name">${p.name || 'Sem nome'}</span>
+          <span class="product-name">${p.nome || 'Sem nome'}</span>
           <span class="product-meta">${p.image_url ? 'Com imagem' : 'Sem imagem'}</span>
         </div>
       </div>
@@ -979,7 +979,7 @@ function renderAlertaEstoque() {
   const baixos = produtos.filter(p => Number(p.stock || 0) <= 3);
   if (!baixos.length) { alerta.classList.add('hidden'); return; }
   alerta.classList.remove('hidden');
-  alerta.textContent = `⚠ Estoque critico: ${baixos.map(p => p.name).join(', ')}`;
+  alerta.textContent = `⚠ Estoque critico: ${baixos.map(p => p.nome || p.name || 'Produto').join(', ')}`;
 }
 
 function abrirModalProduto(id = null) {
@@ -987,7 +987,7 @@ function abrirModalProduto(id = null) {
 
   document.getElementById('modalProdutoTitle').textContent        = produto ? 'Editar produto' : 'Novo produto';
   document.getElementById('produtoEditId').value                  = id || '';
-  document.getElementById('produtoNome').value                    = produto?.name      || '';
+  document.getElementById('produtoNome').value                    = produto?.nome || produto?.name || '';
   document.getElementById('produtoPreco').value                   = produto?.price     ?? '';
   document.getElementById('produtoEstoque').value                 = produto?.stock     ?? '';
   document.getElementById('produtoImagem').value                  = produto?.image_url || '';
@@ -1020,7 +1020,8 @@ async function salvarProduto() {
   spinner.classList.remove('hidden');
   btnText.textContent = id ? 'Salvando...' : 'Criando...';
 
-  const payload = { name, price: isNaN(price) ? 0 : price, stock: isNaN(stock) ? 0 : stock, image_url: img };
+  // IMPORTANTE: a coluna no banco é 'nome', não 'name'
+  const payload = { nome: name, price: isNaN(price) ? 0 : price, stock: isNaN(stock) ? 0 : stock, image_url: img };
   const { error } = id
     ? await supabaseClient.from('products').update(payload).eq('id', id)
     : await supabaseClient.from('products').insert([payload]);
