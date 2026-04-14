@@ -533,13 +533,24 @@ window.loginAdmin = loginAdmin;
 
 async function logoutAdmin() {
   window._adminDataLoaded = false;
-  try {
-    await supabaseClient.auth.signOut();
-  } catch (_) {}
-  // Redireciona para a pagina inicial — admin vira login de novo
-  window.location.href = 'admin.html';
+  try { await supabaseClient.auth.signOut(); } catch (_) {}
+  // Recarrega a pagina — sem sessao vai mostrar tela de login
+  window.location.reload();
 }
 window.logoutAdmin = logoutAdmin;
+
+// Protege o dashboard: redireciona se nao houver sessao
+async function checkSession() {
+  try {
+    const { data } = await supabaseClient.auth.getSession();
+    if (!data.session) {
+      document.getElementById('dashboardScreen').classList.add('hidden');
+      document.getElementById('loginScreen').classList.remove('hidden');
+    }
+  } catch (err) {
+    console.error('[checkSession]', err);
+  }
+}
 
 async function verificarSessao() {
   try {
@@ -558,8 +569,21 @@ async function verificarSessao() {
 // ============================================================
 // CARREGAR DADOS
 // ============================================================
+// Mostra erro de query direto na UI para facilitar diagnostico
+function mostrarErroDB(containerId, tabela, msg) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  el.innerHTML = `<div class="empty-state" style="color:#ef4444">
+    <strong>Erro ao carregar ${tabela}</strong><br/>
+    <small style="opacity:.7">${msg}</small><br/>
+    <small style="opacity:.5">Verifique o console e o SQL do Supabase</small>
+  </div>`;
+}
+
 async function carregarTudo() {
+  console.log('[admin] Iniciando carregamento de dados...');
   await Promise.all([carregarPedidos(), carregarItensPedidos(), carregarProdutos(), carregarLeads()]);
+  console.log('[admin] Dados:', { pedidos: pedidos.length, produtos: produtos.length, leads: leads.length });
   renderMetrics();
   renderPedidos();
   renderRanking();
@@ -567,30 +591,46 @@ async function carregarTudo() {
   renderMeta();
   gerarGraficoVendas();
   gerarGraficoStatus();
+  // Registra realtime apos autenticar (evita erros de permissao antes do login)
+  registrarRealtime();
 }
 
 async function carregarPedidos() {
   const { data, error } = await supabaseClient.from('orders').select('*').order('created_at', { ascending: false });
-  if (error) console.error('[orders]', error.message);
+  console.log('[orders] data:', data, 'error:', error);
+  if (error) {
+    console.error('[orders]', error.message, error.code);
+    mostrarErroDB('orders', 'pedidos', error.message);
+    pedidos = [];
+    return;
+  }
   pedidos = data || [];
 }
 
 async function carregarItensPedidos() {
   const { data, error } = await supabaseClient.from('order_items').select('*');
-  if (error) console.error('[order_items]', error.message);
+  console.log('[order_items] data:', data, 'error:', error);
+  if (error) { console.error('[order_items]', error.message); itensPedidos = []; return; }
   itensPedidos = data || [];
 }
 
 async function carregarProdutos() {
   const { data, error } = await supabaseClient.from('products').select('*').order('created_at', { ascending: false });
-  if (error) console.error('[products]', error.message);
+  console.log('[products] data:', data, 'error:', error);
+  if (error) {
+    console.error('[products]', error.message, error.code);
+    mostrarErroDB('productsList', 'produtos', error.message);
+    produtos = [];
+    return;
+  }
   produtos = data || [];
 }
 
 async function carregarLeads() {
   const { data, error } = await supabaseClient.from('leads').select('id, created_at');
+  console.log('[leads] data:', data, 'error:', error);
   if (error) {
-    console.warn('[leads]', error.message); // tabela pode nao existir ainda
+    console.warn('[leads]', error.message);
     leads = [];
     return;
   }
@@ -1151,37 +1191,46 @@ function renderRanking() {
 // ============================================================
 // REALTIME
 // ============================================================
-supabaseClient.channel('realtime:orders')
-  .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, async () => {
-    await carregarPedidos();
-    renderPedidos();
-    renderMetrics();
-    renderMeta();
-    gerarGraficoVendas();
-    gerarGraficoStatus();
-  })
-  .subscribe();
+// ============================================================
+// REALTIME — chamado dentro de carregarTudo() apos autenticar
+// ============================================================
+let _realtimeRegistered = false;
+function registrarRealtime() {
+  if (_realtimeRegistered) return;
+  _realtimeRegistered = true;
 
-supabaseClient.channel('realtime:order_items')
-  .on('postgres_changes', { event: '*', schema: 'public', table: 'order_items' }, async () => {
-    await carregarItensPedidos();
-    renderRanking();
-  })
-  .subscribe();
+  supabaseClient.channel('realtime:orders')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, async () => {
+      await carregarPedidos();
+      renderPedidos();
+      renderMetrics();
+      renderMeta();
+      gerarGraficoVendas();
+      gerarGraficoStatus();
+    })
+    .subscribe(status => console.log('[realtime:orders]', status));
 
-supabaseClient.channel('realtime:products')
-  .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, async () => {
-    await carregarProdutos();
-    renderProdutos();
-  })
-  .subscribe();
+  supabaseClient.channel('realtime:order_items')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'order_items' }, async () => {
+      await carregarItensPedidos();
+      renderRanking();
+    })
+    .subscribe();
 
-supabaseClient.channel('realtime:leads')
-  .on('postgres_changes', { event: '*', schema: 'public', table: 'leads' }, async () => {
-    await carregarLeads();
-    renderMetrics();
-  })
-  .subscribe();
+  supabaseClient.channel('realtime:products')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, async () => {
+      await carregarProdutos();
+      renderProdutos();
+    })
+    .subscribe();
+
+  supabaseClient.channel('realtime:leads')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'leads' }, async () => {
+      await carregarLeads();
+      renderMetrics();
+    })
+    .subscribe();
+}
 
 // ============================================================
 // EVENTOS
@@ -1201,8 +1250,9 @@ document.addEventListener('keydown', e => {
 initTheme();
 showSection('dashboard');
 
-// Detecta mudancas de autenticacao automaticamente (persiste apos reload)
+// Detecta mudancas de autenticacao automaticamente
 supabaseClient.auth.onAuthStateChange(async (event, session) => {
+  console.log('[auth] evento:', event, 'sessao:', !!session);
   if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session) {
     document.getElementById('loginScreen').classList.add('hidden');
     document.getElementById('dashboardScreen').classList.remove('hidden');
@@ -1210,14 +1260,16 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
       window._adminDataLoaded = true;
       await carregarTudo();
     }
-  } else if (event === 'SIGNED_OUT') {
+  } else if (event === 'SIGNED_OUT' || (event === 'INITIAL_SESSION' && !session)) {
     window._adminDataLoaded = false;
     document.getElementById('dashboardScreen').classList.add('hidden');
     document.getElementById('loginScreen').classList.remove('hidden');
   }
 });
 
+// Fallbacks de segurança
 verificarSessao();
+checkSession();
 </script>
 </body>
 </html>
