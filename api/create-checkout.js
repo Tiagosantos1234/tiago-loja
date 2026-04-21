@@ -18,27 +18,35 @@ async function cleanupOrder(supabase, orderId) {
 }
 
 function buildAppBaseUrl(req) {
+  // 1. Variável de ambiente explicitamente configurada (prioridade máxima)
   const envUrl =
     process.env.APP_BASE_URL ||
     process.env.NEXT_PUBLIC_APP_URL ||
-    process.env.SITE_URL ||
-    process.env.VERCEL_URL;
+    process.env.SITE_URL;
 
   if (envUrl) {
     if (/^https?:\/\//i.test(envUrl)) return envUrl.replace(/\/+$/, "");
     return `https://${envUrl.replace(/\/+$/, "")}`;
   }
 
+  // 2. VERCEL_URL: formato sem protocolo (ex: minha-loja.vercel.app)
+  const vercelUrl = process.env.VERCEL_URL;
+  if (vercelUrl && !/localhost|127\.0\.0/.test(vercelUrl)) {
+    return `https://${vercelUrl.replace(/\/+$/, "")}`;
+  }
+
+  // 3. Origin do request (ex: https://minha-loja.vercel.app)
   const origin = cleanString(req.headers?.origin);
   if (origin && !/localhost|127\.0\.0/.test(origin)) return origin.replace(/\/+$/, "");
 
+  // 4. X-Forwarded-Host (infraestrutura de proxy como Vercel/Cloudflare)
   const forwardedProto = cleanString(req.headers?.["x-forwarded-proto"], "https");
   const forwardedHost = cleanString(req.headers?.["x-forwarded-host"]);
   const host = forwardedHost || cleanString(req.headers?.host);
 
   if (host && !/localhost|127\.0\.0/.test(host)) return `${forwardedProto}://${host}`.replace(/\/+$/, "");
 
-  // Em desenvolvimento local, retorna null — o MP não aceita localhost em back_urls
+  // Em desenvolvimento local — MP não aceita localhost em back_urls
   return null;
 }
 

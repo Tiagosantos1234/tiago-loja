@@ -7,10 +7,14 @@
   <meta name="description" content="Painel administrativo RESPEITA &mdash; pedidos, produtos e métricas em tempo real." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" /></noscript>
   <link rel="stylesheet" href="css/admin.css" />
+  <!-- Preload CDN scripts para acelerar carregamento -->
+  <link rel="preload" href="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js" as="script" />
+  <link rel="preload" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.0" as="script" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.0"></script>
 </head>
 <body>
 
@@ -383,6 +387,10 @@
 <script>
 // ============================================================
 // SUPABASE — usa SDK carregado via CDN no <head> (window.supabase)
+// ATENÇÃO: se as queries retornarem vazias ou com erro de autenticação,
+// verifique se a SUPABASE_ANON_KEY abaixo é um JWT válido (começa com eyJ...).
+// O novo formato sb_publishable_... requer @supabase/supabase-js >= 2.49.0.
+// Acesse: Supabase Dashboard → Project Settings → API → "anon public"
 // ============================================================
 const SUPABASE_URL      = 'https://nmosbabyarqnmihihalu.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_RrPDyew7vfhihy3WvrNr6w_zZJ3kLql';
@@ -413,7 +421,8 @@ function initTheme() { setTheme(localStorage.getItem('admin-theme') || 'dark'); 
 function toggleTheme() {
   const t = document.body.dataset.theme === 'dark' ? 'light' : 'dark';
   setTheme(t);
-  setTimeout(() => { gerarGraficoVendas(); gerarGraficoStatus(); }, 50);
+  // forceRecreate=true: a mudança de tema exige recriar os charts com novas cores
+  setTimeout(() => { gerarGraficoVendas(true); gerarGraficoStatus(true); }, 50);
 }
 
 // ============================================================
@@ -1059,7 +1068,7 @@ function chartColors() {
   };
 }
 
-function gerarGraficoVendas() {
+function gerarGraficoVendas(forceRecreate = false) {
   const rawVendas = {};
   pedidos.forEach(p => {
     if (!p.created_at) return;
@@ -1069,9 +1078,17 @@ function gerarGraficoVendas() {
 
   const labels = Object.keys(rawVendas).slice(-14);
   const data   = labels.map(l => rawVendas[l]);
+  const { text, muted, grid } = chartColors();
+
+  // Atualiza in-place para evitar flicker/memory leak em eventos realtime
+  if (chartVendas && !forceRecreate) {
+    chartVendas.data.labels = labels;
+    chartVendas.data.datasets[0].data = data;
+    chartVendas.update('none'); // 'none' = sem animação para update rápido
+    return;
+  }
 
   if (chartVendas) chartVendas.destroy();
-  const { text, muted, grid } = chartColors();
 
   chartVendas = new Chart(document.getElementById('graficoVendas'), {
     type: 'bar',
@@ -1094,6 +1111,7 @@ function gerarGraficoVendas() {
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      animation: { duration: 400 },
       interaction: { intersect: false, mode: 'index' },
       plugins: {
         legend: { display: false },
@@ -1115,14 +1133,21 @@ function gerarGraficoVendas() {
   });
 }
 
-function gerarGraficoStatus() {
+function gerarGraficoStatus(forceRecreate = false) {
   const pagos      = pedidos.filter(p => isPaid(p.status)).length;
   const pendentes  = pedidos.filter(p => p.status === 'pending').length;
   const cancelados = pedidos.filter(p => p.status === 'cancelled' || p.status === 'rejected').length;
-  const total      = pagos + pendentes + cancelados || 1;
+  const { text } = chartColors();
+
+  // Atualiza in-place para evitar flicker/memory leak em eventos realtime
+  if (chartStatus && !forceRecreate) {
+    chartStatus.data.datasets[0].data = [pagos, pendentes, cancelados];
+    chartStatus.update('none');
+    return;
+  }
 
   if (chartStatus) chartStatus.destroy();
-  const { text } = chartColors();
+  const total = pagos + pendentes + cancelados || 1;
 
   chartStatus = new Chart(document.getElementById('graficoStatus'), {
     type: 'doughnut',
@@ -1138,6 +1163,7 @@ function gerarGraficoStatus() {
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      animation: { duration: 400 },
       cutout: '72%',
       plugins: {
         legend: {
@@ -1236,8 +1262,9 @@ function registrarRealtime() {
 // ============================================================
 // EVENTOS
 // ============================================================
-document.getElementById('searchInput').addEventListener('input', renderPedidos);
-document.getElementById('password').addEventListener('keydown', e => { if (e.key === 'Enter') loginAdmin(); });
+// CORREÇÃO: null-safe — searchInput só existe quando dashboardScreen está visível
+document.getElementById('searchInput')?.addEventListener('input', renderPedidos);
+document.getElementById('password')?.addEventListener('keydown', e => { if (e.key === 'Enter') loginAdmin(); });
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
     fecharModal();
@@ -1268,9 +1295,9 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
   }
 });
 
-// Fallbacks de segurança
+// Verifica sessão ao carregar — onAuthStateChange já cobre SIGNED_IN/INITIAL_SESSION,
+// verificarSessao() é fallback para casos onde o evento não dispara (ex: refresh manual)
 verificarSessao();
-checkSession();
 </script>
 </body>
 </html>

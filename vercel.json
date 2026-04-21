@@ -11,5 +11,10 @@
         { "key": "Access-Control-Allow-Headers", "value": "Content-Type, x-admin-token" }
       ]
     }
+  ],
+  "rewrites": [
+    { "source": "/api/create-checkout", "destination": "/api/create-checkout.js" },
+    { "source": "/api/webhook",         "destination": "/api/webhook.js" },
+    { "source": "/api/admin-update-order", "destination": "/api/admin-update-order.js" }
   ]
 }
