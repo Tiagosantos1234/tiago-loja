@@ -563,7 +563,21 @@ async function checkSession() {
 
 async function verificarSessao() {
   try {
-    const { data } = await supabaseClient.auth.getSession();
+    let { data } = await supabaseClient.auth.getSession();
+
+    // FIX 3: se sessao expirou, tenta refresh antes de desistir
+    if (!data?.session) {
+      console.log('[verificarSessao] sessao nula, tentando refresh...');
+      const refresh = await supabaseClient.auth.refreshSession();
+      if (refresh.data?.session) {
+        data = refresh.data;
+        console.log('[verificarSessao] refresh OK');
+      } else {
+        console.warn('[verificarSessao] sem sessao apos refresh — exibe login');
+        return;
+      }
+    }
+
     if (data?.session && !window._adminDataLoaded) {
       window._adminDataLoaded = true;
       document.getElementById('loginScreen').classList.add('hidden');
@@ -571,7 +585,7 @@ async function verificarSessao() {
       await carregarTudo();
     }
   } catch (err) {
-    console.warn('[verificarSessao]', err);
+    console.warn('[verificarSessao] excecao:', err?.message || err);
   }
 }
 
@@ -590,9 +604,54 @@ function mostrarErroDB(containerId, tabela, msg) {
 }
 
 async function carregarTudo() {
-  console.log('[admin] Iniciando carregamento de dados...');
+  console.log('[admin] ========== carregarTudo() INICIADO ==========');
+
+  // FIX 4: loading state visual durante carregamento
+  const ordersEl   = document.getElementById('orders');
+  const productsEl = document.getElementById('productsList');
+  const loadingHTML = '<div class="empty-state"><span class="spinner"></span></div>';
+  if (ordersEl)   ordersEl.innerHTML   = loadingHTML;
+  if (productsEl) productsEl.innerHTML = loadingHTML;
+
+  // Verifica sessao ativa antes de disparar queries
+  const { data: sessionData } = await supabaseClient.auth.getSession();
+  const sessionUser = sessionData?.session?.user;
+  console.log('[admin] sessao ativa:', !!sessionData?.session, '| user:', sessionUser?.email || '(nenhum)');
+
+  if (!sessionData?.session) {
+    console.error('[admin] CRITICO: carregarTudo() chamado sem sessao ativa!');
+    window._adminDataLoaded = false;
+    document.getElementById('dashboardScreen').classList.add('hidden');
+    document.getElementById('loginScreen').classList.remove('hidden');
+    return;
+  }
+
   await Promise.all([carregarPedidos(), carregarItensPedidos(), carregarProdutos(), carregarLeads()]);
-  console.log('[admin] Dados:', { pedidos: pedidos.length, produtos: produtos.length, leads: leads.length });
+
+  console.log('[admin] Resultado das queries:', {
+    pedidos:      pedidos.length,
+    itensPedidos: itensPedidos.length,
+    produtos:     produtos.length,
+    leads:        leads.length,
+  });
+
+  // FIX 2: detecta RLS bloqueando silenciosamente
+  // Se TUDO retornou vazio com sessao valida, quase certamente e RLS
+  if (!pedidos.length && !produtos.length && sessionData?.session) {
+    console.error(
+      '[admin] ALERTA RLS: sessao valida mas todas as queries retornaram vazio.\n' +
+      'Isso indica que as RLS policies estao bloqueando acesso.\n' +
+      'Execute no Supabase SQL Editor:\n' +
+      '  CREATE POLICY "admin_read_orders" ON orders FOR SELECT TO authenticated USING (true);\n' +
+      '  CREATE POLICY "admin_read_order_items" ON order_items FOR SELECT TO authenticated USING (true);\n' +
+      '  CREATE POLICY "admin_read_products" ON products FOR SELECT TO authenticated USING (true);'
+    );
+    if (ordersEl) ordersEl.innerHTML = `<div class="empty-state" style="color:#f59e0b">
+      <strong>⚠️ Possível bloqueio de RLS</strong><br/>
+      <small style="opacity:.8">Sessão válida mas dados inacessíveis.<br/>Verifique o Console (F12) para o SQL de correção.</small>
+    </div>`;
+  }
+
   renderMetrics();
   renderPedidos();
   renderRanking();
@@ -600,20 +659,27 @@ async function carregarTudo() {
   renderMeta();
   gerarGraficoVendas();
   gerarGraficoStatus();
-  // Registra realtime apos autenticar (evita erros de permissao antes do login)
   registrarRealtime();
+
+  console.log('[admin] ========== carregarTudo() CONCLUIDO ==========');
 }
 
 async function carregarPedidos() {
-  const { data, error } = await supabaseClient.from('orders').select('*').order('created_at', { ascending: false }).limit(200);
-  console.log('[orders] data:', data?.length, 'error:', error);
+  const { data, error } = await supabaseClient
+    .from('orders')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(200);
+
+  // Log completo para diagnóstico — visível no Console do browser
   if (error) {
-    console.error('[orders]', error.message, error.code);
-    // BUG FIX: NÃO zera pedidos em erro — preserva estado anterior
-    // Antes: pedidos = []; ← apagava dados já carregados
+    console.error('[pedidos] ERRO:', { message: error.message, code: error.code, details: error.details, hint: error.hint });
     if (!pedidos.length) mostrarErroDB('orders', 'pedidos', error.message);
     return;
   }
+
+  console.log('[pedidos] retornou:', data?.length, 'registros');
+  if (data?.length === 0) console.warn('[pedidos] VAZIO — pode ser RLS bloqueando ou tabela realmente vazia');
   pedidos = data || [];
 }
 
@@ -626,14 +692,20 @@ async function carregarItensPedidos() {
 }
 
 async function carregarProdutos() {
-  const { data, error } = await supabaseClient.from('products').select('*').order('created_at', { ascending: false }).limit(200);
-  console.log('[products] data:', data?.length, 'error:', error);
+  const { data, error } = await supabaseClient
+    .from('products')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(200);
+
   if (error) {
-    console.error('[products]', error.message, error.code);
-    // BUG FIX: NÃO zera produtos em erro
+    console.error('[produtos] ERRO:', { message: error.message, code: error.code, details: error.details, hint: error.hint });
     if (!produtos.length) mostrarErroDB('productsList', 'produtos', error.message);
     return;
   }
+
+  console.log('[produtos] retornou:', data?.length, 'registros');
+  if (data?.length === 0) console.warn('[produtos] VAZIO — pode ser RLS bloqueando ou sem produtos cadastrados');
   produtos = data || [];
 }
 
@@ -1304,8 +1376,9 @@ showSection('dashboard');
 
 // Detecta mudancas de autenticacao automaticamente
 supabaseClient.auth.onAuthStateChange(async (event, session) => {
-  console.log('[auth] evento:', event, 'sessao:', !!session);
-  if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session) {
+  console.log('[auth] evento:', event, '| sessao:', !!session, '| user:', session?.user?.email || '(nenhum)');
+
+  if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION' || event === 'TOKEN_REFRESHED') && session) {
     document.getElementById('loginScreen').classList.add('hidden');
     document.getElementById('dashboardScreen').classList.remove('hidden');
     if (!window._adminDataLoaded) {
@@ -1319,8 +1392,8 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
   }
 });
 
-// Verifica sessão ao carregar — onAuthStateChange já cobre SIGNED_IN/INITIAL_SESSION,
-// verificarSessao() é fallback para casos onde o evento não dispara (ex: refresh manual)
+// verificarSessao(): fallback para casos onde INITIAL_SESSION nao dispara
+// ou onde o token estava expirado e precisou de refresh
 verificarSessao();
 </script>
 </body>
