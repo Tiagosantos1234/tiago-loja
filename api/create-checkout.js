@@ -13,8 +13,18 @@ function getDbProductName(product) {
 
 async function cleanupOrder(supabase, orderId) {
   if (!orderId) return;
-  await supabase.from("order_items").delete().eq("order_id", orderId);
-  await supabase.from("orders").delete().eq("id", orderId);
+  try {
+    await supabase.from("order_items").delete().eq("order_id", orderId);
+    await supabase.from("orders").delete().eq("id", orderId);
+    console.log("[checkout] cleanupOrder: pedido órfão removido:", orderId);
+  } catch (cleanupErr) {
+    // Não propaga — o erro original já foi tratado pelo caller
+    console.error("[checkout] cleanupOrder falhou (pedido pode ficar órfão):", {
+      orderId,
+      message: cleanupErr?.message,
+      code: cleanupErr?.code,
+    });
+  }
 }
 
 function buildAppBaseUrl(req) {

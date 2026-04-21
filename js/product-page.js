@@ -94,19 +94,35 @@ async function loadProduct() {
   }
 
   try {
-    const { data, error } = await supabaseClient.from("products").select("*");
+    // P1 FIX: busca apenas o produto pelo ID em vez de select("*") sem filtro
+    const { data: product, error } = await supabaseClient
+      .from("products")
+      .select("*")
+      .eq("id", id)
+      .maybeSingle();
+
     if (error) throw error;
 
-    allProducts = data || [];
-    currentProduct = allProducts.find((p) => String(p.id) === String(id));
-
-    if (!currentProduct) {
+    if (!product) {
       showError();
       return;
     }
 
+    currentProduct = product;
     renderProduct(currentProduct);
-    renderRelated(currentProduct);
+
+    // Relacionados carregados em paralelo — não bloqueia o render do produto principal
+    supabaseClient
+      .from("products")
+      .select("*")
+      .neq("id", id)
+      .limit(8)
+      .then(({ data }) => {
+        allProducts = data || [];
+        renderRelated(currentProduct);
+      })
+      .catch((err) => console.warn("[product-page] Erro ao carregar relacionados:", err?.message));
+
   } catch (err) {
     console.error("Erro ao carregar produto:", err);
     showError();

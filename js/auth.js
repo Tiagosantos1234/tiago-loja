@@ -2,14 +2,33 @@ import { supabaseClient } from "./supabase.js";
 import { showToast, safeText, setButtonBusy, resetButtonBusy, getScopedInputValue, isValidEmail } from "./ui.js";
 
 // =====================
-// SESSÃO
+// CACHE DE SESSÃO (P3 FIX)
 // =====================
+// Evita múltiplas chamadas a getSession() no mesmo carregamento de página.
+// TTL de 20s — suficiente para cobrir DOMContentLoaded + window.load + módulos concorrentes.
+// Invalidado automaticamente em login, logout e refreshSession.
+let _sessionCache = null;      // { user, expiresAt }
+
+function _setSessionCache(user) {
+  _sessionCache = user ? { user, expiresAt: Date.now() + 20_000 } : null;
+}
+
+function _getSessionCache() {
+  if (!_sessionCache) return undefined;
+  if (Date.now() > _sessionCache.expiresAt) { _sessionCache = null; return undefined; }
+  return _sessionCache.user; // pode ser null (usuário deslogado confirmado)
+}
+
+export function invalidateSessionCache() {
+  _sessionCache = null;
+}
 
 /**
  * Força logout e opcionalmente recarrega a página.
  * @param {boolean} shouldReload
  */
 async function clearBrokenSession(shouldReload = false) {
+  invalidateSessionCache();
   try {
     await supabaseClient.auth.signOut();
   } catch (err) {
@@ -20,14 +39,25 @@ async function clearBrokenSession(shouldReload = false) {
 
 /**
  * Retorna o usuário autenticado da sessão atual.
+ * Usa cache em memória (20s) para evitar chamadas repetidas ao Supabase.
  * Tenta renovar o token se a sessão estiver expirada.
  *
- * @param {{ context?: string, tryRefresh?: boolean, reloadOnFailure?: boolean }} options
+ * @param {{ context?: string, tryRefresh?: boolean, reloadOnFailure?: boolean, forceRefresh?: boolean }} options
  * @returns {Promise<import("@supabase/supabase-js").User|null>}
  */
 export async function getSessionUser(options = {}) {
-  const { context = "auth", tryRefresh = true, reloadOnFailure = false } = options;
-  console.log(`[auth] getSessionUser — contexto: ${context}`);
+  const { context = "auth", tryRefresh = true, reloadOnFailure = false, forceRefresh = false } = options;
+
+  // Retorna do cache se disponível e não forçando refresh
+  if (!forceRefresh) {
+    const cached = _getSessionCache();
+    if (cached !== undefined) {
+      console.debug(`[auth] getSessionUser — cache hit (${context})`);
+      return cached;
+    }
+  }
+
+  console.debug(`[auth] getSessionUser — contexto: ${context}`);
 
   try {
     let { data, error } = await supabaseClient.auth.getSession();
@@ -39,31 +69,35 @@ export async function getSessionUser(options = {}) {
 
     if (error || !session) {
       if (tryRefresh) {
-        console.log(`[auth][${context}] sem sessão, tentando refreshSession...`);
+        console.debug(`[auth][${context}] sem sessão, tentando refreshSession...`);
         const refresh = await supabaseClient.auth.refreshSession();
 
         if (refresh.error || !refresh.data?.session) {
           const msg = refresh.error?.message || error?.message || "Sessão indisponível";
           console.warn(`[auth][${context}] refreshSession falhou:`, msg);
           if (/refresh token/i.test(msg)) await clearBrokenSession(reloadOnFailure);
+          _setSessionCache(null);
           return null;
         }
 
         session = refresh.data.session;
-        console.log(`[auth][${context}] refreshSession OK — user:`, session.user?.email);
+        console.debug(`[auth][${context}] refreshSession OK`);
       } else {
-        console.log(`[auth][${context}] sem sessão ativa (tryRefresh=false)`);
+        console.debug(`[auth][${context}] sem sessão ativa (tryRefresh=false)`);
+        _setSessionCache(null);
         return null;
       }
     }
 
-    console.log(`[auth][${context}] sessão OK — user:`, session?.user?.email);
-    return session?.user || null;
+    const user = session?.user || null;
+    _setSessionCache(user);
+    return user;
   } catch (err) {
     console.error(`[auth][${context}] exceção:`, err?.message || err);
     if (/refresh token/i.test(String(err?.message || err))) {
       await clearBrokenSession(reloadOnFailure);
     }
+    _setSessionCache(null);
     return null;
   }
 }
@@ -275,6 +309,9 @@ export async function login() {
 
     console.log('[auth] login OK — user:', data.user.email, '| id:', data.user.id);
 
+    // P3 FIX: invalida cache antes de reload — garante estado limpo
+    invalidateSessionCache();
+
     // Garante que o perfil existe no banco (para quem confirmou email depois do cadastro)
     await syncProfileFromMetadata(data.user);
 
@@ -384,6 +421,8 @@ export async function loginWithGoogle() {
  */
 export async function logout() {
   console.log('[auth] logout iniciado');
+  // P3 FIX: invalida cache antes do signOut
+  invalidateSessionCache();
   try {
     await supabaseClient.auth.signOut();
     console.log('[auth] logout OK — sessão encerrada');

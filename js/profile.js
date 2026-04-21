@@ -124,7 +124,7 @@ async function loadMyOrders(user) {
     }
 
     console.log('[profile] Pedidos encontrados:', orders?.length || 0);
-    renderOrders(sortByCreatedAtDesc(orders || []));
+    renderOrders(orders || []); // banco já ordenou por created_at DESC
   } catch (err) {
     console.warn('[profile] Exceção ao carregar pedidos:', err?.message || err);
     renderOrders([]);

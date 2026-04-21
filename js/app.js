@@ -153,7 +153,8 @@ function initUserDropdown() {
 
   window.addEventListener("resize", () => {
     if (window.innerWidth <= 768) dropdown.classList.remove("show");
-  });
+  }, { passive: true });
+  // Nota: debounce global de resize está em initMobileMenu para ambos (P7 fix)
 
   userTrigger.dataset.bound = "true";
 }
@@ -213,8 +214,16 @@ function initMobileMenu() {
     closeMenu();
   });
 
-  document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeMenu(); });
-  window.addEventListener("resize", () => { if (!isMobile()) closeMenu(); });
+  // P7 FIX: resize com debounce compartilhado — evita dezenas de execuções ao redimensionar
+  let _resizeTimer;
+  window.addEventListener("resize", () => {
+    clearTimeout(_resizeTimer);
+    _resizeTimer = setTimeout(() => {
+      if (!isMobile()) closeMenu();
+      // Dropdown também fechado aqui para evitar segundo listener (ver initUserDropdown)
+      document.getElementById("userDropdown")?.classList.remove("show");
+    }, 100);
+  }, { passive: true });
 
   menuBtn.dataset.mobileMenuBound = "true";
 }
@@ -257,33 +266,29 @@ function initNewsletter() {
 // EVENTOS DE PRODUTO
 // =====================
 
+// P14 FIX: 3 listeners separados → 1 delegador único
 function initProductEvents() {
-  // Botão "Ver produto" / "Comprar" na grade — navega para a página do produto
   document.addEventListener("click", (e) => {
-    const btn = e.target.closest(".go-to-product");
-    if (!btn) return;
-    const id = btn.dataset.id;
-    if (id) window.location.href = `produto.html?id=${id}`;
-  });
+    // go-to-product
+    const goBtn = e.target.closest(".go-to-product");
+    if (goBtn?.dataset.id) {
+      window.location.href = `produto.html?id=${goBtn.dataset.id}`;
+      return;
+    }
 
-  // Botão "Comprar" rápido (adicionar direto sem variações)
-  document.addEventListener("click", (e) => {
-    const btn = e.target.closest(".add-to-cart");
-    if (!btn) return;
+    // add-to-cart
+    const cartBtn = e.target.closest(".add-to-cart");
+    if (cartBtn?.dataset.id) {
+      const card = cartBtn.closest(".product-card");
+      const img = card?.querySelector(".product-img");
+      if (img) animateToCart(img);
+      addToCart(cartBtn.dataset.id, products);
+      return;
+    }
 
-    const id = btn.dataset.id;
-    const card = btn.closest(".product-card");
-    const img = card?.querySelector(".product-img");
-    if (img) animateToCart(img);
-
-    addToCart(id, products);
-  });
-
-  // Botão "Comprar agora" no produto em destaque
-  document.addEventListener("click", (e) => {
-    if (e.target.classList.contains("featured-buy")) {
-      const id = e.target.dataset.id;
-      if (id) window.location.href = `produto.html?id=${id}`;
+    // featured-buy
+    if (e.target.classList.contains("featured-buy") && e.target.dataset.id) {
+      window.location.href = `produto.html?id=${e.target.dataset.id}`;
     }
   });
 }

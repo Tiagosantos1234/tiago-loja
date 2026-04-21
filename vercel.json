@@ -13,8 +13,9 @@
     }
   ],
   "rewrites": [
-    { "source": "/api/create-checkout", "destination": "/api/create-checkout.js" },
-    { "source": "/api/webhook",         "destination": "/api/webhook.js" },
-    { "source": "/api/admin-update-order", "destination": "/api/admin-update-order.js" }
+    { "source": "/api/create-checkout",     "destination": "/api/create-checkout.js" },
+    { "source": "/api/webhook",             "destination": "/api/webhook.js" },
+    { "source": "/api/admin-update-order",  "destination": "/api/admin-update-order.js" },
+    { "source": "/api/order-status",        "destination": "/api/order-status.js" }
   ]
 }

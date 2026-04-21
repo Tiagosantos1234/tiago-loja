@@ -6,14 +6,6 @@
   <title>Pagamento aprovado — Tiago Lobo Store</title>
   <meta name="robots" content="noindex">
 
-  <!-- Import Map: mapeia @supabase/supabase-js para a CDN ESM -->
-  <script type="importmap">
-  {
-    "imports": {
-      "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2"
-    }
-  }
-  </script>
 
   <style>
     body {
@@ -82,16 +74,7 @@
     <button type="button" onclick="window.location.href='/'">Voltar para a loja</button>
   </div>
 
-  <script type="module">
-    import { createClient } from "@supabase/supabase-js";
-    import { SUPABASE_URL, SUPABASE_ANON_KEY } from "./js/config.js";
-
-    // Limpa carrinho ao chegar nesta página (v1 legado + v2 atual)
-    localStorage.removeItem("tl_cart_v1");
-    localStorage.removeItem("tl_cart_v2");
-
-    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
+  <script>
     async function carregarPedido() {
       const params = new URLSearchParams(window.location.search);
       const ref = params.get("external_reference");
@@ -104,24 +87,40 @@
         return;
       }
 
-      const { data: order, error } = await supabaseClient
-        .from("orders")
-        .select("*")
-        .eq("external_reference", ref)
-        .maybeSingle();
+      try {
+        const res = await fetch(`/api/order-status?ref=${encodeURIComponent(ref)}`);
 
-      if (error || !order) {
+        if (!res.ok) {
+          orderInfo.innerHTML = "<p>Não foi possível carregar os dados do pedido.</p>";
+          return;
+        }
+
+        const order = await res.json();
+
+        // Só limpa o carrinho se o pagamento foi realmente confirmado
+        if (order.status === "approved" || order.status === "paid") {
+          localStorage.removeItem("tl_cart_v1");
+          localStorage.removeItem("tl_cart_v2");
+        }
+
+        const statusLabel = {
+          approved: "✅ Pagamento aprovado",
+          paid:     "✅ Pago",
+          pending:  "⏳ Aguardando pagamento",
+          rejected: "❌ Pagamento recusado",
+        }[order.status] || order.status;
+
+        const total = Number(order.total || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+
+        orderInfo.innerHTML = `
+          <p><strong>Pedido:</strong> ${order.external_reference}</p>
+          <p><strong>Status:</strong> ${statusLabel}</p>
+          <p><strong>Total:</strong> ${total}</p>
+        `;
+      } catch (err) {
+        console.error("[sucesso] Erro ao carregar pedido:", err?.message);
         orderInfo.innerHTML = "<p>Não foi possível carregar os dados do pedido.</p>";
-        return;
       }
-
-      const total = Number(order.total || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-
-      orderInfo.innerHTML = `
-        <p><strong>Pedido:</strong> ${order.external_reference}</p>
-        <p><strong>Status:</strong> ${order.status}</p>
-        <p><strong>Total:</strong> ${total}</p>
-      `;
     }
 
     carregarPedido();

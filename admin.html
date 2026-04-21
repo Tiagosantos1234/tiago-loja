@@ -605,8 +605,8 @@ async function carregarTudo() {
 }
 
 async function carregarPedidos() {
-  const { data, error } = await supabaseClient.from('orders').select('*').order('created_at', { ascending: false });
-  console.log('[orders] data:', data, 'error:', error);
+  const { data, error } = await supabaseClient.from('orders').select('*').order('created_at', { ascending: false }).limit(200); // P8 fix
+  console.log('[orders] data:', data?.length, 'error:', error);
   if (error) {
     console.error('[orders]', error.message, error.code);
     mostrarErroDB('orders', 'pedidos', error.message);
@@ -617,15 +617,15 @@ async function carregarPedidos() {
 }
 
 async function carregarItensPedidos() {
-  const { data, error } = await supabaseClient.from('order_items').select('*');
-  console.log('[order_items] data:', data, 'error:', error);
+  const { data, error } = await supabaseClient.from('order_items').select('*').limit(600); // P8 fix — 200 pedidos × 3 itens
+  console.log('[order_items] data:', data?.length, 'error:', error);
   if (error) { console.error('[order_items]', error.message); itensPedidos = []; return; }
   itensPedidos = data || [];
 }
 
 async function carregarProdutos() {
-  const { data, error } = await supabaseClient.from('products').select('*').order('created_at', { ascending: false });
-  console.log('[products] data:', data, 'error:', error);
+  const { data, error } = await supabaseClient.from('products').select('*').order('created_at', { ascending: false }).limit(200); // P8 fix
+  console.log('[products] data:', data?.length, 'error:', error);
   if (error) {
     console.error('[products]', error.message, error.code);
     mostrarErroDB('productsList', 'produtos', error.message);
